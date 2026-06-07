@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spese Moto 🏍️</title>
+<meta name="theme-color" content="#0f1115">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMGYxMTE1Ii8+PHRleHQgeD0iOTAiIHk9IjEzMCIgZm9udC1zaXplPSIxMDQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfj43vuI88L3RleHQ+PC9zdmc+">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Spese Moto">
+<style>
+  :root{
+    --bg:#0f1115; --card:#181b22; --card2:#1f2430; --line:#2a3040;
+    --txt:#e7ebf3; --muted:#9aa4b8; --accent:#ff5a1f; --accent2:#3b82f6;
+    --green:#22c55e; --yellow:#eab308; --red:#ef4444;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--txt)}
+  header{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;
+         position:sticky;top:0;background:rgba(15,17,21,.9);backdrop-filter:blur(8px);z-index:10}
+  header h1{font-size:20px;margin:0;font-weight:650}
+  header .sub{color:var(--muted);font-size:13px}
+  .wrap{max-width:1100px;margin:0 auto;padding:22px 18px 60px}
+  .banner{background:#2a2410;border:1px solid #6b5a13;color:#f4d77a;padding:10px 14px;border-radius:10px;
+          margin-bottom:18px;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .banner button{flex:none}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .stat .k{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  .stat .v{font-size:24px;font-weight:680;margin-top:4px}
+  .stat .v small{font-size:13px;color:var(--muted);font-weight:500}
+  h2{font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:30px 0 12px;font-weight:600}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .panel h3{margin:0 0 4px;font-size:14px;font-weight:620}
+  .panel .hint{color:var(--muted);font-size:12px;margin-bottom:8px}
+  svg{width:100%;height:auto;display:block}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:40px 10px}
+  form{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;align-items:end}
+  label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted)}
+  input,select{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:9px;
+        padding:9px 10px;font-size:14px;width:100%}
+  input:focus,select:focus{outline:none;border-color:var(--accent)}
+  button{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:10px 16px;font-size:14px;
+         font-weight:600;cursor:pointer}
+  button:hover{filter:brightness(1.08)}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:500}
+  button.sm{padding:5px 10px;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+  td.auto{color:var(--accent2)}
+  tr:hover td{background:#ffffff05}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+  .row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .tag{font-size:11px;background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:2px 7px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <span style="font-size:26px">🏍️</span>
+  <div>
+    <h1>Spese Moto</h1>
+    <div class="sub">Tracker rifornimenti, consumi e spese — dati salvati su questo computer</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="banner" class="banner" style="display:none">
+    <span>📊 Stai vedendo <b>dati di esempio</b> per mostrarti i grafici. Inizia ad aggiungere i tuoi rifornimenti o svuota tutto.</span>
+    <button class="ghost sm" onclick="clearAll()">Svuota tutto</button>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <h2>Grafici</h2>
+  <div class="grid2">
+    <div class="panel"><h3>Consumo (km/l)</h3><div class="hint">più alto = consumi meno</div><div id="ch-consumo"></div></div>
+    <div class="panel"><h3>Prezzo carburante (€/litro)</h3><div class="hint">quanto paghi al litro nel tempo</div><div id="ch-prezzo"></div></div>
+    <div class="panel"><h3>Spesa per mese (€)</h3><div class="hint">carburante + spese varie</div><div id="ch-mese"></div></div>
+    <div class="panel"><h3>Costo al km (€/km)</h3><div class="hint">quanto ti costa ogni km di benzina</div><div id="ch-eurkm"></div></div>
+  </div>
+
+  <h2>Aggiungi rifornimento</h2>
+  <div class="panel">
+    <form id="form-rif" onsubmit="return addRif(event)">
+      <label>Data<input type="date" id="r-data" required></label>
+      <label>Km (contachilometri)<input type="text" inputmode="numeric" id="r-km" placeholder="es. 10300" required></label>
+      <label>Litri<input type="text" inputmode="decimal" id="r-litri" placeholder="es. 14" required></label>
+      <label>€/litro<input type="text" inputmode="decimal" id="r-prezzo" placeholder="es. 1,85" required></label>
+      <label>Tipo carburante
+        <select id="r-tipo">
+          <option>Benzina 95 (E5)</option><option>Premium 98/100</option>
+          <option>E10</option><option>Altro</option>
+        </select>
+      </label>
+      <button type="submit">+ Aggiungi</button>
+    </form>
+    <div class="hint" style="margin-top:8px">Km = il contachilometri totale della moto; la distanza percorsa la calcola lui.</div>
+  </div>
+
+  <h2>Aggiungi spesa varia</h2>
+  <div class="panel">
+    <form id="form-spesa" onsubmit="return addSpesa(event)">
+      <label>Data<input type="date" id="s-data" required></label>
+      <label>Categoria
+        <select id="s-cat">
+          <option>Tagliando</option><option>Gomme</option><option>Assicurazione</option>
+          <option>Bollo</option><option>Revisione</option><option>Riparazione</option>
+          <option>Accessori</option><option>Altro</option>
+        </select>
+      </label>
+      <label>Descrizione<input type="text" id="s-desc" placeholder="es. cambio olio"></label>
+      <label>Importo €<input type="text" inputmode="decimal" id="s-imp" placeholder="es. 120" required></label>
+      <button type="submit">+ Aggiungi</button>
+    </form>
+  </div>
+
+  <h2>Rifornimenti</h2>
+  <div class="tbl-wrap"><table id="tbl-rif"></table></div>
+
+  <h2>Spese varie</h2>
+  <div class="tbl-wrap"><table id="tbl-spesa"></table></div>
+
+  <div class="row-actions">
+    <button class="ghost" onclick="exportJSON()">⬇︎ Backup (JSON)</button>
+    <button class="ghost" onclick="document.getElementById('imp').click()">⬆︎ Importa backup</button>
+    <input type="file" id="imp" accept="application/json" style="display:none" onchange="importJSON(this)">
+    <button class="ghost" onclick="exportCSV()">⬇︎ Esporta CSV</button>
+    <button class="ghost" onclick="clearAll()">🗑 Svuota tutto</button>
+  </div>
+</div>
+
+<script>
+const K='moto_data_v1';
+const $=id=>document.getElementById(id);
+const EUR=n=>n==null||isNaN(n)?'—':n.toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+const NUM=(n,d=2)=>n==null||isNaN(n)?'—':n.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:d});
+function pNum(s){s=String(s).trim();if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s);}
+const pInt=s=>parseInt(String(s).replace(/[^\d-]/g,''),10);
+const itDate=iso=>{if(!iso)return'';const[y,m,d]=iso.split('-');return d+'/'+m+'/'+y;};
+
+function seed(){return{
+  example:true,
+  rif:[
+    {data:'2026-03-01',km:9500,litri:14,prezzo:1.80,tipo:'Benzina 95 (E5)'},
+    {data:'2026-04-05',km:9780,litri:13,prezzo:1.82,tipo:'Benzina 95 (E5)'},
+    {data:'2026-05-10',km:10050,litri:15,prezzo:1.88,tipo:'Premium 98/100'},
+    {data:'2026-06-01',km:10300,litri:14,prezzo:1.85,tipo:'Benzina 95 (E5)'},
+  ],
+  spese:[
+    {data:'2026-04-10',cat:'Gomme',desc:'Pneumatico posteriore',imp:160},
+    {data:'2026-05-06',cat:'Tagliando',desc:'Cambio olio + filtri',imp:120},
+  ]
+};}
+let DB=load();
+function load(){try{const d=JSON.parse(localStorage.getItem(K));if(d&&d.rif)return d;}catch(e){}return seed();}
+function save(){localStorage.setItem(K,JSON.stringify(DB));render();}
+
+// ---- calcoli ----
+function computed(){
+  const rif=DB.rif.map((r,oi)=>({...r,oi})).sort((a,b)=>a.km-b.km||a.data.localeCompare(b.data));
+  let prev=null;
+  const rows=rif.map(r=>{
+    const costo=r.litri*r.prezzo;
+    const kmP=prev!=null?r.km-prev:null;
+    prev=r.km;
+    const ok=kmP!=null&&kmP>0;
+    return {...r,costo,kmP,
+      kmL: ok?kmP/r.litri:null,
+      l100: ok?r.litri/kmP*100:null,
+      eurKm: ok?costo/kmP:null};
+  });
+  const withDist=rows.filter(r=>r.kmP!=null&&r.kmP>0);
+  const sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
+  const spesaCarb=sum(rows,r=>r.costo);
+  const litriTot=sum(rows,r=>r.litri);
+  const kmTot=sum(withDist,r=>r.kmP);
+  const litriDist=sum(withDist,r=>r.litri);
+  const costoDist=sum(withDist,r=>r.costo);
+  const speseTot=sum(DB.spese,s=>s.imp);
+  return {rows,
+    spesaCarb,litriTot,kmTot,speseTot,
+    nRif:rows.length,
+    kmLavg: kmTot&&litriDist?kmTot/litriDist:null,
+    l100avg: kmTot&&litriDist?litriDist/kmTot*100:null,
+    eurKmAvg: kmTot?costoDist/kmTot:null,
+    eurLavg: litriTot?spesaCarb/litriTot:null,
+    totale:spesaCarb+speseTot};
+}
+
+// ---- render ----
+function render(){
+  const c=computed();
+  document.getElementById('banner').style.display=DB.example?'flex':'none';
+  document.getElementById('cards').innerHTML=[
+    ['Spesa carburante',EUR(c.spesaCarb)],
+    ['Spese varie',EUR(c.speseTot)],
+    ['TOTALE',EUR(c.totale)],
+    ['Consumo medio',c.kmLavg?NUM(c.kmLavg,1)+' <small>km/l</small>':'—'],
+    ['L/100 km',c.l100avg?NUM(c.l100avg,1):'—'],
+    ['Costo al km',c.eurKmAvg?NUM(c.eurKmAvg,3)+' <small>€/km</small>':'—'],
+    ['Prezzo medio',c.eurLavg?NUM(c.eurLavg,3)+' <small>€/l</small>':'—'],
+    ['Km percorsi',NUM(c.kmTot,0)+' <small>km</small>'],
+    ['Rifornimenti',c.nRif],
+  ].map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+
+  const dist=c.rows.filter(r=>r.kmP!=null&&r.kmP>0);
+  lineChart('ch-consumo',dist.map(r=>({x:r.data,y:r.kmL})),{color:'#22c55e',unit:' km/l',dec:1});
+  lineChart('ch-prezzo',c.rows.map(r=>({x:r.data,y:r.prezzo})),{color:'#3b82f6',unit:' €/l',dec:3});
+  lineChart('ch-eurkm',dist.map(r=>({x:r.data,y:r.eurKm})),{color:'#ff5a1f',unit:' €/km',dec:3});
+  barChart('ch-mese',monthly(c));
+
+  // tabella rifornimenti
+  const tr=document.getElementById('tbl-rif');
+  if(!c.rows.length){tr.innerHTML='<tr><td class="empty">Nessun rifornimento. Aggiungine uno sopra.</td></tr>';}
+  else{tr.innerHTML='<tr><th>Data</th><th>Km</th><th>Litri</th><th>€/l</th><th>Tipo</th><th>Costo</th><th>Km perc.</th><th>km/l</th><th>L/100</th><th>€/km</th><th></th></tr>'+
+    c.rows.slice().reverse().map(r=>
+      `<tr><td>${itDate(r.data)}</td><td>${NUM(r.km,0)}</td><td>${NUM(r.litri,2)}</td><td>${NUM(r.prezzo,3)}</td>
+        <td style="text-align:left"><span class="tag">${r.tipo||'—'}</span></td>
+        <td>${EUR(r.costo)}</td><td>${r.kmP!=null?NUM(r.kmP,0):'—'}</td>
+        <td class="auto">${r.kmL!=null?NUM(r.kmL,2):'—'}</td><td class="auto">${r.l100!=null?NUM(r.l100,2):'—'}</td>
+        <td class="auto">${r.eurKm!=null?NUM(r.eurKm,3):'—'}</td>
+        <td><button class="ghost sm" onclick="delRif(${r.oi})">✕</button></td></tr>`).join('');}
+
+  // tabella spese
+  const ts=document.getElementById('tbl-spesa');
+  if(!DB.spese.length){ts.innerHTML='<tr><td class="empty">Nessuna spesa varia.</td></tr>';}
+  else{ts.innerHTML='<tr><th>Data</th><th>Categoria</th><th>Descrizione</th><th>Importo</th><th></th></tr>'+
+    [...DB.spese].map((s,i)=>[s,i]).sort((a,b)=>b[0].data.localeCompare(a[0].data)).map(([s,i])=>
+      `<tr><td>${itDate(s.data)}</td><td><span class="tag">${s.cat}</span></td><td style="text-align:left">${s.desc||''}</td>
+       <td>${EUR(s.imp)}</td><td><button class="ghost sm" onclick="delSpesa(${i})">✕</button></td></tr>`).join('');}
+}
+
+function monthly(c){
+  const m={};
+  c.rows.forEach(r=>{const k=r.data.slice(0,7);m[k]=(m[k]||0)+r.costo;});
+  DB.spese.forEach(s=>{const k=s.data.slice(0,7);m[k]=(m[k]||0)+s.imp;});
+  return Object.keys(m).sort().map(k=>{const[y,mo]=k.split('-');
+    return {label:['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'][+mo-1]+' '+y.slice(2),y:m[k]};});
+}
+
+// ---- grafici SVG ----
+function lineChart(id,data,o){
+  const el=document.getElementById(id);
+  if(data.length<1){el.innerHTML='<div class="empty">Servono almeno 1-2 dati.</div>';return;}
+  const W=460,H=220,pad={l:48,r:14,t:14,b:34};
+  const xs=data.map((d,i)=>i),ys=data.map(d=>d.y);
+  let mn=Math.min(...ys),mx=Math.max(...ys);if(mn===mx){mn-=1;mx+=1;}
+  const rng=mx-mn;mn-=rng*0.1;mx+=rng*0.1;
+  const X=i=>pad.l+(data.length<2?(W-pad.l-pad.r)/2:i/(data.length-1)*(W-pad.l-pad.r));
+  const Y=v=>pad.t+(1-(v-mn)/(mx-mn))*(H-pad.t-pad.b);
+  let g='';
+  for(let t=0;t<=4;t++){const v=mn+(mx-mn)*t/4,y=Y(v);
+    g+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#2a3040"/>`;
+    g+=`<text x="${pad.l-8}" y="${y+4}" fill="#9aa4b8" font-size="11" text-anchor="end">${NUM(v,o.dec)}</text>`;}
+  const pts=data.map((d,i)=>`${X(i)},${Y(d.y)}`).join(' ');
+  let area=`M ${X(0)},${Y(mn)} `+data.map((d,i)=>`L ${X(i)},${Y(d.y)}`).join(' ')+` L ${X(data.length-1)},${Y(mn)} Z`;
+  let dots=data.map((d,i)=>`<circle cx="${X(i)}" cy="${Y(d.y)}" r="3.5" fill="${o.color}"/>
+    <text x="${X(i)}" y="${Y(d.y)-9}" fill="#e7ebf3" font-size="10.5" text-anchor="middle">${NUM(d.y,o.dec)}</text>`).join('');
+  let xl=data.map((d,i)=> (data.length<=8||i%Math.ceil(data.length/8)===0)?
+    `<text x="${X(i)}" y="${H-12}" fill="#9aa4b8" font-size="10" text-anchor="middle">${itDate(d.x).slice(0,5)}</text>`:'').join('');
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}">
+    <defs><linearGradient id="grad${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${o.color}" stop-opacity=".25"/><stop offset="1" stop-color="${o.color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${g}<path d="${area}" fill="url(#grad${id})"/>
+    <polyline points="${pts}" fill="none" stroke="${o.color}" stroke-width="2.5" stroke-linejoin="round"/>
+    ${dots}${xl}</svg>`;
+}
+
+function barChart(id,data){
+  const el=document.getElementById(id);
+  if(!data.length){el.innerHTML='<div class="empty">Nessun dato.</div>';return;}
+  const W=460,H=220,pad={l:48,r:14,t:14,b:34};
+  const mx=Math.max(...data.map(d=>d.y))*1.15||1;
+  const bw=(W-pad.l-pad.r)/data.length;
+  const Y=v=>pad.t+(1-v/mx)*(H-pad.t-pad.b);
+  let g='';
+  for(let t=0;t<=4;t++){const v=mx*t/4,y=Y(v);
+    g+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#2a3040"/>`;
+    g+=`<text x="${pad.l-8}" y="${y+4}" fill="#9aa4b8" font-size="11" text-anchor="end">${NUM(v,0)}</text>`;}
+  let bars=data.map((d,i)=>{const x=pad.l+i*bw+bw*0.18,w=bw*0.64,y=Y(d.y),h=H-pad.b-y;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#ff5a1f"/>
+      <text x="${x+w/2}" y="${y-6}" fill="#e7ebf3" font-size="10.5" text-anchor="middle">${NUM(d.y,0)}</text>
+      <text x="${x+w/2}" y="${H-12}" fill="#9aa4b8" font-size="10" text-anchor="middle">${d.label}</text>`;}).join('');
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}${bars}</svg>`;
+}
+
+// ---- azioni ----
+function touch(){if(DB.example){DB.example=false;}}
+function addRif(e){e.preventDefault();
+  const km=pInt($('r-km').value),litri=pNum($('r-litri').value),prezzo=pNum($('r-prezzo').value),data=$('r-data').value,tipo=$('r-tipo').value;
+  if(!data||isNaN(km)||isNaN(litri)||isNaN(prezzo)){alert('Controlla i campi.');return false;}
+  if(DB.example){DB.rif=[];DB.spese=[];DB.example=false;}
+  DB.rif.push({data,km,litri,prezzo,tipo});save();
+  $('r-km').value=$('r-litri').value=$('r-prezzo').value='';$('r-km').focus();return false;}
+function addSpesa(e){e.preventDefault();
+  const imp=pNum($('s-imp').value),data=$('s-data').value;
+  if(!data||isNaN(imp)){alert('Controlla i campi.');return false;}
+  if(DB.example){DB.rif=[];DB.spese=[];DB.example=false;}
+  DB.spese.push({data,cat:$('s-cat').value,desc:$('s-desc').value,imp});save();
+  $('s-desc').value=$('s-imp').value='';return false;}
+function delRif(i){if(i>=0){DB.rif.splice(i,1);touch();save();}}
+function delSpesa(i){DB.spese.splice(i,1);touch();save();}
+function clearAll(){if(confirm('Cancellare tutti i dati?')){DB={example:false,rif:[],spese:[]};save();}}
+
+function exportJSON(){dl('spese-moto-backup.json',JSON.stringify(DB,null,2),'application/json');}
+function importJSON(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const d=JSON.parse(rd.result);if(d.rif){DB=d;DB.example=false;save();alert('Importato!');}else alert('File non valido.');}
+  catch(e){alert('File non valido.');}};rd.readAsText(f);inp.value='';}
+function exportCSV(){const c=computed();
+  let s='Data;Km;Litri;€/litro;Tipo;Costo;Km percorsi;km/litro;L/100km;€/km\n';
+  c.rows.forEach(r=>{s+=[itDate(r.data),r.km,r.litri,r.prezzo,r.tipo||'',r.costo.toFixed(2),
+     r.kmP??'',r.kmL?r.kmL.toFixed(2):'',r.l100?r.l100.toFixed(2):'',r.eurKm?r.eurKm.toFixed(3):''].join(';')+'\n';});
+  s+='\nSPESE VARIE\nData;Categoria;Descrizione;Importo\n';
+  DB.spese.forEach(x=>s+=[itDate(x.data),x.cat,x.desc,x.imp].join(';')+'\n');
+  dl('spese-moto.csv',s,'text/csv');}
+function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download=name;a.click();}
+
+// default date = oggi
+document.getElementById('r-data').value=new Date().toISOString().slice(0,10);
+document.getElementById('s-data').value=new Date().toISOString().slice(0,10);
+render();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});
+}
+</script>
+</body>
+</html>

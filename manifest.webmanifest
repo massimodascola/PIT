@@ -1,0 +1,26 @@
+{
+  "name": "Spese Moto",
+  "short_name": "Spese Moto",
+  "description": "Tracker rifornimenti, consumi e spese della moto.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1115",
+  "theme_color": "#0f1115",
+  "lang": "it",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMGYxMTE1Ii8+PHRleHQgeD0iOTAiIHk9IjEzMCIgZm9udC1zaXplPSIxMDQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfj43vuI88L3RleHQ+PC9zdmc+",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMGYxMTE1Ii8+PHRleHQgeD0iOTAiIHk9IjEzMCIgZm9udC1zaXplPSIxMDQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfj43vuI88L3RleHQ+PC9zdmc+",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
