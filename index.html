@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Spese Moto</title>
+<title>Pit · Spese Moto</title>
 <meta name="theme-color" content="#0A0A0B">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMGYxMTE1Ii8+PHRleHQgeD0iOTAiIHk9IjEzMCIgZm9udC1zaXplPSIxMDQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfj43vuI88L3RleHQ+PC9zdmc+">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxODE4MUUiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwQTBBMEIiLz48L2xpbmVhckdyYWRpZW50PjxyYWRpYWxHcmFkaWVudCBpZD0iZyIgY3g9IjUwJSIgY3k9IjMwJSIgcj0iNjIlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMzRDZCRjciIHN0b3Atb3BhY2l0eT0iLjQyIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjM0Q2QkY3IiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQyIiBmaWxsPSJ1cmwoI2IpIi8+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MiIgZmlsbD0idXJsKCNnKSIvPjxyZWN0IHg9IjEuNSIgeT0iMS41IiB3aWR0aD0iMTc3IiBoZWlnaHQ9IjE3NyIgcng9IjQwLjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwuMTApIi8+PHRleHQgeD0iOTAiIHk9IjEyMyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyMCIgZm9udC13ZWlnaHQ9IjcwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI0ZGRkZGRiI+UDwvdGV4dD48cmVjdCB4PSI2MCIgeT0iMTMzIiB3aWR0aD0iNjAiIGhlaWdodD0iNyIgcng9IjMuNSIgZmlsbD0iI0ZCQkYyNCIvPjwvc3ZnPg==">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Spese Moto">
+<meta name="apple-mobile-web-app-title" content="Pit">
 <style>
   :root{
     --bg:#0A0A0B; --surface:#151517; --surface-2:#1D1D21; --surface-3:#27272D;
@@ -160,11 +160,11 @@
 <body>
 <header>
   <span class="logo" aria-hidden="true">
-    <svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17h6l4-7h3"/><path d="M9 10h5l2 4"/><path d="M14 6h3"/></svg>
+    <svg width="24" height="24" viewBox="0 0 24 24"><text x="12" y="17.5" font-family="Helvetica,Arial,sans-serif" font-size="18" font-weight="800" text-anchor="middle" fill="#F3F4F6">P</text><rect x="7" y="19" width="10" height="2" rx="1" fill="#FBBF24"/></svg>
   </span>
   <div>
-    <h1>Spese Moto</h1>
-    <div class="sub">Rifornimenti · consumi · scadenze</div>
+    <h1>Pit</h1>
+    <div class="sub">Spese moto · consumi · scadenze</div>
   </div>
   <button id="syncpill" class="pill off" onclick="scrollToSync()" aria-label="Stato sincronizzazione">
     <span class="dot"></span><span id="syncpill-txt">Locale</span>
@@ -519,7 +519,7 @@ function delSpesa(i){DB.spese.splice(i,1);DB.example=false;save();}
 function delScad(i){DB.scadenze.splice(i,1);DB.example=false;save();}
 function clearAll(){if(confirm('Cancellare tutti i dati di questo dispositivo?')){DB={example:false,updatedAt:Date.now(),rif:[],spese:[],scadenze:[]};persistLocal();render();schedulePush();}}
 
-function exportJSON(){dl('spese-moto-backup.json',JSON.stringify({rif:DB.rif,spese:DB.spese,scadenze:DB.scadenze},null,2),'application/json');}
+function exportJSON(){dl('pit-backup.json',JSON.stringify({rif:DB.rif,spese:DB.spese,scadenze:DB.scadenze},null,2),'application/json');}
 function importJSON(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{try{const d=JSON.parse(rd.result);if(d.rif){DB={example:false,updatedAt:Date.now(),rif:d.rif,spese:d.spese||[],scadenze:d.scadenze||[]};save();alert('Importato ✓');}else alert('File non valido.');}catch(e){alert('File non valido.');}};
   rd.readAsText(f);inp.value='';}
@@ -530,7 +530,7 @@ function exportCSV(){const c=computed();
   DB.spese.forEach(x=>{s+=[itDate(x.data),x.cat,x.desc,x.imp].join(';')+'\n';});
   s+='\nSCADENZE\nTipo;Scadenza;Note\n';
   (DB.scadenze||[]).forEach(x=>{s+=[x.tipo,itDate(x.data),x.note||''].join(';')+'\n';});
-  dl('spese-moto.csv',s,'text/csv');}
+  dl('pit.csv',s,'text/csv');}
 function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();}
 
 // ---------- sincronizzazione (GitHub Gist) ----------
@@ -558,7 +558,7 @@ async function enableSync(){
   try{
     const gists=await gh('/gists?per_page=100');
     let g=gists.find(x=>x.files&&x.files[GIST_FILE]);
-    if(!g)g=await gh('/gists',{method:'POST',body:JSON.stringify({description:'Spese Moto — dati sincronizzati',public:false,files:{[GIST_FILE]:{content:JSON.stringify(DB)}}})});
+    if(!g)g=await gh('/gists',{method:'POST',body:JSON.stringify({description:'Pit — dati sincronizzati',public:false,files:{[GIST_FILE]:{content:JSON.stringify(DB)}}})});
     SYNC.gistId=g.id;saveSyncCfg();
     await syncPull(true);setSync('ok');render();
     $('sync-token').value='';alert('Sincronizzazione attivata ✓');

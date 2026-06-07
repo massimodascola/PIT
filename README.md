@@ -1,6 +1,6 @@
-# Spese Moto 🏍️
+# Pit
 
-Tracker dei rifornimenti, dei consumi e delle spese della moto.
+**Pit** — tracker dei rifornimenti, dei consumi, delle spese e delle scadenze della moto.
 App web in **un solo file** (`index.html`), senza backend: i dati restano sul
 tuo dispositivo (localStorage del browser). Installabile come **PWA** e
 utilizzabile **offline**.
