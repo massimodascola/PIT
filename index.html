@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Spese Moto</title>
-<meta name="theme-color" content="#0B1120">
+<meta name="theme-color" content="#0A0A0B">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMGYxMTE1Ii8+PHRleHQgeD0iOTAiIHk9IjEzMCIgZm9udC1zaXplPSIxMDQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfj43vuI88L3RleHQ+PC9zdmc+">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,13 +12,13 @@
 <meta name="apple-mobile-web-app-title" content="Spese Moto">
 <style>
   :root{
-    --bg:#0B1120; --surface:#131B2E; --surface-2:#1B2438; --surface-3:#222C44;
-    --border:rgba(255,255,255,.09); --border-strong:rgba(255,255,255,.16);
-    --txt:#EEF2F9; --muted:#9AA7BD; --faint:#6B7890;
+    --bg:#0A0A0B; --surface:#151517; --surface-2:#1D1D21; --surface-3:#27272D;
+    --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.15);
+    --txt:#F3F4F6; --muted:#9B9BA6; --faint:#6C6C76;
     --primary:#3B82F6; --primary-d:#2563EB; --on-primary:#fff;
     --green:#34D399; --amber:#FBBF24; --red:#F87171; --blue:#60A5FA; --violet:#A78BFA;
     --radius:16px; --radius-sm:11px;
-    --sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+    --sh:0 1px 2px rgba(0,0,0,.5),0 12px 32px -16px rgba(0,0,0,.85);
     --maxw:1080px;
   }
   *{box-sizing:border-box}
@@ -27,6 +27,8 @@
     font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
     font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;
     padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+  body::before{content:"";position:fixed;left:0;right:0;top:0;height:380px;z-index:-1;pointer-events:none;
+    background:radial-gradient(115% 80% at 50% -12%, rgba(80,120,255,.14), rgba(120,90,255,.06) 38%, transparent 64%)}
   .num,td,th,.stat .v,input,select{font-variant-numeric:tabular-nums}
   h1,h2,h3{margin:0}
   a{color:var(--blue)}
@@ -34,10 +36,10 @@
 
   header{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;
     padding:14px 18px;padding-top:calc(14px + env(safe-area-inset-top));
-    background:rgba(11,17,32,.82);backdrop-filter:saturate(140%) blur(12px);
+    background:rgba(10,10,11,.78);backdrop-filter:saturate(140%) blur(12px);
     border-bottom:1px solid var(--border)}
   .logo{width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;
-    background:linear-gradient(150deg,#1E293B,#0E1626);border:1px solid var(--border-strong);color:var(--amber)}
+    background:linear-gradient(150deg,#262630,#121214);border:1px solid var(--border-strong);color:var(--amber)}
   header h1{font-size:18px;font-weight:680;letter-spacing:-.01em}
   header .sub{font-size:12px;color:var(--muted)}
   .pill{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
@@ -91,14 +93,15 @@
   button{font:inherit;cursor:pointer;border:none;border-radius:var(--radius-sm);
     display:inline-flex;align-items:center;justify-content:center;gap:8px;
     min-height:46px;padding:0 18px;font-size:15px;font-weight:650;
-    background:var(--primary);color:var(--on-primary);transition:filter .15s,transform .06s,background .15s}
+    background:linear-gradient(135deg,#3B82F6,#5B63F0);color:var(--on-primary);
+    box-shadow:0 6px 18px -8px rgba(79,110,247,.7);transition:filter .15s,transform .06s}
   button:hover{filter:brightness(1.08)} button:active{transform:translateY(1px)}
-  button.ghost{background:var(--surface-2);color:var(--txt);border:1px solid var(--border-strong);font-weight:550}
+  button.ghost{background:var(--surface-2);color:var(--txt);border:1px solid var(--border-strong);font-weight:550;box-shadow:none}
   button.ghost:hover{background:var(--surface-3);filter:none}
-  button.danger{background:transparent;color:var(--red);border:1px solid rgba(248,113,113,.4)}
+  button.danger{background:transparent;color:var(--red);border:1px solid rgba(248,113,113,.4);box-shadow:none}
   button.danger:hover{background:rgba(248,113,113,.12);filter:none}
   button.sm{min-height:36px;padding:0 12px;font-size:13px}
-  button.iconbtn{min-height:38px;min-width:38px;padding:0;background:transparent;color:var(--faint);border:1px solid transparent}
+  button.iconbtn{min-height:38px;min-width:38px;padding:0;background:transparent;color:var(--faint);border:1px solid transparent;box-shadow:none}
   button.iconbtn:hover{color:var(--red);background:rgba(248,113,113,.12);filter:none}
   form button[type="submit"]{grid-column:1 / -1;justify-self:start}
   input[type="date"]{text-align:center;-webkit-appearance:none;appearance:none;display:block}
