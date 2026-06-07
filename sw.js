@@ -3,7 +3,7 @@
  * sugli asset statici. Online vedi sempre l'ultima versione; offline ricade
  * sulla copia in cache. I dati sono in localStorage, non in cache.
  */
-const CACHE = 'spese-moto-v1.1.0';
+const CACHE = 'spese-moto-v1.1.1';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
