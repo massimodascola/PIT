@@ -104,9 +104,9 @@
   button.iconbtn{min-height:38px;min-width:38px;padding:0;background:transparent;color:var(--faint);border:1px solid transparent;box-shadow:none}
   button.iconbtn:hover{color:var(--red);background:rgba(248,113,113,.12);filter:none}
   form button[type="submit"]{grid-column:1 / -1;justify-self:start}
-  input[type="date"]{text-align:center;-webkit-appearance:none;appearance:none;display:block}
-  input[type="date"]::-webkit-date-and-time-value{text-align:center;margin:0}
-  input[type="date"]::-webkit-datetime-edit{text-align:center;padding:0}
+  input[type="date"]{text-align:left;-webkit-appearance:none;appearance:none;display:flex;align-items:center}
+  input[type="date"]::-webkit-date-and-time-value{text-align:left;margin:0}
+  input[type="date"]::-webkit-datetime-edit{text-align:left;padding:0}
   .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 
   .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--sh)}
