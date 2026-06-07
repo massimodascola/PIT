@@ -6,11 +6,14 @@ tuo dispositivo (localStorage del browser). Installabile come **PWA** e
 utilizzabile **offline**.
 
 ## Funzionalità
-- Inserimento rifornimenti: data, km (contachilometri), litri, €/litro, **tipo carburante**.
+- Inserimento rifornimenti: data, km (contachilometri), litri, €/litro, **tipo carburante**, **benzinaio**.
 - Calcoli automatici: costo, km percorsi, **km/litro**, L/100 km, €/km.
+- **Scadenze** (assicurazione, bollo, revisione, tagliando…) con urgenza a colori (scaduta / ≤30 giorni / ok) e avviso in cima.
+- **Confronto distributori**: prezzo medio €/litro per benzinaio, dal più conveniente.
 - Spese varie (tagliando, gomme, bollo, assicurazione, …).
 - Riepilogo: spesa carburante/varie, totale, **consumo medio**, prezzo medio, costo al km.
-- 4 grafici (SVG, nessuna dipendenza esterna): consumo, prezzo carburante, spesa per mese, costo al km.
+- 5 grafici (SVG, nessuna dipendenza esterna): consumo, prezzo carburante, spesa per mese, costo al km, confronto benzinai.
+- **Sincronizzazione tra dispositivi via GitHub Gist** (token con scope `gist`, salvato solo sul dispositivo).
 - Backup/ripristino dati in **JSON** ed export **CSV**.
 
 > Il consumo medio esclude i litri dei pieni senza km associati (es. il primissimo
