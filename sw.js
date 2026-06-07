@@ -1,9 +1,9 @@
-/* Spese Moto — service worker
+/* Pit — service worker
  * Strategia: network-first sulle navigazioni (index.html), cache-first
  * sugli asset statici. Online vedi sempre l'ultima versione; offline ricade
  * sulla copia in cache. I dati sono in localStorage, non in cache.
  */
-const CACHE = 'spese-moto-v1.1.5';
+const CACHE = 'pit-v1.2.0';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
