@@ -100,6 +100,8 @@
   button.sm{min-height:36px;padding:0 12px;font-size:13px}
   button.iconbtn{min-height:38px;min-width:38px;padding:0;background:transparent;color:var(--faint);border:1px solid transparent}
   button.iconbtn:hover{color:var(--red);background:rgba(248,113,113,.12);filter:none}
+  form button[type="submit"]{grid-column:1 / -1;justify-self:start}
+  input[type="date"]{text-align:left}
   .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 
   .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--sh)}
@@ -135,6 +137,18 @@
   .inline-input label{flex:1;min-width:200px}
   .footer{color:var(--faint);font-size:12px;text-align:center;margin:34px 0 8px}
 
+  @media(max-width:640px){
+    .wrap{padding:14px 12px 0}
+    .section{margin-top:22px}
+    .panel{padding:14px}
+    form{grid-template-columns:1fr;gap:11px}
+    form button[type="submit"]{justify-self:stretch}
+    .cards{gap:10px}
+    header .sub{display:none}
+    .inline-input{flex-direction:column;align-items:stretch}
+    .inline-input label{min-width:0}
+    .inline-input button{width:100%}
+  }
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
