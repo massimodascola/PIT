@@ -1,6 +1,6 @@
 # Pit
 
-**Pit** — tracker dei rifornimenti, dei consumi, delle spese e delle scadenze della moto.
+**Pit** — tracker dei rifornimenti, dei consumi, delle spese e delle scadenze dei tuoi veicoli.
 App web in **un solo file** (`index.html`), senza backend: i dati restano sul
 tuo dispositivo (localStorage del browser). Installabile come **PWA** e
 utilizzabile **offline**.
@@ -14,6 +14,7 @@ utilizzabile **offline**.
 - Riepilogo: spesa carburante/varie, totale, **consumo medio**, prezzo medio, costo al km.
 - 5 grafici (SVG, nessuna dipendenza esterna): consumo, prezzo carburante, spesa per mese, costo al km, confronto benzinai.
 - **Sincronizzazione tra dispositivi via GitHub Gist** (token con scope `gist`, salvato solo sul dispositivo).
+- **Scansione scontrino con AI**: scatta o scegli una foto e un servizio di visione (Anthropic, OpenAI o Google — con la *tua* chiave API, salvata solo sul dispositivo) compila data, litri, prezzo, importo e benzinaio.
 - Backup/ripristino dati in **JSON** ed export **CSV**.
 
 > Il consumo medio esclude i litri dei pieni senza km associati (es. il primissimo
@@ -36,7 +37,3 @@ Apri il link pubblicato (GitHub Pages) sul telefono → menù del browser →
 - `index.html` — l'app completa (UI, logica, grafici).
 - `manifest.webmanifest` — metadati PWA (nome, icona, colori).
 - `sw.js` — service worker (cache offline; network-first sull'HTML).
-
-### Alternativa su Google Sheets (storico)
-`genera_foglio.py` + `spese_moto.csv` sono un primo tentativo che generava un
-Google Sheet con le stesse formule. Mantenuti come riferimento; l'app è la via principale.
