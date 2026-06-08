@@ -177,6 +177,17 @@
   .veh-name{font-weight:620;font-size:14.5px;display:flex;align-items:center;gap:8px}
   .veh-sub{font-size:12px;color:var(--muted)}
 
+  /* filtro carburante + prezzo medio per carburante */
+  .fuelbar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;box-shadow:var(--sh)}
+  .fuelbar .ic{color:var(--faint)}
+  .fuelbar-lab{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+  .fuelbar select{flex:1;max-width:280px;height:42px;min-height:42px}
+  .vf-row{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--border)}
+  .vf-row:last-child{border-bottom:none}
+  .vf-val{margin-left:auto;font-weight:700;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;white-space:nowrap}
+  .vf-val small{font-size:11px;color:var(--muted);font-weight:500;font-family:inherit}
+  .vf-sub{font-size:12px;color:var(--muted);white-space:nowrap}
+
   .sync-help{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6}
   .sync-help code{background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:12px}
   .inline-input{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
@@ -250,8 +261,22 @@
 
     <div id="alert-scad" class="section" style="display:none"></div>
 
+    <div class="section" id="fuel-filter-row" style="display:none">
+      <div class="fuelbar">
+        <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h12M5 21V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v16M5 12h8M15 8h2l2 2v7a2 2 0 0 1-4 0v-3h-2"/></svg>
+        <span class="fuelbar-lab">Confronto prezzi</span>
+        <select id="fuel-filter" onchange="setFuelFilter(this.value)"></select>
+      </div>
+      <div class="hint" style="margin:8px 2px 0">Filtra prezzo medio, grafico prezzo e distributori: carburanti diversi (es. Benzina e Premium) non sono confrontabili tra loro.</div>
+    </div>
+
     <div class="section">
       <div class="cards" id="cards"></div>
+    </div>
+
+    <div class="section" id="byfuel-section" style="display:none">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5s6.5 7 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.5 12 2.5 12 2.5z"/></svg> Prezzo medio per carburante</div>
+      <div class="panel"><div class="hint">ogni carburante ha il suo prezzo: qui la media di ciascuno, separata</div><div id="byfuel"></div></div>
     </div>
 
     <div class="section">
@@ -536,7 +561,12 @@ function computed(){
   const st={};
   rows.forEach(r=>{const k=(r.benz||'').trim();if(!k)return;(st[k]=st[k]||{litri:0,costo:0,n:0});st[k].litri+=r.litri;st[k].costo+=r.costo;st[k].n++;});
   const stations=Object.keys(st).map(k=>({nome:k,avg:st[k].costo/st[k].litri,n:st[k].n})).sort((a,b)=>a.avg-b.avg);
-  return {rows,stations,spesaCarb,litriTot,kmTot,speseTot,nRif:rows.length,
+  // medie €/l per tipo di carburante (separate: tipi diversi non sono confrontabili)
+  const fm={};
+  rows.forEach(r=>{const t=r.tipo||'Altro';(fm[t]=fm[t]||{litri:0,costo:0,n:0});fm[t].litri+=r.litri;fm[t].costo+=r.costo;fm[t].n++;});
+  const byFuel=Object.keys(fm).map(t=>({tipo:t,avg:fm[t].costo/fm[t].litri,litri:fm[t].litri,n:fm[t].n})).sort((a,b)=>b.litri-a.litri);
+  const fuelTypes=byFuel.map(f=>f.tipo);
+  return {rows,stations,byFuel,fuelTypes,spesaCarb,litriTot,kmTot,speseTot,nRif:rows.length,
     kmLavg:kmTot&&litriDist?kmTot/litriDist:null, l100avg:kmTot&&litriDist?litriDist/kmTot*100:null,
     eurKmAvg:kmTot?costoDist/kmTot:null, eurLavg:litriTot?spesaCarb/litriTot:null, totale:spesaCarb+speseTot};
 }
@@ -563,10 +593,42 @@ const EDITICON='<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4
 const PLUSICON='<path d="M12 5v14"/><path d="M5 12h14"/>';
 
 // ---------- render ----------
+let fuelFilter='';
+function setFuelFilter(v){fuelFilter=v||'';render();}
+function renderFuelFilter(types){
+  const row=$('fuel-filter-row'),sel=$('fuel-filter');
+  if(!types||types.length<2){row.style.display='none';return;}
+  row.style.display='';
+  sel.innerHTML='<option value="">Tutti i carburanti</option>'+types.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  sel.value=fuelFilter;
+}
+function renderByFuel(byFuel){
+  const sec=$('byfuel-section');
+  if(!byFuel||byFuel.length<2){sec.style.display='none';return;}
+  sec.style.display='';
+  $('byfuel').innerHTML=byFuel.map(f=>`<div class="vf-row">
+      <span class="chip">${esc(f.tipo)}</span>
+      <span class="vf-val">${NUM(f.avg,3)} <small>€/l</small></span>
+      <span class="vf-sub">${f.n} rif · ${NUM(f.litri,0)} L</span></div>`).join('');
+}
 function render(){
   const V=cur(), c=computed();
+  if(fuelFilter && !c.fuelTypes.includes(fuelFilter)) fuelFilter='';
   $('banner').style.display=DB.example?'flex':'none';
   $('benzlist').innerHTML=[...new Set(V.rif.map(r=>(r.benz||'').trim()).filter(Boolean))].map(b=>`<option value="${esc(b)}">`).join('');
+
+  renderFuelFilter(c.fuelTypes);
+  renderByFuel(c.byFuel);
+
+  // confronti di prezzo: limitati al carburante scelto (tipi diversi non sono paragonabili)
+  const multi=c.fuelTypes.length>1;
+  const pr=fuelFilter?c.rows.filter(r=>(r.tipo||'Altro')===fuelFilter):c.rows;
+  const pLitri=pr.reduce((s,r)=>s+r.litri,0), pCosto=pr.reduce((s,r)=>s+r.costo,0);
+  const pEurL=pLitri?pCosto/pLitri:null;
+  const prezzoLab='Prezzo medio'+(fuelFilter?' · '+fuelFilter:(multi?' · misto':''));
+  const pst={};
+  pr.forEach(r=>{const k=(r.benz||'').trim();if(!k)return;(pst[k]=pst[k]||{litri:0,costo:0});pst[k].litri+=r.litri;pst[k].costo+=r.costo;});
+  const pStations=Object.keys(pst).map(k=>({nome:k,avg:pst[k].costo/pst[k].litri})).sort((a,b)=>a.avg-b.avg);
 
   $('cards').innerHTML=[
     ['Spesa carburante',EUR(c.spesaCarb),'big'],
@@ -575,17 +637,17 @@ function render(){
     ['Consumo medio',c.kmLavg?NUM(c.kmLavg,1)+' <small>km/l</small>':'—'],
     ['L/100 km',c.l100avg?NUM(c.l100avg,1):'—'],
     ['Costo al km',c.eurKmAvg?NUM(c.eurKmAvg,3)+' <small>€/km</small>':'—'],
-    ['Prezzo medio',c.eurLavg?NUM(c.eurLavg,3)+' <small>€/l</small>':'—'],
+    [prezzoLab,pEurL!=null?NUM(pEurL,3)+' <small>€/l</small>':'—'],
     ['Km percorsi',NUM(c.kmTot,0)+' <small>km</small>'],
     ['Rifornimenti',c.nRif],
   ].map(([lab,v,cls])=>`<div class="stat ${cls||''}"><div class="k">${lab}</div><div class="v">${v}</div></div>`).join('');
 
   const dist=c.rows.filter(r=>r.kmP!=null&&r.kmP>0);
   lineChart('ch-consumo',dist.map(r=>({x:r.data,y:r.kmL})),{color:'#34D399',dec:1});
-  lineChart('ch-prezzo',c.rows.map(r=>({x:r.data,y:r.prezzo})),{color:'#FBBF24',dec:3});
+  lineChart('ch-prezzo',pr.map(r=>({x:r.data,y:r.prezzo})),{color:'#FBBF24',dec:3});
   lineChart('ch-eurkm',dist.map(r=>({x:r.data,y:r.eurKm})),{color:'#F87171',dec:3});
   barChart('ch-mese',monthly(c));
-  stationChart('ch-stations',c.stations);
+  stationChart('ch-stations',pStations);
 
   renderScad();
   renderTables(c);
@@ -702,7 +764,7 @@ function renderVehicles(){
 function switchVehicle(id){
   if(!DB.vehicles.some(v=>v.id===id))return;
   if(editRif!=null)cancelEditRif(); if(editSpesa!=null)cancelEditSpesa(); if(editScad!=null)cancelEditScad();
-  DB.currentId=id;persistLocal();render();
+  DB.currentId=id;fuelFilter='';persistLocal();render();
 }
 let editVeh=null;
 function startEditVehicle(id){const x=DB.vehicles.find(v=>v.id===id);if(!x)return;editVeh=id;

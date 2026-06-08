@@ -3,7 +3,7 @@
  * sugli asset statici. Online vedi sempre l'ultima versione; offline ricade
  * sulla copia in cache. I dati sono in localStorage, non in cache.
  */
-const CACHE = 'pit-v1.4.2';
+const CACHE = 'pit-v1.5.0';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest',
   './icon-180.png', './icon-192.png', './icon-512.png'];
 
