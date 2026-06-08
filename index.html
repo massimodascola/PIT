@@ -105,6 +105,19 @@
   button.iconbtn{min-height:38px;min-width:38px;padding:0;background:transparent;color:var(--faint);border:1px solid transparent;box-shadow:none}
   button.iconbtn:hover{color:var(--red);background:rgba(248,113,113,.12);filter:none}
   form button[type="submit"]{grid-column:1 / -1;justify-self:start}
+  .form-actions{grid-column:1 / -1;display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+  .form-actions button{min-height:46px}
+  form.editing::before{content:"✏️ Stai modificando questa voce";grid-column:1 / -1;
+    font-size:12.5px;font-weight:650;color:#FBBF24;background:rgba(251,191,36,.10);
+    border:1px solid rgba(251,191,36,.28);border-radius:10px;padding:8px 12px}
+  form.editing button[type="submit"]{background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#1A1205;
+    box-shadow:0 6px 18px -8px rgba(251,191,36,.7)}
+  td.acts{white-space:nowrap;text-align:center}
+  td.acts .iconbtn{margin:0 1px}
+  button.iconbtn.edit:hover{color:#5B8DEF;background:rgba(91,141,239,.12)}
+  .scan-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
+  .scan-row button{flex:0 0 auto}
+  .scan-row .hint{flex:1 1 100%;margin:0;color:var(--muted);font-size:12.5px}
   input[type="date"]{text-align:left;-webkit-appearance:none;appearance:none;display:flex;align-items:center}
   input[type="date"]::-webkit-date-and-time-value{text-align:left;margin:0}
   input[type="date"]::-webkit-datetime-edit{text-align:left;padding:0}
@@ -149,6 +162,7 @@
     .panel{padding:14px}
     form{grid-template-columns:1fr;gap:11px}
     form button[type="submit"]{justify-self:stretch}
+    .form-actions button{flex:1}
     .cards{gap:10px}
     header .sub{display:none}
     .inline-input{flex-direction:column;align-items:stretch}
@@ -198,6 +212,14 @@
   <div class="section">
     <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi rifornimento</div>
     <div class="panel">
+      <div class="scan-row">
+        <button type="button" class="ghost" id="scan-btn" onclick="$('scan-file').click()">
+          <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg>
+          Scansiona scontrino
+        </button>
+        <input type="file" id="scan-file" accept="image/*" capture="environment" hidden onchange="scanReceipt(this)">
+        <span class="hint" id="scan-status" style="display:none"></span>
+      </div>
       <form id="form-rif" onsubmit="return addRif(event)">
         <label>Data<input type="date" id="r-data" required></label>
         <label>Km (contachilometri)<input type="text" inputmode="numeric" id="r-km" placeholder="es. 10300" required></label>
@@ -207,7 +229,10 @@
           <select id="r-tipo"><option>Benzina 95 (E5)</option><option>Premium 98/100</option><option>E10</option><option>Altro</option></select>
         </label>
         <label>Benzinaio<input type="text" id="r-benz" list="benzlist" placeholder="es. Eni Via Roma"></label>
-        <button type="submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
+        <div class="form-actions">
+          <button type="submit" id="rif-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
+          <button type="button" class="ghost" id="rif-cancel" hidden onclick="cancelEditRif()">Annulla</button>
+        </div>
       </form>
       <datalist id="benzlist"></datalist>
       <div class="hint" style="margin:10px 0 0">Km = contachilometri totale; la distanza la calcola l'app.</div>
@@ -228,7 +253,10 @@
         </label>
         <label>Scadenza<input type="date" id="sc-data" required></label>
         <label>Note<input type="text" id="sc-note" placeholder="es. compagnia, importo…"></label>
-        <button type="submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
+        <div class="form-actions">
+          <button type="submit" id="scad-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
+          <button type="button" class="ghost" id="scad-cancel" hidden onclick="cancelEditScad()">Annulla</button>
+        </div>
       </form>
       <div id="scad-list" class="scad-list" style="margin-top:14px"></div>
     </div>
@@ -244,7 +272,10 @@
         </label>
         <label>Descrizione<input type="text" id="s-desc" placeholder="es. cambio olio"></label>
         <label>Importo €<input type="text" inputmode="decimal" id="s-imp" placeholder="es. 120" required></label>
-        <button type="submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
+        <div class="form-actions">
+          <button type="submit" id="spesa-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
+          <button type="button" class="ghost" id="spesa-cancel" hidden onclick="cancelEditSpesa()">Annulla</button>
+        </div>
       </form>
     </div>
   </div>
@@ -374,6 +405,8 @@ const SCAD_ICON={
 };
 const svgI=(p,sz)=>`<svg class="ic" width="${sz||18}" height="${sz||18}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 const XICON='<path d="M18 6 6 18"/><path d="M6 6l12 12"/>';
+const EDITICON='<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>';
+const PLUSICON='<path d="M12 5v14"/><path d="M5 12h14"/>';
 
 // ---------- render ----------
 function render(){
@@ -423,6 +456,7 @@ function renderScad(){
       <span class="ico-wrap">${svgI(SCAD_ICON[s.tipo]||SCAD_ICON.Altro,18)}</span>
       <div class="meta"><div class="t">${esc(s.tipo)}</div><div class="d">${itDate(s.data)}${s.note?' · '+esc(s.note):''}</div></div>
       <span class="badge">${s.st.label}</span>
+      <button class="iconbtn edit" aria-label="Modifica scadenza" onclick="startEditScad(${s.oi})">${svgI(EDITICON,15)}</button>
       <button class="iconbtn" aria-label="Elimina scadenza" onclick="delScad(${s.oi})">${svgI(XICON,16)}</button>
     </div>`).join('');
 }
@@ -436,14 +470,14 @@ function renderTables(c){
       <td style="text-align:left">${r.benz?esc(r.benz):'—'}</td>
       <td>${EUR(r.costo)}</td><td>${r.kmP!=null?NUM(r.kmP,0):'—'}</td>
       <td class="auto">${r.kmL!=null?NUM(r.kmL,2):'—'}</td><td class="auto">${r.eurKm!=null?NUM(r.eurKm,3):'—'}</td>
-      <td><button class="iconbtn" aria-label="Elimina" onclick="delRif(${r.oi})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
+      <td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditRif(${r.oi})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delRif(${r.oi})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
 
   const ts=$('tbl-spesa');
   if(!DB.spese.length)ts.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessuna spesa varia.</td></tr></tbody>';
   else ts.innerHTML='<thead><tr><th>Data</th><th>Categoria</th><th>Descrizione</th><th>Importo</th><th></th></tr></thead><tbody>'+
     DB.spese.map((s,i)=>[s,i]).sort((a,b)=>b[0].data.localeCompare(a[0].data)).map(([s,i])=>
       `<tr><td>${itDate(s.data)}</td><td><span class="chip">${esc(s.cat)}</span></td><td style="text-align:left">${esc(s.desc||'')}</td>
-       <td>${EUR(s.imp)}</td><td><button class="iconbtn" aria-label="Elimina" onclick="delSpesa(${i})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
+       <td>${EUR(s.imp)}</td><td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditSpesa(${i})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delSpesa(${i})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
 }
 
 function monthly(c){
@@ -498,26 +532,143 @@ function stationChart(id,st){
 
 // ---------- azioni ----------
 function clearExample(){if(DB.example){DB.rif=[];DB.spese=[];DB.scadenze=[];DB.example=false;}}
+// numero (1.85) -> stringa form italiana ("1,85")
+const fNum=n=>(n==null||isNaN(n))?'':String(n).replace('.',',');
+// ---- modifica voci esistenti ----
+let editRif=null, editSpesa=null, editScad=null;
+function setEditMode(sub,can,on){
+  const b=$(sub); b.innerHTML=svgI(on?EDITICON:PLUSICON,18)+(on?' Salva modifiche':' Aggiungi');
+  $(can).hidden=!on;
+  const f=b.closest('form'); if(f) f.classList.toggle('editing',on);
+}
+function startEditRif(i){const r=DB.rif[i];if(!r)return;editRif=i;
+  $('r-data').value=r.data;$('r-km').value=r.km;$('r-litri').value=fNum(r.litri);$('r-prezzo').value=fNum(r.prezzo);
+  $('r-tipo').value=r.tipo||'Benzina 95 (E5)';$('r-benz').value=r.benz||'';
+  setEditMode('rif-submit','rif-cancel',true);$('form-rif').scrollIntoView({behavior:'smooth',block:'center'});$('r-km').focus();}
+function cancelEditRif(){editRif=null;setEditMode('rif-submit','rif-cancel',false);
+  $('r-data').value=todayISO();$('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';}
 function addRif(e){e.preventDefault();
   const km=pInt($('r-km').value),litri=pNum($('r-litri').value),prezzo=pNum($('r-prezzo').value),data=$('r-data').value;
   if(!data||isNaN(km)||isNaN(litri)||isNaN(prezzo)){alert('Controlla i campi.');return false;}
-  clearExample();
-  DB.rif.push({data,km,litri,prezzo,tipo:$('r-tipo').value,benz:$('r-benz').value.trim()});save();
+  const rec={data,km,litri,prezzo,tipo:$('r-tipo').value,benz:$('r-benz').value.trim()};
+  if(editRif!=null){DB.rif[editRif]=rec;editRif=null;DB.example=false;setEditMode('rif-submit','rif-cancel',false);}
+  else{clearExample();DB.rif.push(rec);}
+  save();
   $('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';$('r-km').focus();return false;}
+
+// ---------- scansione scontrino (OCR on-device, Tesseract.js) ----------
+let _tess=null;
+function loadTesseract(){
+  if(_tess) return _tess;
+  _tess=new Promise((resolve,reject)=>{
+    if(window.Tesseract) return resolve(window.Tesseract);
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload=()=>resolve(window.Tesseract);
+    s.onerror=()=>{_tess=null;reject(new Error('load'));};
+    document.head.appendChild(s);
+  });
+  return _tess;
+}
+// "14,23" / "1.234,56" / "1.859" -> Number (formati scontrini italiani)
+function ocrNum(s){s=String(s).replace(/[^\d.,]/g,'');
+  if(s.includes(',')) s=s.replace(/\./g,'').replace(',','.');
+  return parseFloat(s);}
+const FUEL_BRANDS=['Eni','Agip','Q8','Esso','Tamoil','Shell','Repsol','TotalErg','Total','Energas','Beyfin','Keropetrol','Carrefour','Conad','Esselunga','IP','Api'];
+function parseReceipt(raw){
+  const flat=String(raw||'').replace(/ /g,' ').replace(/[ \t]+/g,' ');
+  const out={};
+  // DATA: gg/mm/aaaa, gg-mm-aa, gg.mm.aaaa
+  let m=flat.match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
+  if(m){let d=+m[1],mo=+m[2],y=+m[3]; if(y<100)y+=2000;
+    if(d>=1&&d<=31&&mo>=1&&mo<=12) out.data=y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
+  // LITRI: vicino a LITRI/EROGATO/LT
+  let litri;
+  // etichetta litri a inizio token (esclude "€/LITRO", "EUR/L" che sono il prezzo)
+  m=flat.match(/(?:^|[\s(])(?:EROGATO|QUANTIT|VOLUME|LITRI|LITRO|LITRES)\D{0,8}(\d{1,3}[.,]\d{1,3})/im)
+   ||flat.match(/(\d{1,3}[.,]\d{1,3})[ \t]*(?:LITRI|LITRO|LT\b|L\b)/i)          // valore poi unità: "9,80 L"
+   ||flat.match(/(?:^|[\s(])(?:LT|L)\b[ \t:.]{0,3}(\d{1,3}[.,]\d{1,3})/im);     // "Lt 30,00" / "L 10,92" (non €/L)
+  if(m) litri=ocrNum(m[1]);
+  // €/LITRO: ancorato a PREZZO/€-L; fallback al valore a 3 decimali in range carburante
+  let prezzo;
+  m=flat.match(/(?:PREZZO|PRZ|UNITARIO|P\.?\s?U\.?|€\s*\/\s*l|eur\s*\/\s*l|al litro)\D{0,8}(\d[.,]\d{2,3})/i);
+  if(m) prezzo=ocrNum(m[1]);
+  if(prezzo==null||!(prezzo>=0.8&&prezzo<=3.5)){
+    const c=[...flat.matchAll(/(\d[.,]\d{3})(?!\d)/g)].map(x=>ocrNum(x[1])).filter(v=>v>=0.8&&v<=3.5);
+    if(c.length) prezzo=c[0];
+  }
+  // TOTALE: vicino a TOTALE/IMPORTO/EURO/PAGATO
+  let totale;
+  m=flat.match(/(?:TOTALE|IMPORTO|TOT\.?|PAGATO|EURO|€)\D{0,8}(\d{1,4}[.,]\d{2})\b/i);
+  if(m) totale=ocrNum(m[1]);
+  // litri uguale al prezzo = aggancio errato → scarta e ricalcola dal totale
+  if(litri!=null && prezzo!=null && Math.abs(litri-prezzo)<0.005) litri=null;
+  // riempi il dato mancante usando litri × €/litro ≈ totale
+  if(litri==null && prezzo && totale) litri=totale/prezzo;
+  if(prezzo==null && litri && totale) prezzo=totale/litri;
+  if(litri!=null && litri>0 && litri<200) out.litri=litri;
+  if(prezzo!=null && prezzo>=0.8 && prezzo<=3.5) out.prezzo=prezzo;
+  // BENZINAIO: marche note
+  for(const b of FUEL_BRANDS){
+    if(new RegExp('\\b'+b+'\\b','i').test(flat)){out.benz=b;break;}
+  }
+  return out;
+}
+async function scanReceipt(input){
+  const f=input.files&&input.files[0]; input.value='';
+  if(!f) return;
+  const st=$('scan-status'),btn=$('scan-btn');
+  st.style.display=''; btn.disabled=true;
+  const show=(t,c)=>{st.textContent=t;st.style.color=c||'';};
+  show('Carico il riconoscimento…');
+  try{
+    const T=await loadTesseract();
+    show('Riconoscimento… 0%');
+    const {data}=await T.recognize(f,'ita',{logger:m=>{
+      if(m.status==='recognizing text') show('Riconoscimento… '+Math.round(m.progress*100)+'%');
+    }});
+    const r=parseReceipt(data.text), got=[];
+    if(r.data){$('r-data').value=r.data;got.push('data');}
+    if(r.litri!=null){$('r-litri').value=r.litri.toFixed(2).replace('.',',');got.push('litri');}
+    if(r.prezzo!=null){$('r-prezzo').value=r.prezzo.toFixed(3).replace('.',',');got.push('€/litro');}
+    if(r.benz){$('r-benz').value=r.benz;got.push('benzinaio');}
+    if(got.length){
+      show('Letto: '+got.join(', ')+'. Ora inserisci i KM e premi «Aggiungi».','#34D399');
+      $('r-km').focus(); $('r-km').scrollIntoView({behavior:'smooth',block:'center'});
+    } else show('Non sono riuscito a leggere i dati — inseriscili a mano.','#FBBF24');
+  }catch(e){
+    show('Riconoscimento non disponibile (serve la rete al primo uso).','#FBBF24');
+  }finally{ btn.disabled=false; }
+}
+function startEditSpesa(i){const s=DB.spese[i];if(!s)return;editSpesa=i;
+  $('s-data').value=s.data;$('s-cat').value=s.cat;$('s-desc').value=s.desc||'';$('s-imp').value=fNum(s.imp);
+  setEditMode('spesa-submit','spesa-cancel',true);$('form-spesa').scrollIntoView({behavior:'smooth',block:'center'});$('s-desc').focus();}
+function cancelEditSpesa(){editSpesa=null;setEditMode('spesa-submit','spesa-cancel',false);
+  $('s-data').value=todayISO();$('s-desc').value=$('s-imp').value='';}
 function addSpesa(e){e.preventDefault();
   const imp=pNum($('s-imp').value),data=$('s-data').value;
   if(!data||isNaN(imp)){alert('Controlla i campi.');return false;}
-  clearExample();
-  DB.spese.push({data,cat:$('s-cat').value,desc:$('s-desc').value,imp});save();
+  const rec={data,cat:$('s-cat').value,desc:$('s-desc').value,imp};
+  if(editSpesa!=null){DB.spese[editSpesa]=rec;editSpesa=null;DB.example=false;setEditMode('spesa-submit','spesa-cancel',false);}
+  else{clearExample();DB.spese.push(rec);}
+  save();
   $('s-desc').value=$('s-imp').value='';return false;}
+function startEditScad(i){const s=(DB.scadenze||[])[i];if(!s)return;editScad=i;
+  $('sc-tipo').value=s.tipo;$('sc-data').value=s.data;$('sc-note').value=s.note||'';
+  setEditMode('scad-submit','scad-cancel',true);$('form-scad').scrollIntoView({behavior:'smooth',block:'center'});$('sc-note').focus();}
+function cancelEditScad(){editScad=null;setEditMode('scad-submit','scad-cancel',false);
+  $('sc-data').value=todayISO();$('sc-note').value='';}
 function addScad(e){e.preventDefault();
   const data=$('sc-data').value;if(!data){alert('Inserisci la data.');return false;}
-  clearExample();DB.scadenze=DB.scadenze||[];
-  DB.scadenze.push({tipo:$('sc-tipo').value,data,note:$('sc-note').value.trim()});save();
+  DB.scadenze=DB.scadenze||[];
+  const rec={tipo:$('sc-tipo').value,data,note:$('sc-note').value.trim()};
+  if(editScad!=null){DB.scadenze[editScad]=rec;editScad=null;DB.example=false;setEditMode('scad-submit','scad-cancel',false);}
+  else{clearExample();DB.scadenze.push(rec);}
+  save();
   $('sc-note').value='';return false;}
-function delRif(i){if(i>=0){DB.rif.splice(i,1);DB.example=false;save();}}
-function delSpesa(i){DB.spese.splice(i,1);DB.example=false;save();}
-function delScad(i){DB.scadenze.splice(i,1);DB.example=false;save();}
+function delRif(i){if(i>=0){if(editRif!=null)cancelEditRif();DB.rif.splice(i,1);DB.example=false;save();}}
+function delSpesa(i){if(editSpesa!=null)cancelEditSpesa();DB.spese.splice(i,1);DB.example=false;save();}
+function delScad(i){if(editScad!=null)cancelEditScad();DB.scadenze.splice(i,1);DB.example=false;save();}
 function clearAll(){if(confirm('Cancellare tutti i dati di questo dispositivo?')){DB={example:false,updatedAt:Date.now(),rif:[],spese:[],scadenze:[]};persistLocal();render();schedulePush();}}
 
 function exportJSON(){dl('pit-backup.json',JSON.stringify({rif:DB.rif,spese:DB.spese,scadenze:DB.scadenze},null,2),'application/json');}
@@ -592,7 +743,12 @@ if(SYNC.token&&SYNC.gistId){setSync('syncing');syncPull().then(()=>setSync('ok')
 else setSync('off');
 </script>
 <script>
-if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});}
+if('serviceWorker' in navigator){
+  var _hadCtrl=!!navigator.serviceWorker.controller, _swReloaded=false;
+  // nuova versione attiva (deploy aggiornato) -> ricarica una volta per non restare su una versione vecchia
+  navigator.serviceWorker.addEventListener('controllerchange',function(){if(!_hadCtrl||_swReloaded)return;_swReloaded=true;location.reload();});
+  window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});
+}
 </script>
 </body>
 </html>
