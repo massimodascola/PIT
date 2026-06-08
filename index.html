@@ -229,7 +229,7 @@
         <label>Litri<input type="text" inputmode="decimal" id="r-litri" placeholder="es. 14" required></label>
         <label>€/litro<input type="text" inputmode="decimal" id="r-prezzo" placeholder="es. 1,85" required></label>
         <label>Tipo
-          <select id="r-tipo"><option>Benzina 95 (E5)</option><option>Premium 98/100</option><option>E10</option><option>Altro</option></select>
+          <select id="r-tipo"><option>Benzina</option><option>Benzina Premium</option><option>Diesel</option><option>GPL</option><option>Metano</option><option>Altro</option></select>
         </label>
         <label>Benzinaio<input type="text" id="r-benz" list="benzlist" placeholder="es. Eni Via Roma"></label>
         <div class="form-actions">
@@ -339,7 +339,7 @@
           <button onclick="enableSync()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Attiva</button>
         </div>
         <div class="sync-help">
-          Crea il token qui → <a href="https://github.com/settings/tokens/new?scopes=gist&description=Spese+Moto" target="_blank" rel="noopener">github.com/settings/tokens</a> (scope: <code>gist</code>).<br>
+          Crea il token qui → <a href="https://github.com/settings/tokens/new?scopes=gist&description=Pit" target="_blank" rel="noopener">github.com/settings/tokens</a> (scope: <code>gist</code>).<br>
           Il token resta solo su questo dispositivo (non viene caricato online né incluso nei backup). I dati vengono salvati in un <b>Gist segreto</b> sul tuo account.
         </div>
       </div>
@@ -373,10 +373,10 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 function seed(){return{
   example:true, updatedAt:0,
   rif:[
-    {data:'2026-03-01',km:9500,litri:14,prezzo:1.80,tipo:'Benzina 95 (E5)',benz:'Eni Via Roma'},
-    {data:'2026-04-05',km:9780,litri:13,prezzo:1.82,tipo:'Benzina 95 (E5)',benz:'Q8 Tangenziale'},
-    {data:'2026-05-10',km:10050,litri:15,prezzo:1.88,tipo:'Premium 98/100',benz:'Eni Via Roma'},
-    {data:'2026-06-01',km:10300,litri:14,prezzo:1.85,tipo:'Benzina 95 (E5)',benz:'IP Centro'},
+    {data:'2026-03-01',km:9500,litri:14,prezzo:1.80,tipo:'Benzina',benz:'Eni Via Roma'},
+    {data:'2026-04-05',km:9780,litri:13,prezzo:1.82,tipo:'Diesel',benz:'Q8 Tangenziale'},
+    {data:'2026-05-10',km:10050,litri:15,prezzo:1.88,tipo:'Benzina Premium',benz:'Eni Via Roma'},
+    {data:'2026-06-01',km:10300,litri:14,prezzo:1.85,tipo:'Benzina',benz:'IP Centro'},
   ],
   spese:[
     {data:'2026-04-10',cat:'Gomme',desc:'Pneumatico posteriore',imp:160},
@@ -564,6 +564,8 @@ function stationChart(id,st){
 function clearExample(){if(DB.example){DB.rif=[];DB.spese=[];DB.scadenze=[];DB.example=false;}}
 // numero (1.85) -> stringa form italiana ("1,85")
 const fNum=n=>(n==null||isNaN(n))?'':String(n).replace('.',',');
+// aggiunge un tipo carburante non in elenco (es. dati storici) così l'edit lo mostra
+function ensureTipo(v){if(!v)return;const sel=$('r-tipo');if([...sel.options].some(o=>o.value===v))return;const o=document.createElement('option');o.value=v;o.textContent=v;sel.insertBefore(o,sel.lastElementChild);}
 // ---- modifica voci esistenti ----
 let editRif=null, editSpesa=null, editScad=null;
 function setEditMode(sub,can,on){
@@ -573,7 +575,7 @@ function setEditMode(sub,can,on){
 }
 function startEditRif(i){const r=DB.rif[i];if(!r)return;editRif=i;
   $('r-data').value=r.data;$('r-km').value=r.km;$('r-litri').value=fNum(r.litri);$('r-prezzo').value=fNum(r.prezzo);
-  $('r-tipo').value=r.tipo||'Benzina 95 (E5)';$('r-benz').value=r.benz||'';
+  ensureTipo(r.tipo);$('r-tipo').value=r.tipo||'Benzina';$('r-benz').value=r.benz||'';
   setEditMode('rif-submit','rif-cancel',true);$('form-rif').scrollIntoView({behavior:'smooth',block:'center'});$('r-km').focus();}
 function cancelEditRif(){editRif=null;setEditMode('rif-submit','rif-cancel',false);
   $('r-data').value=todayISO();$('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';}
