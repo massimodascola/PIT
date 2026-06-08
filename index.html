@@ -37,8 +37,8 @@
   [hidden]{display:none!important}
 
   /* barra superiore: header + nav (su desktop restano in alto insieme) */
-  .topbar{position:sticky;top:0;z-index:30;background:rgba(10,10,11,.82);
-    backdrop-filter:saturate(140%) blur(12px);border-bottom:1px solid var(--border)}
+  /* niente backdrop-filter qui: creerebbe un containing-block per la nav fixed (che finirebbe in alto invece che in basso su mobile) */
+  .topbar{position:sticky;top:0;z-index:30;background:#0D0D0F;border-bottom:1px solid var(--border)}
   header{display:flex;align-items:center;gap:12px;max-width:var(--maxw);margin:0 auto;
     padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top))}
   .logo{width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;
@@ -112,13 +112,14 @@
     background:linear-gradient(135deg,#3B82F6,#5B63F0);color:var(--on-primary);
     box-shadow:0 6px 18px -8px rgba(79,110,247,.7);transition:filter .15s,transform .06s}
   button:hover{filter:brightness(1.08)} button:active{transform:translateY(1px)}
-  button.ghost{background:var(--surface-2);color:var(--txt);border:1px solid var(--border-strong);font-weight:550;box-shadow:none}
-  button.ghost:hover{background:var(--surface-3);filter:none}
+  button.ghost{background:var(--surface-3);color:var(--txt);border:1px solid var(--border-strong);font-weight:600;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 4px 14px -10px rgba(0,0,0,.8)}
+  button.ghost:hover{background:#30303A;border-color:rgba(255,255,255,.22);filter:none}
   button.danger{background:transparent;color:var(--red);border:1px solid rgba(248,113,113,.4);box-shadow:none}
   button.danger:hover{background:rgba(248,113,113,.12);filter:none}
   button.sm{min-height:36px;padding:0 12px;font-size:13px}
-  button.iconbtn{min-height:38px;min-width:38px;padding:0;background:transparent;color:var(--faint);border:1px solid transparent;box-shadow:none}
-  button.iconbtn:hover{color:var(--red);background:rgba(248,113,113,.12);filter:none}
+  button.iconbtn{min-height:38px;min-width:38px;padding:0;background:var(--surface-3);color:var(--muted);border:1px solid var(--border);box-shadow:none}
+  button.iconbtn:hover{color:var(--red);background:rgba(248,113,113,.14);border-color:rgba(248,113,113,.35);filter:none}
   form button[type="submit"]{grid-column:1 / -1;justify-self:start}
   .form-actions{grid-column:1 / -1;display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
   .form-actions button{min-height:46px}
@@ -129,10 +130,12 @@
     box-shadow:0 6px 18px -8px rgba(251,191,36,.7)}
   td.acts{white-space:nowrap;text-align:center}
   td.acts .iconbtn{margin:0 1px}
-  button.iconbtn.edit:hover{color:#5B8DEF;background:rgba(91,141,239,.12)}
-  .scan-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
-  .scan-row button{flex:0 0 auto}
-  .scan-row .hint{flex:1 1 100%;margin:0;color:var(--muted);font-size:12.5px}
+  button.iconbtn.edit:hover{color:#5B8DEF;background:rgba(91,141,239,.14);border-color:rgba(91,141,239,.35)}
+  .scan-row{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+  .scan-btns{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+  .scan-btns button{flex:0 0 auto}
+  #scan-pill{align-self:flex-start}
+  .scan-row .hint{margin:0;color:var(--muted);font-size:12.5px}
   input[type="date"]{text-align:left;-webkit-appearance:none;appearance:none;display:flex;align-items:center}
   input[type="date"]::-webkit-date-and-time-value{text-align:left;margin:0}
   input[type="date"]::-webkit-datetime-edit{text-align:left;padding:0}
@@ -159,8 +162,8 @@
   .scad .ico-wrap{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}
   .scad .meta{flex:1;min-width:0}
   .scad .t{font-weight:620;font-size:14.5px}
-  .scad .d{font-size:12.5px;color:var(--muted)}
-  .scad .badge{font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;white-space:nowrap}
+  .scad .d{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+  .scad .badge{flex:none;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;white-space:nowrap}
   .red{--c:var(--red)} .amber{--c:var(--amber)} .green{--c:var(--green)}
   .scad.red{border-left-color:var(--red)} .scad.amber{border-left-color:var(--amber)} .scad.green{border-left-color:var(--green)}
   .scad .ico-wrap{background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c)}
@@ -191,6 +194,10 @@
     .inline-input{flex-direction:column;align-items:stretch}
     .inline-input label{min-width:0}
     .inline-input button{width:100%}
+    .scad{gap:9px;padding:11px}
+    .scad .ico-wrap{width:30px;height:30px}
+    .scad .badge{font-size:11px;padding:4px 8px}
+    .scad .iconbtn{min-width:34px;min-height:34px}
   }
   /* mobile: nav fissa in basso */
   @media(max-width:780px){
@@ -266,18 +273,20 @@
       <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi rifornimento</div>
       <div class="panel">
         <div class="scan-row">
-          <button type="button" class="ghost" id="scan-cam" onclick="pickReceipt(true)">
-            <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg>
-            Scatta foto
-          </button>
-          <button type="button" class="ghost" id="scan-gal" onclick="pickReceipt(false)">
-            <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg>
-            Dalla galleria
-          </button>
-          <input type="file" id="scan-file" accept="image/*" hidden onchange="scanReceipt(this)">
-          <span class="chip off" id="scan-pill" style="margin-left:auto">AI non configurata</span>
-          <span class="hint" id="scan-status" style="display:none;flex:1 1 100%"></span>
-          <span class="hint" id="scan-hint" style="flex:1 1 100%">Scatta o scegli la foto dello scontrino: l'AI legge data, litri, prezzo e benzinaio. A te restano solo i KM. <a href="#" onclick="scrollToAI();return false">Configura le chiavi AI</a>.</span>
+          <div class="scan-btns">
+            <button type="button" class="ghost" id="scan-cam" onclick="pickReceipt(true)">
+              <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg>
+              Scatta foto
+            </button>
+            <button type="button" class="ghost" id="scan-gal" onclick="pickReceipt(false)">
+              <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg>
+              Dalla galleria
+            </button>
+            <input type="file" id="scan-file" accept="image/*" hidden onchange="scanReceipt(this)">
+          </div>
+          <span class="chip off" id="scan-pill">AI non configurata</span>
+          <span class="hint" id="scan-status" style="display:none"></span>
+          <span class="hint" id="scan-hint">Scatta o scegli la foto dello scontrino: l'AI legge data, litri, prezzo e benzinaio. A te restano solo i KM. <a href="#" onclick="scrollToAI();return false">Configura le chiavi AI</a>.</span>
         </div>
         <form id="form-rif" onsubmit="return addRif(event)">
           <label>Data<input type="date" id="r-data" required></label>
