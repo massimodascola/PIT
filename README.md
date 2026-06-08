@@ -6,6 +6,8 @@ tuo dispositivo (localStorage del browser). Installabile come **PWA** e
 utilizzabile **offline**.
 
 ## Funzionalità
+- **Più veicoli**: ogni veicolo (nome, tipo, targa) ha i propri rifornimenti, spese, scadenze e analitiche; si cambia veicolo dal selettore in alto, si gestiscono in **Impostazioni**.
+- **Navigazione a pagine**: Panoramica, Rifornimenti, Spese, Scadenze, Impostazioni — barra in basso su mobile, in alto su desktop.
 - Inserimento rifornimenti: data, km (contachilometri), litri, €/litro, **tipo carburante**, **benzinaio**.
 - Calcoli automatici: costo, km percorsi, **km/litro**, L/100 km, €/km.
 - **Scadenze** (assicurazione, bollo, revisione, tagliando…) con urgenza a colori (scaduta / ≤30 giorni / ok) e avviso in cima.
@@ -21,10 +23,12 @@ utilizzabile **offline**.
 > rifornimento), così la media non viene falsata.
 
 ## Uso
-Apri l'app, scorri ai moduli "Aggiungi rifornimento" / "Aggiungi spesa varia",
-compila e premi **+ Aggiungi**. I dati di esempio spariscono al primo inserimento
-(o premi **Svuota tutto**). Fai ogni tanto un **Backup (JSON)**: i dati vivono nel
-browser di quel dispositivo, non sul cloud.
+Scegli il veicolo dal selettore in alto, spostati tra le pagine con la barra di
+navigazione (Panoramica / Rifornimenti / Spese / Scadenze / Impostazioni), compila
+i moduli e premi **+ Aggiungi**. I dati di esempio spariscono al primo inserimento
+(o premi **Svuota tutto** in Impostazioni). Aggiungi e gestisci i veicoli da
+**Impostazioni › Veicoli**. Fai ogni tanto un **Backup (JSON)** (include tutti i
+veicoli): i dati vivono nel browser di quel dispositivo, non sul cloud.
 
 In locale: apri direttamente `index.html` nel browser (il service worker si attiva
 solo via http/https, quindi l'offline-PWA funziona dalla versione pubblicata).
