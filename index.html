@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Pit · Spese Moto</title>
+<title>Pit</title>
 <meta name="theme-color" content="#0A0A0B">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
@@ -135,6 +135,7 @@
   .chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;
     background:var(--surface-3);border:1px solid var(--border);border-radius:999px;padding:3px 9px;color:var(--muted)}
   .chip .ic{color:var(--faint)}
+  .chip.ok{color:var(--green);border-color:rgba(52,211,153,.32)} .chip.off{color:var(--faint)}
 
   /* scadenze */
   .scad-list{display:flex;flex-direction:column;gap:9px}
@@ -175,12 +176,8 @@
 <body>
 <header>
   <span class="logo" aria-hidden="true">
-    <svg width="24" height="24" viewBox="0 0 24 24"><text x="12" y="17.5" font-family="Helvetica,Arial,sans-serif" font-size="18" font-weight="800" text-anchor="middle" fill="#F3F4F6">P</text><rect x="7" y="19" width="10" height="2" rx="1" fill="#FBBF24"/></svg>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2s5.6 5.9 5.6 10.4a5.6 5.6 0 1 1-11.2 0C6 9.1 12 3.2 12 3.2z"/></svg>
   </span>
-  <div>
-    <h1>Pit</h1>
-    <div class="sub">Spese moto · consumi · scadenze</div>
-  </div>
   <button id="syncpill" class="pill off" onclick="scrollToSync()" aria-label="Stato sincronizzazione">
     <span class="dot"></span><span id="syncpill-txt">Locale</span>
   </button>
@@ -213,12 +210,18 @@
     <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi rifornimento</div>
     <div class="panel">
       <div class="scan-row">
-        <button type="button" class="ghost" id="scan-btn" onclick="$('scan-file').click()">
+        <button type="button" class="ghost" id="scan-cam" onclick="pickReceipt(true)">
           <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg>
-          Scansiona scontrino
+          Scatta foto
         </button>
-        <input type="file" id="scan-file" accept="image/*" capture="environment" hidden onchange="scanReceipt(this)">
-        <span class="hint" id="scan-status" style="display:none"></span>
+        <button type="button" class="ghost" id="scan-gal" onclick="pickReceipt(false)">
+          <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg>
+          Dalla galleria
+        </button>
+        <input type="file" id="scan-file" accept="image/*" hidden onchange="scanReceipt(this)">
+        <span class="chip off" id="scan-pill" style="margin-left:auto">AI non configurata</span>
+        <span class="hint" id="scan-status" style="display:none;flex:1 1 100%"></span>
+        <span class="hint" id="scan-hint" style="flex:1 1 100%">Scatta o scegli la foto dello scontrino: l'AI legge data, litri, prezzo e benzinaio. A te restano solo i KM. <a href="#" onclick="scrollToAI();return false">Configura le chiavi AI</a>.</span>
       </div>
       <form id="form-rif" onsubmit="return addRif(event)">
         <label>Data<input type="date" id="r-data" required></label>
@@ -288,6 +291,33 @@
   <div class="section">
     <div class="section-h">Spese varie</div>
     <div class="tbl-wrap"><table id="tbl-spesa"></table></div>
+  </div>
+
+  <div class="section" id="ai-section">
+    <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg> Scansione scontrini (AI)</div>
+    <div class="panel">
+      <p class="hint" style="margin:0 0 12px">Per leggere gli scontrini da una foto serve la <b>tua</b> chiave API di un servizio AI con visione. La chiave resta solo su questo dispositivo: non finisce nei backup né nella sincronizzazione. Ogni scansione consuma una piccola quota sul tuo account del servizio.</p>
+      <form onsubmit="return saveAI(event)">
+        <label>Servizio
+          <select id="ai-provider" onchange="onAIProvider()">
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (GPT)</option>
+            <option value="google">Google (Gemini)</option>
+          </select>
+        </label>
+        <label>Chiave API
+          <input type="password" id="ai-key" placeholder="incolla la tua chiave API" autocomplete="off">
+        </label>
+        <label>Modello (opzionale)
+          <input type="text" id="ai-model" placeholder="claude-haiku-4-5">
+        </label>
+        <div class="form-actions">
+          <button type="submit"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Salva</button>
+          <button type="button" class="danger" id="ai-clear" hidden onclick="clearAI()">Rimuovi chiave</button>
+        </div>
+      </form>
+      <div class="sync-help" id="ai-help"></div>
+    </div>
   </div>
 
   <div class="section" id="sync-section">
@@ -556,89 +586,135 @@ function addRif(e){e.preventDefault();
   save();
   $('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';$('r-km').focus();return false;}
 
-// ---------- scansione scontrino (OCR on-device, Tesseract.js) ----------
-let _tess=null;
-function loadTesseract(){
-  if(_tess) return _tess;
-  _tess=new Promise((resolve,reject)=>{
-    if(window.Tesseract) return resolve(window.Tesseract);
-    const s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-    s.onload=()=>resolve(window.Tesseract);
-    s.onerror=()=>{_tess=null;reject(new Error('load'));};
-    document.head.appendChild(s);
-  });
-  return _tess;
+// ---------- scansione scontrino (visione AI · chiave dell'utente) ----------
+const AIK='pit_ai';
+const AI_DEFAULTS={anthropic:'claude-haiku-4-5',openai:'gpt-4o-mini',google:'gemini-2.0-flash'};
+const AI_LABEL={anthropic:'Anthropic (Claude)',openai:'OpenAI (GPT)',google:'Google (Gemini)'};
+const AI_HELP={
+  anthropic:'Crea una chiave su <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Modello economico con visione: <code>claude-haiku-4-5</code>.',
+  openai:'Crea una chiave su <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>. Modello economico con visione: <code>gpt-4o-mini</code>.',
+  google:'Crea una chiave su <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com</a>. Modello economico con visione: <code>gemini-2.0-flash</code>.'
+};
+let AI=loadAI();
+function loadAI(){try{return JSON.parse(localStorage.getItem(AIK))||{};}catch(e){return{};}}
+function saveAICfg(){localStorage.setItem(AIK,JSON.stringify(AI));}
+function aiReady(){return !!(AI&&AI.key&&AI.provider);}
+function scrollToAI(){$('ai-section').scrollIntoView({behavior:'smooth',block:'start'});}
+function renderAI(){
+  const p=AI.provider||'anthropic';
+  $('ai-provider').value=p;
+  $('ai-model').value=AI.model||'';
+  $('ai-model').placeholder=AI_DEFAULTS[p];
+  $('ai-key').value='';
+  $('ai-key').placeholder=AI.key?'•••••••••• (salvata su questo dispositivo)':'incolla la tua chiave API';
+  $('ai-clear').hidden=!AI.key;
+  $('ai-help').innerHTML=AI_HELP[p];
+  const ps=$('scan-pill');
+  if(ps){ps.textContent=aiReady()?(AI_LABEL[p]+' · '+(AI.model||AI_DEFAULTS[p])):'AI non configurata';ps.className='chip '+(aiReady()?'ok':'off');}
 }
-// "14,23" / "1.234,56" / "1.859" -> Number (formati scontrini italiani)
-function ocrNum(s){s=String(s).replace(/[^\d.,]/g,'');
-  if(s.includes(',')) s=s.replace(/\./g,'').replace(',','.');
-  return parseFloat(s);}
-const FUEL_BRANDS=['Eni','Agip','Q8','Esso','Tamoil','Shell','Repsol','TotalErg','Total','Energas','Beyfin','Keropetrol','Carrefour','Conad','Esselunga','IP','Api'];
-function parseReceipt(raw){
-  const flat=String(raw||'').replace(/ /g,' ').replace(/[ \t]+/g,' ');
-  const out={};
-  // DATA: gg/mm/aaaa, gg-mm-aa, gg.mm.aaaa
-  let m=flat.match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
-  if(m){let d=+m[1],mo=+m[2],y=+m[3]; if(y<100)y+=2000;
-    if(d>=1&&d<=31&&mo>=1&&mo<=12) out.data=y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
-  // LITRI: vicino a LITRI/EROGATO/LT
-  let litri;
-  // etichetta litri a inizio token (esclude "€/LITRO", "EUR/L" che sono il prezzo)
-  m=flat.match(/(?:^|[\s(])(?:EROGATO|QUANTIT|VOLUME|LITRI|LITRO|LITRES)\D{0,8}(\d{1,3}[.,]\d{1,3})/im)
-   ||flat.match(/(\d{1,3}[.,]\d{1,3})[ \t]*(?:LITRI|LITRO|LT\b|L\b)/i)          // valore poi unità: "9,80 L"
-   ||flat.match(/(?:^|[\s(])(?:LT|L)\b[ \t:.]{0,3}(\d{1,3}[.,]\d{1,3})/im);     // "Lt 30,00" / "L 10,92" (non €/L)
-  if(m) litri=ocrNum(m[1]);
-  // €/LITRO: ancorato a PREZZO/€-L; fallback al valore a 3 decimali in range carburante
-  let prezzo;
-  m=flat.match(/(?:PREZZO|PRZ|UNITARIO|P\.?\s?U\.?|€\s*\/\s*l|eur\s*\/\s*l|al litro)\D{0,8}(\d[.,]\d{2,3})/i);
-  if(m) prezzo=ocrNum(m[1]);
-  if(prezzo==null||!(prezzo>=0.8&&prezzo<=3.5)){
-    const c=[...flat.matchAll(/(\d[.,]\d{3})(?!\d)/g)].map(x=>ocrNum(x[1])).filter(v=>v>=0.8&&v<=3.5);
-    if(c.length) prezzo=c[0];
-  }
-  // TOTALE: vicino a TOTALE/IMPORTO/EURO/PAGATO
-  let totale;
-  m=flat.match(/(?:TOTALE|IMPORTO|TOT\.?|PAGATO|EURO|€)\D{0,8}(\d{1,4}[.,]\d{2})\b/i);
-  if(m) totale=ocrNum(m[1]);
-  // litri uguale al prezzo = aggancio errato → scarta e ricalcola dal totale
-  if(litri!=null && prezzo!=null && Math.abs(litri-prezzo)<0.005) litri=null;
-  // riempi il dato mancante usando litri × €/litro ≈ totale
-  if(litri==null && prezzo && totale) litri=totale/prezzo;
-  if(prezzo==null && litri && totale) prezzo=totale/litri;
-  if(litri!=null && litri>0 && litri<200) out.litri=litri;
-  if(prezzo!=null && prezzo>=0.8 && prezzo<=3.5) out.prezzo=prezzo;
-  // BENZINAIO: marche note
-  for(const b of FUEL_BRANDS){
-    if(new RegExp('\\b'+b+'\\b','i').test(flat)){out.benz=b;break;}
-  }
-  return out;
-}
+function onAIProvider(){const p=$('ai-provider').value;$('ai-model').placeholder=AI_DEFAULTS[p];$('ai-help').innerHTML=AI_HELP[p];}
+function saveAI(e){e.preventDefault();
+  const p=$('ai-provider').value,key=$('ai-key').value.trim(),model=$('ai-model').value.trim();
+  AI.provider=p;AI.model=model;
+  if(key)AI.key=key;
+  if(!AI.key){alert('Inserisci la chiave API del servizio scelto.');return false;}
+  saveAICfg();renderAI();alert('Configurazione AI salvata ✓');return false;}
+function clearAI(){if(!confirm('Rimuovere la chiave API da questo dispositivo?'))return;AI={};saveAICfg();renderAI();}
+
+// numero da testo/numero, tollerante ai formati ("1,85" / "1.234,56" / 14)
+function toNum(v){if(v==null)return null;if(typeof v==='number')return isFinite(v)?v:null;
+  let s=String(v).replace(/[^\d.,-]/g,'');
+  if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');
+  else if(s.includes(','))s=s.replace(',','.');
+  const n=parseFloat(s);return isFinite(n)?n:null;}
+
+// immagine -> JPEG base64 ridimensionato (meno banda, meno costo, orientamento corretto)
+function fileToJpeg(file,maxDim,quality){return new Promise((resolve,reject)=>{
+  const url=URL.createObjectURL(file),img=new Image();
+  img.onload=()=>{URL.revokeObjectURL(url);
+    let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
+    const s=Math.min(1,maxDim/Math.max(w,h));
+    w=Math.max(1,Math.round(w*s));h=Math.max(1,Math.round(h*s));
+    const c=document.createElement('canvas');c.width=w;c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    resolve(c.toDataURL('image/jpeg',quality).split(',')[1]);};
+  img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Immagine non leggibile.'));};
+  img.src=url;});}
+
+const RECEIPT_PROMPT='Sei un assistente che legge scontrini di rifornimento carburante (italiani). Estrai i dati dalla foto e rispondi SOLO con un oggetto JSON, senza testo ne markdown, con esattamente questi campi: {"data":"AAAA-MM-GG o null","litri":numero o null,"prezzo_litro":numero o null,"importo":numero o null,"benzinaio":"testo o null","carburante":"testo o null"}. Regole: usa il punto come separatore decimale; "litri" e la quantita erogata, "prezzo_litro" il prezzo al litro (di norma tra 0.3 e 4 euro), "importo" il totale pagato; "benzinaio" e la marca/insegna (es. Eni, Q8, IP, Esso); "carburante" il tipo (es. Benzina, Diesel, GPL); non inventare nulla, usa null se un dato non e leggibile.';
+
+function parseAIJson(txt){
+  if(!txt)throw new Error('Risposta vuota dal servizio AI.');
+  let s=String(txt).trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();
+  const a=s.indexOf('{'),b=s.lastIndexOf('}');if(a>=0&&b>a)s=s.slice(a,b+1);
+  try{return JSON.parse(s);}catch(e){throw new Error('Il servizio AI non ha restituito dati leggibili.');}}
+
+async function aiErr(r){let m='';try{const e=await r.json();m=(e.error&&(e.error.message||e.error.type))||'';}catch(_){}
+  if(r.status===401||r.status===403)return 'Chiave API non valida o senza permessi.';
+  if(r.status===429)return 'Limite richieste o credito esaurito sul servizio AI.';
+  return 'Errore '+r.status+(m?': '+m:'')+'.';}
+
+async function aiAnthropic(key,model,b64){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','content-type':'application/json'},
+    body:JSON.stringify({model,max_tokens:512,messages:[{role:'user',content:[
+      {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+      {type:'text',text:RECEIPT_PROMPT}]}]})});
+  if(!r.ok)throw new Error(await aiErr(r));
+  const d=await r.json();
+  return parseAIJson((d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(''));}
+
+async function aiOpenAI(key,model,b64){
+  const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
+    headers:{'Authorization':'Bearer '+key,'content-type':'application/json'},
+    body:JSON.stringify({model,max_tokens:512,messages:[{role:'user',content:[
+      {type:'text',text:RECEIPT_PROMPT},
+      {type:'image_url',image_url:{url:'data:image/jpeg;base64,'+b64}}]}]})});
+  if(!r.ok)throw new Error(await aiErr(r));
+  const d=await r.json();const m=((d.choices||[])[0]||{}).message;
+  return parseAIJson((m&&m.content)||'');}
+
+async function aiGoogle(key,model,b64){
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(key),{method:'POST',
+    headers:{'content-type':'application/json'},
+    body:JSON.stringify({contents:[{parts:[{text:RECEIPT_PROMPT},{inline_data:{mime_type:'image/jpeg',data:b64}}]}]})});
+  if(!r.ok)throw new Error(await aiErr(r));
+  const d=await r.json();
+  const parts=((((d.candidates||[])[0]||{}).content||{}).parts)||[];
+  return parseAIJson(parts.map(x=>x.text||'').join(''));}
+
+function extractWithAI(b64){
+  const p=AI.provider||'anthropic',model=(AI.model||AI_DEFAULTS[p]),key=AI.key;
+  if(p==='anthropic')return aiAnthropic(key,model,b64);
+  if(p==='openai')return aiOpenAI(key,model,b64);
+  if(p==='google')return aiGoogle(key,model,b64);
+  return Promise.reject(new Error('Servizio AI non supportato.'));}
+
+function showScan(t,c){const st=$('scan-status');st.style.display='';st.textContent=t;st.style.color=c||'';}
+function pickReceipt(cam){const i=$('scan-file');if(cam)i.setAttribute('capture','environment');else i.removeAttribute('capture');i.click();}
+
 async function scanReceipt(input){
-  const f=input.files&&input.files[0]; input.value='';
-  if(!f) return;
-  const st=$('scan-status'),btn=$('scan-btn');
-  st.style.display=''; btn.disabled=true;
-  const show=(t,c)=>{st.textContent=t;st.style.color=c||'';};
-  show('Carico il riconoscimento…');
+  const f=input.files&&input.files[0];input.value='';
+  if(!f)return;
+  if(!aiReady()){showScan('Prima configura una chiave API qui sotto (sezione «Scansione scontrini»).','#FBBF24');scrollToAI();return;}
+  const cam=$('scan-cam'),gal=$('scan-gal');cam.disabled=gal.disabled=true;
   try{
-    const T=await loadTesseract();
-    show('Riconoscimento… 0%');
-    const {data}=await T.recognize(f,'ita',{logger:m=>{
-      if(m.status==='recognizing text') show('Riconoscimento… '+Math.round(m.progress*100)+'%');
-    }});
-    const r=parseReceipt(data.text), got=[];
-    if(r.data){$('r-data').value=r.data;got.push('data');}
-    if(r.litri!=null){$('r-litri').value=r.litri.toFixed(2).replace('.',',');got.push('litri');}
-    if(r.prezzo!=null){$('r-prezzo').value=r.prezzo.toFixed(3).replace('.',',');got.push('€/litro');}
-    if(r.benz){$('r-benz').value=r.benz;got.push('benzinaio');}
-    if(got.length){
-      show('Letto: '+got.join(', ')+'. Ora inserisci i KM e premi «Aggiungi».','#34D399');
-      $('r-km').focus(); $('r-km').scrollIntoView({behavior:'smooth',block:'center'});
-    } else show('Non sono riuscito a leggere i dati — inseriscili a mano.','#FBBF24');
-  }catch(e){
-    show('Riconoscimento non disponibile (serve la rete al primo uso).','#FBBF24');
-  }finally{ btn.disabled=false; }
+    showScan('Preparo l\'immagine…');
+    const b64=await fileToJpeg(f,1600,0.8);
+    showScan('Leggo lo scontrino con l\'AI…');
+    const r=await extractWithAI(b64),got=[];
+    if(r.data&&/^\d{4}-\d{2}-\d{2}$/.test(r.data)){$('r-data').value=r.data;got.push('data');}
+    let litri=toNum(r.litri),prezzo=toNum(r.prezzo_litro),importo=toNum(r.importo);
+    if(litri==null&&prezzo&&importo)litri=importo/prezzo;
+    if(prezzo==null&&litri&&importo)prezzo=importo/litri;
+    if(litri!=null&&litri>0&&litri<300){$('r-litri').value=litri.toFixed(2).replace('.',',');got.push('litri');}
+    if(prezzo!=null&&prezzo>=0.3&&prezzo<=4){$('r-prezzo').value=prezzo.toFixed(3).replace('.',',');got.push('€/litro');}
+    if(r.benzinaio){$('r-benz').value=String(r.benzinaio);got.push('benzinaio');}
+    if(r.carburante){const t=String(r.carburante).toLowerCase();const opt=[...$('r-tipo').options].find(o=>{const v=o.value.toLowerCase();return v.includes(t)||t.includes(v.split(' ')[0]);});if(opt)$('r-tipo').value=opt.value;}
+    if(got.length){showScan('Letto: '+got.join(', ')+'. Controlla i dati, inserisci i KM e premi «Aggiungi».','#34D399');$('r-km').focus();$('r-km').scrollIntoView({behavior:'smooth',block:'center'});}
+    else showScan('Non sono riuscito a leggere i dati — inseriscili a mano.','#FBBF24');
+  }catch(e){showScan(e.message||'Errore durante la lettura dello scontrino.','#F87171');}
+  finally{cam.disabled=gal.disabled=false;}
 }
 function startEditSpesa(i){const s=DB.spese[i];if(!s)return;editSpesa=i;
   $('s-data').value=s.data;$('s-cat').value=s.cat;$('s-desc').value=s.desc||'';$('s-imp').value=fNum(s.imp);
@@ -738,7 +814,7 @@ function scrollToSync(){$('sync-section').scrollIntoView({behavior:'smooth',bloc
 
 // ---------- init ----------
 $('r-data').value=todayISO();$('s-data').value=todayISO();$('sc-data').value=todayISO();
-render();
+renderAI();render();
 if(SYNC.token&&SYNC.gistId){setSync('syncing');syncPull().then(()=>setSync('ok')).catch(e=>setSync('error',e.message));}
 else setSync('off');
 </script>
