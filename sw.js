@@ -3,8 +3,9 @@
  * sugli asset statici. Online vedi sempre l'ultima versione; offline ricade
  * sulla copia in cache. I dati sono in localStorage, non in cache.
  */
-const CACHE = 'pit-v1.2.0';
-const PRECACHE = ['./', './index.html', './manifest.webmanifest'];
+const CACHE = 'pit-v1.2.1';
+const PRECACHE = ['./', './index.html', './manifest.webmanifest',
+  './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
