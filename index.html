@@ -261,22 +261,8 @@
 
     <div id="alert-scad" class="section" style="display:none"></div>
 
-    <div class="section" id="fuel-filter-row" style="display:none">
-      <div class="fuelbar">
-        <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h12M5 21V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v16M5 12h8M15 8h2l2 2v7a2 2 0 0 1-4 0v-3h-2"/></svg>
-        <span class="fuelbar-lab">Confronto prezzi</span>
-        <select id="fuel-filter" onchange="setFuelFilter(this.value)"></select>
-      </div>
-      <div class="hint" style="margin:8px 2px 0">Filtra prezzo medio, grafico prezzo e distributori: carburanti diversi (es. Benzina e Premium) non sono confrontabili tra loro.</div>
-    </div>
-
     <div class="section">
       <div class="cards" id="cards"></div>
-    </div>
-
-    <div class="section" id="byfuel-section" style="display:none">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5s6.5 7 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.5 12 2.5 12 2.5z"/></svg> Prezzo medio per carburante</div>
-      <div class="panel"><div class="hint">ogni carburante ha il suo prezzo: qui la media di ciascuno, separata</div><div id="byfuel"></div></div>
     </div>
 
     <div class="section">
@@ -287,6 +273,20 @@
         <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg> Spesa per mese (€)</h3><div class="hint">carburante + spese varie</div><div id="ch-mese"></div></div>
         <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 7a6 6 0 1 0 0 10"/><path d="M4 10h8"/><path d="M4 14h7"/></svg> Costo al km (€/km)</h3><div class="hint">quanto ti costa ogni km di carburante</div><div id="ch-eurkm"></div></div>
       </div>
+    </div>
+
+    <div class="section" id="byfuel-section" style="display:none">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5s6.5 7 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.5 12 2.5 12 2.5z"/></svg> Prezzo medio per carburante</div>
+      <div class="panel"><div class="hint">ogni carburante ha il suo prezzo: qui la media di ciascuno, separata</div><div id="byfuel"></div></div>
+    </div>
+
+    <div class="section" id="fuel-filter-row" style="display:none">
+      <div class="fuelbar">
+        <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h12M5 21V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v16M5 12h8M15 8h2l2 2v7a2 2 0 0 1-4 0v-3h-2"/></svg>
+        <span class="fuelbar-lab">Confronto prezzi</span>
+        <select id="fuel-filter" onchange="setFuelFilter(this.value)"></select>
+      </div>
+      <div class="hint" style="margin:8px 2px 0">Filtra prezzo medio, grafico prezzo e distributori: carburanti diversi (es. Benzina e Premium) non sono confrontabili tra loro.</div>
     </div>
 
     <div class="section">
