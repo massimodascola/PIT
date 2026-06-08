@@ -34,29 +34,44 @@
   h1,h2,h3{margin:0}
   a{color:var(--blue)}
   .ic{display:inline-block;vertical-align:-.18em;flex:none}
+  [hidden]{display:none!important}
 
-  header{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;
-    padding:14px 18px;padding-top:calc(14px + env(safe-area-inset-top));
-    background:rgba(10,10,11,.78);backdrop-filter:saturate(140%) blur(12px);
-    border-bottom:1px solid var(--border)}
+  /* barra superiore: header + nav (su desktop restano in alto insieme) */
+  .topbar{position:sticky;top:0;z-index:30;background:rgba(10,10,11,.82);
+    backdrop-filter:saturate(140%) blur(12px);border-bottom:1px solid var(--border)}
+  header{display:flex;align-items:center;gap:12px;max-width:var(--maxw);margin:0 auto;
+    padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top))}
   .logo{width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;
     background:linear-gradient(150deg,#262630,#121214);border:1px solid var(--border-strong);color:var(--amber)}
-  header h1{font-size:18px;font-weight:680;letter-spacing:-.01em}
-  header .sub{font-size:12px;color:var(--muted)}
+  .veh-select{width:auto;max-width:min(58vw,260px);height:38px;min-height:38px;
+    background:var(--surface-2);border:1px solid var(--border-strong);border-radius:999px;
+    padding:0 30px 0 12px;font-size:13.5px;font-weight:650;color:var(--txt)}
   .pill{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
     padding:7px 11px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
     color:var(--muted);cursor:pointer;min-height:36px;transition:background .2s,color .2s,border-color .2s}
   .pill:hover{border-color:var(--border-strong)}
   .pill .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
   .pill.ok{color:var(--green)} .pill.err{color:var(--red)} .pill.busy{color:var(--amber)} .pill.off{color:var(--faint)}
+  .pill .lab{display:inline}
   @keyframes spin{to{transform:rotate(360deg)}}
   .spin{animation:spin 1s linear infinite}
 
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:18px 16px 0}
-  .section{margin-top:30px}
+  /* navigazione a pagine */
+  #nav{display:flex;gap:6px;align-items:center;max-width:var(--maxw);margin:0 auto;padding:2px 12px 10px}
+  #nav button{flex:1;min-height:40px;padding:0 10px;background:transparent;color:var(--muted);
+    border:1px solid transparent;border-radius:10px;font-size:13px;font-weight:600;box-shadow:none;gap:7px}
+  #nav button:hover{background:var(--surface-2);filter:none;color:var(--txt)}
+  #nav button.active{background:var(--surface-2);color:var(--txt);border-color:var(--border-strong)}
+  #nav button span{white-space:nowrap}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:8px 16px 0}
+  .section{margin-top:26px}
+  .section:first-child{margin-top:18px}
   .section-h{display:flex;align-items:center;gap:9px;margin:0 0 12px;color:var(--muted);
     font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
   .section-h .ic{color:var(--faint)}
+  .page-title{font-size:20px;font-weight:720;letter-spacing:-.02em;margin:6px 0 2px}
+  .page-sub{color:var(--muted);font-size:13px;margin:0 0 6px}
 
   .banner{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;
     background:linear-gradient(180deg,rgba(251,191,36,.10),rgba(251,191,36,.04));
@@ -151,6 +166,14 @@
   .scad .ico-wrap{background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c)}
   .scad .badge{background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c)}
 
+  /* veicoli */
+  .veh-list{display:flex;flex-direction:column;gap:9px}
+  .veh-row{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px}
+  .veh-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;font-size:19px;background:var(--surface-3)}
+  .veh-meta{flex:1;min-width:0}
+  .veh-name{font-weight:620;font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .veh-sub{font-size:12px;color:var(--muted)}
+
   .sync-help{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6}
   .sync-help code{background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:12px}
   .inline-input{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
@@ -158,206 +181,267 @@
   .footer{color:var(--faint);font-size:12px;text-align:center;margin:34px 0 8px}
 
   @media(max-width:640px){
-    .wrap{padding:14px 12px 0}
-    .section{margin-top:22px}
+    .wrap{padding:6px 12px 0}
+    .section{margin-top:20px}
     .panel{padding:14px}
     form{grid-template-columns:1fr;gap:11px}
     form button[type="submit"]{justify-self:stretch}
     .form-actions button{flex:1}
     .cards{gap:10px}
-    header .sub{display:none}
     .inline-input{flex-direction:column;align-items:stretch}
     .inline-input label{min-width:0}
     .inline-input button{width:100%}
+  }
+  /* mobile: nav fissa in basso */
+  @media(max-width:780px){
+    #nav{position:fixed;left:0;right:0;bottom:0;z-index:40;gap:0;margin:0;max-width:none;
+      padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+      background:rgba(10,10,11,.94);backdrop-filter:saturate(140%) blur(12px);border-top:1px solid var(--border)}
+    #nav button{flex:1;flex-direction:column;gap:3px;min-height:52px;font-size:10px;border-radius:12px;padding:6px 2px}
+    #nav button:hover{background:transparent}
+    #nav button.active{background:transparent;border-color:transparent;color:var(--primary)}
+    #nav button span{font-size:9.5px;letter-spacing:-.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+    body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+    .pill .lab{display:none}
+    .pill{padding:7px 9px}
+    .veh-select{max-width:52vw}
   }
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<header>
-  <span class="logo" aria-hidden="true">
-    <svg width="24" height="24" viewBox="0 0 24 24"><text x="12" y="17.5" font-family="Helvetica,Arial,sans-serif" font-size="18" font-weight="800" text-anchor="middle" fill="#F3F4F6">P</text><rect x="7" y="19" width="10" height="2" rx="1" fill="#FBBF24"/></svg>
-  </span>
-  <button id="syncpill" class="pill off" onclick="scrollToSync()" aria-label="Stato sincronizzazione">
-    <span class="dot"></span><span id="syncpill-txt">Locale</span>
-  </button>
-</header>
-
-<div class="wrap">
-
-  <div id="banner" class="banner" style="display:none">
-    <span>Stai vedendo <b>dati di esempio</b>. Aggiungi un rifornimento o svuota tutto per iniziare.</span>
-    <button class="ghost sm" onclick="clearAll()">Svuota tutto</button>
-  </div>
-
-  <div id="alert-scad" class="section" style="display:none"></div>
-
-  <div class="section">
-    <div class="cards" id="cards"></div>
-  </div>
-
-  <div class="section">
-    <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg> Grafici</div>
-    <div class="grid2">
-      <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4"/><path d="M3.5 14a8.5 8.5 0 1 1 17 0"/></svg> Consumo (km/l)</h3><div class="hint">più alto = consumi meno</div><div id="ch-consumo"></div></div>
-      <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5s6.5 7 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.5 12 2.5 12 2.5z"/></svg> Prezzo carburante (€/litro)</h3><div class="hint">quanto paghi al litro nel tempo</div><div id="ch-prezzo"></div></div>
-      <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg> Spesa per mese (€)</h3><div class="hint">carburante + spese varie</div><div id="ch-mese"></div></div>
-      <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 7a6 6 0 1 0 0 10"/><path d="M4 10h8"/><path d="M4 14h7"/></svg> Costo al km (€/km)</h3><div class="hint">quanto ti costa ogni km di benzina</div><div id="ch-eurkm"></div></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi rifornimento</div>
-    <div class="panel">
-      <div class="scan-row">
-        <button type="button" class="ghost" id="scan-cam" onclick="pickReceipt(true)">
-          <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg>
-          Scatta foto
-        </button>
-        <button type="button" class="ghost" id="scan-gal" onclick="pickReceipt(false)">
-          <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg>
-          Dalla galleria
-        </button>
-        <input type="file" id="scan-file" accept="image/*" hidden onchange="scanReceipt(this)">
-        <span class="chip off" id="scan-pill" style="margin-left:auto">AI non configurata</span>
-        <span class="hint" id="scan-status" style="display:none;flex:1 1 100%"></span>
-        <span class="hint" id="scan-hint" style="flex:1 1 100%">Scatta o scegli la foto dello scontrino: l'AI legge data, litri, prezzo e benzinaio. A te restano solo i KM. <a href="#" onclick="scrollToAI();return false">Configura le chiavi AI</a>.</span>
-      </div>
-      <form id="form-rif" onsubmit="return addRif(event)">
-        <label>Data<input type="date" id="r-data" required></label>
-        <label>Km (contachilometri)<input type="text" inputmode="numeric" id="r-km" placeholder="es. 10300" required></label>
-        <label>Litri<input type="text" inputmode="decimal" id="r-litri" placeholder="es. 14" required></label>
-        <label>€/litro<input type="text" inputmode="decimal" id="r-prezzo" placeholder="es. 1,85" required></label>
-        <label>Tipo
-          <select id="r-tipo"><option>Benzina</option><option>Benzina Premium</option><option>Diesel</option><option>GPL</option><option>Metano</option><option>Altro</option></select>
-        </label>
-        <label>Benzinaio<input type="text" id="r-benz" list="benzlist" placeholder="es. Eni Via Roma"></label>
-        <div class="form-actions">
-          <button type="submit" id="rif-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
-          <button type="button" class="ghost" id="rif-cancel" hidden onclick="cancelEditRif()">Annulla</button>
-        </div>
-      </form>
-      <datalist id="benzlist"></datalist>
-      <div class="hint" style="margin:10px 0 0">Km = contachilometri totale; la distanza la calcola l'app.</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Confronto distributori</div>
-    <div class="panel"><div class="hint">prezzo medio €/litro per benzinaio — più corto è più conveniente</div><div id="ch-stations"></div></div>
-  </div>
-
-  <div class="section">
-    <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg> Scadenze</div>
-    <div class="panel">
-      <form id="form-scad" onsubmit="return addScad(event)">
-        <label>Tipo
-          <select id="sc-tipo"><option>Assicurazione</option><option>Bollo</option><option>Revisione</option><option>Tagliando</option><option>Patente</option><option>Altro</option></select>
-        </label>
-        <label>Scadenza<input type="date" id="sc-data" required></label>
-        <label>Note<input type="text" id="sc-note" placeholder="es. compagnia, importo…"></label>
-        <div class="form-actions">
-          <button type="submit" id="scad-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
-          <button type="button" class="ghost" id="scad-cancel" hidden onclick="cancelEditScad()">Annulla</button>
-        </div>
-      </form>
-      <div id="scad-list" class="scad-list" style="margin-top:14px"></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg> Aggiungi spesa varia</div>
-    <div class="panel">
-      <form id="form-spesa" onsubmit="return addSpesa(event)">
-        <label>Data<input type="date" id="s-data" required></label>
-        <label>Categoria
-          <select id="s-cat"><option>Tagliando</option><option>Gomme</option><option>Assicurazione</option><option>Bollo</option><option>Revisione</option><option>Riparazione</option><option>Accessori</option><option>Altro</option></select>
-        </label>
-        <label>Descrizione<input type="text" id="s-desc" placeholder="es. cambio olio"></label>
-        <label>Importo €<input type="text" inputmode="decimal" id="s-imp" placeholder="es. 120" required></label>
-        <div class="form-actions">
-          <button type="submit" id="spesa-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
-          <button type="button" class="ghost" id="spesa-cancel" hidden onclick="cancelEditSpesa()">Annulla</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-h">Rifornimenti</div>
-    <div class="tbl-wrap"><table id="tbl-rif"></table></div>
-  </div>
-
-  <div class="section">
-    <div class="section-h">Spese varie</div>
-    <div class="tbl-wrap"><table id="tbl-spesa"></table></div>
-  </div>
-
-  <div class="section" id="ai-section">
-    <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg> Scansione scontrini (AI)</div>
-    <div class="panel">
-      <p class="hint" style="margin:0 0 12px">Per leggere gli scontrini da una foto serve la <b>tua</b> chiave API di un servizio AI con visione. La chiave resta solo su questo dispositivo: non finisce nei backup né nella sincronizzazione. Ogni scansione consuma una piccola quota sul tuo account del servizio.</p>
-      <form onsubmit="return saveAI(event)">
-        <label>Servizio
-          <select id="ai-provider" onchange="onAIProvider()">
-            <option value="anthropic">Anthropic (Claude)</option>
-            <option value="openai">OpenAI (GPT)</option>
-            <option value="google">Google (Gemini)</option>
-          </select>
-        </label>
-        <label>Chiave API
-          <input type="password" id="ai-key" placeholder="incolla la tua chiave API" autocomplete="off">
-        </label>
-        <label>Modello (opzionale)
-          <input type="text" id="ai-model" placeholder="claude-haiku-4-5">
-        </label>
-        <div class="form-actions">
-          <button type="submit"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Salva</button>
-          <button type="button" class="danger" id="ai-clear" hidden onclick="clearAI()">Rimuovi chiave</button>
-        </div>
-      </form>
-      <div class="sync-help" id="ai-help"></div>
-    </div>
-  </div>
-
-  <div class="section" id="sync-section">
-    <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.7 3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.7-3L3 16"/><path d="M3 21v-5h5"/></svg> Sincronizzazione (GitHub Gist)</div>
-    <div class="panel">
-      <div id="sync-on" style="display:none">
-        <p style="margin:0 0 10px;font-size:14px">Sincronizzazione <b style="color:var(--green)">attiva</b> <span id="sync-state-txt" class="hint" style="display:inline"></span></p>
-        <div class="actions" style="margin-top:0">
-          <button class="ghost sm" onclick="syncNow()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.7 3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.7-3L3 16"/><path d="M3 21v-5h5"/></svg> Sincronizza ora</button>
-          <button class="danger sm" onclick="disableSync()">Disattiva</button>
-        </div>
-      </div>
-      <div id="sync-off">
-        <p style="margin:0 0 12px;font-size:14px;color:var(--muted)">Attiva per vedere gli stessi dati su telefono e Mac. Serve un <b>Personal Access Token</b> di GitHub con il solo permesso <code>gist</code>.</p>
-        <div class="inline-input">
-          <label>Token GitHub
-            <input type="password" id="sync-token" placeholder="ghp_… (permesso gist)" autocomplete="off">
-          </label>
-          <button onclick="enableSync()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Attiva</button>
-        </div>
-        <div class="sync-help">
-          Crea il token qui → <a href="https://github.com/settings/tokens/new?scopes=gist&description=Pit" target="_blank" rel="noopener">github.com/settings/tokens</a> (scope: <code>gist</code>).<br>
-          Il token resta solo su questo dispositivo (non viene caricato online né incluso nei backup). I dati vengono salvati in un <b>Gist segreto</b> sul tuo account.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="actions">
-      <button class="ghost" onclick="exportJSON()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> Backup (JSON)</button>
-      <button class="ghost" onclick="document.getElementById('imp').click()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg> Importa</button>
-      <input type="file" id="imp" accept="application/json" style="display:none" onchange="importJSON(this)">
-      <button class="ghost" onclick="exportCSV()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> Esporta CSV</button>
-      <button class="danger" onclick="clearAll()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Svuota tutto</button>
-    </div>
-  </div>
-
-  <div class="footer">I dati restano su questo dispositivo (e nel Gist se la sync è attiva). Fai un backup ogni tanto.</div>
+<div class="topbar">
+  <header>
+    <span class="logo" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24"><text x="12" y="17.5" font-family="Helvetica,Arial,sans-serif" font-size="18" font-weight="800" text-anchor="middle" fill="#F3F4F6">P</text><rect x="7" y="19" width="10" height="2" rx="1" fill="#FBBF24"/></svg>
+    </span>
+    <select id="veh-select" class="veh-select" aria-label="Veicolo" onchange="switchVehicle(this.value)"></select>
+    <button id="syncpill" class="pill off" onclick="scrollToSync()" aria-label="Stato sincronizzazione">
+      <span class="dot"></span><span id="syncpill-txt" class="lab">Locale</span>
+    </button>
+  </header>
+  <nav id="nav">
+    <button class="active" data-page="panoramica" onclick="navTo('panoramica')"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/></svg><span>Panoramica</span></button>
+    <button data-page="rifornimenti" onclick="navTo('rifornimenti')"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/><path d="M3 21h13"/><path d="M4 12h10"/><path d="M14 7h3l3 3v7a2 2 0 0 1-4 0v-3h-2"/></svg><span>Rifornimenti</span></button>
+    <button data-page="spese" onclick="navTo('spese')"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18l2.5-1.6L10 21l2-1.6L14 21l2.5-1.6L19 21V3z"/><path d="M8 8h8M8 12h6"/></svg><span>Spese</span></button>
+    <button data-page="scadenze" onclick="navTo('scadenze')"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg><span>Scadenze</span></button>
+    <button data-page="impostazioni" onclick="navTo('impostazioni')"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l1.8-1.4-1.8-3.1-2.2.9a7.6 7.6 0 0 0-1.7-1L15 4H9l-.5 2.4a7.6 7.6 0 0 0-1.7 1l-2.2-.9-1.8 3.1L4.6 11a7.6 7.6 0 0 0 0 2l-1.8 1.4 1.8 3.1 2.2-.9a7.6 7.6 0 0 0 1.7 1L9 20h6l.5-2.4a7.6 7.6 0 0 0 1.7-1l2.2.9 1.8-3.1z"/></svg><span>Impostazioni</span></button>
+  </nav>
 </div>
+
+<main class="wrap">
+
+  <!-- ===================== PANORAMICA ===================== -->
+  <section data-page="panoramica">
+    <div id="banner" class="banner" style="display:none;margin-top:14px">
+      <span>Stai vedendo <b>dati di esempio</b>. Aggiungi un rifornimento o svuota tutto per iniziare.</span>
+      <button class="ghost sm" onclick="clearAll()">Svuota tutto</button>
+    </div>
+
+    <div id="alert-scad" class="section" style="display:none"></div>
+
+    <div class="section">
+      <div class="cards" id="cards"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg> Grafici</div>
+      <div class="grid2">
+        <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4"/><path d="M3.5 14a8.5 8.5 0 1 1 17 0"/></svg> Consumo (km/l)</h3><div class="hint">più alto = consumi meno</div><div id="ch-consumo"></div></div>
+        <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5s6.5 7 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.5 12 2.5 12 2.5z"/></svg> Prezzo carburante (€/litro)</h3><div class="hint">quanto paghi al litro nel tempo</div><div id="ch-prezzo"></div></div>
+        <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg> Spesa per mese (€)</h3><div class="hint">carburante + spese varie</div><div id="ch-mese"></div></div>
+        <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 7a6 6 0 1 0 0 10"/><path d="M4 10h8"/><path d="M4 14h7"/></svg> Costo al km (€/km)</h3><div class="hint">quanto ti costa ogni km di carburante</div><div id="ch-eurkm"></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Confronto distributori</div>
+      <div class="panel"><div class="hint">prezzo medio €/litro per benzinaio — più corto è più conveniente</div><div id="ch-stations"></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== RIFORNIMENTI ===================== -->
+  <section data-page="rifornimenti" hidden>
+    <div class="section">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi rifornimento</div>
+      <div class="panel">
+        <div class="scan-row">
+          <button type="button" class="ghost" id="scan-cam" onclick="pickReceipt(true)">
+            <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg>
+            Scatta foto
+          </button>
+          <button type="button" class="ghost" id="scan-gal" onclick="pickReceipt(false)">
+            <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg>
+            Dalla galleria
+          </button>
+          <input type="file" id="scan-file" accept="image/*" hidden onchange="scanReceipt(this)">
+          <span class="chip off" id="scan-pill" style="margin-left:auto">AI non configurata</span>
+          <span class="hint" id="scan-status" style="display:none;flex:1 1 100%"></span>
+          <span class="hint" id="scan-hint" style="flex:1 1 100%">Scatta o scegli la foto dello scontrino: l'AI legge data, litri, prezzo e benzinaio. A te restano solo i KM. <a href="#" onclick="scrollToAI();return false">Configura le chiavi AI</a>.</span>
+        </div>
+        <form id="form-rif" onsubmit="return addRif(event)">
+          <label>Data<input type="date" id="r-data" required></label>
+          <label>Km (contachilometri)<input type="text" inputmode="numeric" id="r-km" placeholder="es. 10300" required></label>
+          <label>Litri<input type="text" inputmode="decimal" id="r-litri" placeholder="es. 14" required></label>
+          <label>€/litro<input type="text" inputmode="decimal" id="r-prezzo" placeholder="es. 1,85" required></label>
+          <label>Tipo
+            <select id="r-tipo"><option>Benzina</option><option>Benzina Premium</option><option>Diesel</option><option>GPL</option><option>Metano</option><option>Altro</option></select>
+          </label>
+          <label>Benzinaio<input type="text" id="r-benz" list="benzlist" placeholder="es. Eni Via Roma"></label>
+          <div class="form-actions">
+            <button type="submit" id="rif-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
+            <button type="button" class="ghost" id="rif-cancel" hidden onclick="cancelEditRif()">Annulla</button>
+          </div>
+        </form>
+        <datalist id="benzlist"></datalist>
+        <div class="hint" style="margin:10px 0 0">Km = contachilometri totale; la distanza la calcola l'app.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-h">Rifornimenti</div>
+      <div class="tbl-wrap"><table id="tbl-rif"></table></div>
+    </div>
+  </section>
+
+  <!-- ===================== SPESE ===================== -->
+  <section data-page="spese" hidden>
+    <div class="section">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg> Aggiungi spesa varia</div>
+      <div class="panel">
+        <form id="form-spesa" onsubmit="return addSpesa(event)">
+          <label>Data<input type="date" id="s-data" required></label>
+          <label>Categoria
+            <select id="s-cat"><option>Tagliando</option><option>Gomme</option><option>Assicurazione</option><option>Bollo</option><option>Revisione</option><option>Riparazione</option><option>Accessori</option><option>Altro</option></select>
+          </label>
+          <label>Descrizione<input type="text" id="s-desc" placeholder="es. cambio olio"></label>
+          <label>Importo €<input type="text" inputmode="decimal" id="s-imp" placeholder="es. 120" required></label>
+          <div class="form-actions">
+            <button type="submit" id="spesa-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
+            <button type="button" class="ghost" id="spesa-cancel" hidden onclick="cancelEditSpesa()">Annulla</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-h">Spese varie</div>
+      <div class="tbl-wrap"><table id="tbl-spesa"></table></div>
+    </div>
+  </section>
+
+  <!-- ===================== SCADENZE ===================== -->
+  <section data-page="scadenze" hidden>
+    <div class="section">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg> Scadenze</div>
+      <div class="panel">
+        <form id="form-scad" onsubmit="return addScad(event)">
+          <label>Tipo
+            <select id="sc-tipo"><option>Assicurazione</option><option>Bollo</option><option>Revisione</option><option>Tagliando</option><option>Patente</option><option>Altro</option></select>
+          </label>
+          <label>Scadenza<input type="date" id="sc-data" required></label>
+          <label>Note<input type="text" id="sc-note" placeholder="es. compagnia, importo…"></label>
+          <div class="form-actions">
+            <button type="submit" id="scad-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
+            <button type="button" class="ghost" id="scad-cancel" hidden onclick="cancelEditScad()">Annulla</button>
+          </div>
+        </form>
+        <div id="scad-list" class="scad-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== IMPOSTAZIONI ===================== -->
+  <section data-page="impostazioni" hidden>
+    <div class="section">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2v-3l2-5a2 2 0 0 1 2-1.4h8A2 2 0 0 1 19 7l2 5v3a2 2 0 0 1-2 2"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg> Veicoli</div>
+      <div class="panel">
+        <div id="veh-list" class="veh-list"></div>
+        <form id="form-veh" onsubmit="return saveVehicle(event)" style="margin-top:14px">
+          <label>Nome<input type="text" id="veh-name" placeholder="es. Panda, Scooter"></label>
+          <label>Tipo
+            <select id="veh-type"><option value="auto">Auto</option><option value="moto">Moto</option><option value="scooter">Scooter</option><option value="altro">Altro</option></select>
+          </label>
+          <label>Targa (opzionale)<input type="text" id="veh-plate" placeholder="es. AB123CD"></label>
+          <div class="form-actions">
+            <button type="submit" id="veh-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi veicolo</button>
+            <button type="button" class="ghost" id="veh-cancel" hidden onclick="cancelEditVehicle()">Annulla</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="section" id="ai-section">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg> Scansione scontrini (AI)</div>
+      <div class="panel">
+        <p class="hint" style="margin:0 0 12px">Per leggere gli scontrini da una foto serve la <b>tua</b> chiave API di un servizio AI con visione. La chiave resta solo su questo dispositivo: non finisce nei backup né nella sincronizzazione. Ogni scansione consuma una piccola quota sul tuo account del servizio.</p>
+        <form onsubmit="return saveAI(event)">
+          <label>Servizio
+            <select id="ai-provider" onchange="onAIProvider()">
+              <option value="anthropic">Anthropic (Claude)</option>
+              <option value="openai">OpenAI (GPT)</option>
+              <option value="google">Google (Gemini)</option>
+            </select>
+          </label>
+          <label>Chiave API
+            <input type="password" id="ai-key" placeholder="incolla la tua chiave API" autocomplete="off">
+          </label>
+          <label>Modello (opzionale)
+            <input type="text" id="ai-model" placeholder="claude-haiku-4-5">
+          </label>
+          <div class="form-actions">
+            <button type="submit"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Salva</button>
+            <button type="button" class="danger" id="ai-clear" hidden onclick="clearAI()">Rimuovi chiave</button>
+          </div>
+        </form>
+        <div class="sync-help" id="ai-help"></div>
+      </div>
+    </div>
+
+    <div class="section" id="sync-section">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.7 3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.7-3L3 16"/><path d="M3 21v-5h5"/></svg> Sincronizzazione (GitHub Gist)</div>
+      <div class="panel">
+        <div id="sync-on" style="display:none">
+          <p style="margin:0 0 10px;font-size:14px">Sincronizzazione <b style="color:var(--green)">attiva</b> <span id="sync-state-txt" class="hint" style="display:inline"></span></p>
+          <div class="actions" style="margin-top:0">
+            <button class="ghost sm" onclick="syncNow()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.7 3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.7-3L3 16"/><path d="M3 21v-5h5"/></svg> Sincronizza ora</button>
+            <button class="danger sm" onclick="disableSync()">Disattiva</button>
+          </div>
+        </div>
+        <div id="sync-off">
+          <p style="margin:0 0 12px;font-size:14px;color:var(--muted)">Attiva per vedere gli stessi dati su telefono e Mac. Serve un <b>Personal Access Token</b> di GitHub con il solo permesso <code>gist</code>.</p>
+          <div class="inline-input">
+            <label>Token GitHub
+              <input type="password" id="sync-token" placeholder="ghp_… (permesso gist)" autocomplete="off">
+            </label>
+            <button onclick="enableSync()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Attiva</button>
+          </div>
+          <div class="sync-help">
+            Crea il token qui → <a href="https://github.com/settings/tokens/new?scopes=gist&description=Pit" target="_blank" rel="noopener">github.com/settings/tokens</a> (scope: <code>gist</code>).<br>
+            Il token resta solo su questo dispositivo (non viene caricato online né incluso nei backup). I dati vengono salvati in un <b>Gist segreto</b> sul tuo account.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg> Backup dati</div>
+      <div class="panel">
+        <div class="actions" style="margin-top:0">
+          <button class="ghost" onclick="exportJSON()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> Backup (JSON)</button>
+          <button class="ghost" onclick="document.getElementById('imp').click()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg> Importa</button>
+          <input type="file" id="imp" accept="application/json" style="display:none" onchange="importJSON(this)">
+          <button class="ghost" onclick="exportCSV()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> Esporta CSV (veicolo)</button>
+          <button class="danger" onclick="clearAll()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Svuota tutto</button>
+        </div>
+        <div class="hint" style="margin:12px 0 0">Il backup JSON include <b>tutti</b> i veicoli. L'export CSV riguarda solo il veicolo attivo. I dati restano su questo dispositivo (e nel Gist se la sync è attiva).</div>
+      </div>
+    </div>
+
+    <div class="footer">Pit · i dati vivono nel tuo browser. Fai un backup ogni tanto.</div>
+  </section>
+
+</main>
 
 <script>
 const K='moto_data_v1', SYNCK='moto_sync', GIST_FILE='spese-moto.json';
@@ -369,37 +453,65 @@ const pInt=s=>parseInt(String(s).replace(/[^\d-]/g,''),10);
 const itDate=iso=>{if(!iso)return'';const[y,m,d]=iso.split('-');return d+'/'+m+'/'+y;};
 const todayISO=()=>new Date().toISOString().slice(0,10);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const genId=()=>'veh_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const VTYPE={auto:'🚗',moto:'🏍️',scooter:'🛵',altro:'🚐'};
+const VTYPE_LABEL={auto:'Auto',moto:'Moto',scooter:'Scooter',altro:'Altro'};
 
+// ---------- dati (schema v2: più veicoli) ----------
+function blankVehicle(name,type,plate){return{id:genId(),name:name||'Veicolo',type:type||'auto',plate:plate||'',rif:[],spese:[],scadenze:[]};}
 function seed(){return{
-  example:true, updatedAt:0,
-  rif:[
-    {data:'2026-03-01',km:9500,litri:14,prezzo:1.80,tipo:'Benzina',benz:'Eni Via Roma'},
-    {data:'2026-04-05',km:9780,litri:13,prezzo:1.82,tipo:'Diesel',benz:'Q8 Tangenziale'},
-    {data:'2026-05-10',km:10050,litri:15,prezzo:1.88,tipo:'Benzina Premium',benz:'Eni Via Roma'},
-    {data:'2026-06-01',km:10300,litri:14,prezzo:1.85,tipo:'Benzina',benz:'IP Centro'},
-  ],
-  spese:[
-    {data:'2026-04-10',cat:'Gomme',desc:'Pneumatico posteriore',imp:160},
-    {data:'2026-05-06',cat:'Tagliando',desc:'Cambio olio + filtri',imp:120},
-  ],
-  scadenze:[
-    {tipo:'Revisione',data:'2026-05-20',note:'da prenotare'},
-    {tipo:'Bollo',data:'2026-06-30',note:''},
-    {tipo:'Tagliando',data:'2026-07-15',note:'ogni 6.000 km'},
-    {tipo:'Assicurazione',data:'2026-09-15',note:'rinnovo annuale'},
-  ]
+  v:2, example:true, updatedAt:0, currentId:'veh_demo',
+  vehicles:[{ id:'veh_demo', name:'Veicolo 1', type:'auto', plate:'',
+    rif:[
+      {data:'2026-03-01',km:9500,litri:14,prezzo:1.80,tipo:'Benzina',benz:'Eni Via Roma'},
+      {data:'2026-04-05',km:9780,litri:13,prezzo:1.82,tipo:'Diesel',benz:'Q8 Tangenziale'},
+      {data:'2026-05-10',km:10050,litri:15,prezzo:1.88,tipo:'Benzina Premium',benz:'Eni Via Roma'},
+      {data:'2026-06-01',km:10300,litri:14,prezzo:1.85,tipo:'Benzina',benz:'IP Centro'},
+    ],
+    spese:[
+      {data:'2026-04-10',cat:'Gomme',desc:'Pneumatico posteriore',imp:160},
+      {data:'2026-05-06',cat:'Tagliando',desc:'Cambio olio + filtri',imp:120},
+    ],
+    scadenze:[
+      {tipo:'Revisione',data:'2026-05-20',note:'da prenotare'},
+      {tipo:'Bollo',data:'2026-06-30',note:''},
+      {tipo:'Tagliando',data:'2026-07-15',note:'ogni 6.000 km'},
+      {tipo:'Assicurazione',data:'2026-09-15',note:'rinnovo annuale'},
+    ]
+  }]
 };}
+// migra qualsiasi formato salvato/importato al modello v2 (zero perdita dati)
+function migrate(d){
+  if(!d||typeof d!=='object')return null;
+  if(Array.isArray(d.vehicles)){
+    d.v=2;
+    d.vehicles.forEach(v=>{v.id=v.id||genId();v.name=v.name||'Veicolo';v.type=v.type||'auto';v.plate=v.plate||'';
+      v.rif=v.rif||[];v.spese=v.spese||[];v.scadenze=v.scadenze||[];});
+    if(!d.vehicles.length)d.vehicles=[blankVehicle('Veicolo 1','auto','')];
+    if(!d.vehicles.some(v=>v.id===d.currentId))d.currentId=d.vehicles[0].id;
+    d.updatedAt=d.updatedAt||0;
+    return d;
+  }
+  if(Array.isArray(d.rif)){ // vecchio formato piatto (v1) o backup legacy
+    const v=blankVehicle('Veicolo 1','auto','');
+    v.rif=d.rif; v.spese=d.spese||[]; v.scadenze=d.scadenze||[];
+    return {v:2, example:!!d.example, updatedAt:d.updatedAt||0, currentId:v.id, vehicles:[v]};
+  }
+  return null;
+}
 let DB=load();
 let SYNC=loadSync();
-function load(){try{const d=JSON.parse(localStorage.getItem(K));if(d&&d.rif){d.scadenze=d.scadenze||[];return d;}}catch(e){}return seed();}
+function load(){try{const d=migrate(JSON.parse(localStorage.getItem(K)));if(d)return d;}catch(e){}return seed();}
 function loadSync(){try{return JSON.parse(localStorage.getItem(SYNCK))||{};}catch(e){return{};}}
 function persistLocal(){localStorage.setItem(K,JSON.stringify(DB));}
 function saveSyncCfg(){localStorage.setItem(SYNCK,JSON.stringify(SYNC));}
 function save(){DB.updatedAt=Date.now();persistLocal();render();schedulePush();}
+function cur(){return DB.vehicles.find(v=>v.id===DB.currentId)||DB.vehicles[0];}
 
-// ---------- calcoli ----------
+// ---------- calcoli (sul veicolo attivo) ----------
 function computed(){
-  const rif=DB.rif.map((r,oi)=>({...r,oi})).sort((a,b)=>a.km-b.km||a.data.localeCompare(b.data));
+  const V=cur();
+  const rif=V.rif.map((r,oi)=>({...r,oi})).sort((a,b)=>a.km-b.km||a.data.localeCompare(b.data));
   let prev=null;
   const rows=rif.map(r=>{
     const costo=r.litri*r.prezzo, kmP=prev!=null?r.km-prev:null; prev=r.km;
@@ -408,7 +520,7 @@ function computed(){
   });
   const wd=rows.filter(r=>r.kmP!=null&&r.kmP>0), sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
   const spesaCarb=sum(rows,r=>r.costo), litriTot=sum(rows,r=>r.litri), kmTot=sum(wd,r=>r.kmP),
-        litriDist=sum(wd,r=>r.litri), costoDist=sum(wd,r=>r.costo), speseTot=sum(DB.spese,s=>s.imp);
+        litriDist=sum(wd,r=>r.litri), costoDist=sum(wd,r=>r.costo), speseTot=sum(V.spese,s=>s.imp);
   const st={};
   rows.forEach(r=>{const k=(r.benz||'').trim();if(!k)return;(st[k]=st[k]||{litri:0,costo:0,n:0});st[k].litri+=r.litri;st[k].costo+=r.costo;st[k].n++;});
   const stations=Object.keys(st).map(k=>({nome:k,avg:st[k].costo/st[k].litri,n:st[k].n})).sort((a,b)=>a.avg-b.avg);
@@ -440,9 +552,9 @@ const PLUSICON='<path d="M12 5v14"/><path d="M5 12h14"/>';
 
 // ---------- render ----------
 function render(){
-  const c=computed();
+  const V=cur(), c=computed();
   $('banner').style.display=DB.example?'flex':'none';
-  $('benzlist').innerHTML=[...new Set(DB.rif.map(r=>(r.benz||'').trim()).filter(Boolean))].map(b=>`<option value="${esc(b)}">`).join('');
+  $('benzlist').innerHTML=[...new Set(V.rif.map(r=>(r.benz||'').trim()).filter(Boolean))].map(b=>`<option value="${esc(b)}">`).join('');
 
   $('cards').innerHTML=[
     ['Spesa carburante',EUR(c.spesaCarb),'big'],
@@ -465,11 +577,12 @@ function render(){
 
   renderScad();
   renderTables(c);
+  renderVehicles();
   renderSyncUI();
 }
 
 function renderScad(){
-  const list=(DB.scadenze||[]).map((s,i)=>({...s,oi:i,st:scadStatus(s.data)})).sort((a,b)=>a.st.days-b.st.days);
+  const list=(cur().scadenze||[]).map((s,i)=>({...s,oi:i,st:scadStatus(s.data)})).sort((a,b)=>a.st.days-b.st.days);
   const urgent=list.filter(s=>s.st.cls!=='green');
   const al=$('alert-scad');
   if(urgent.length){
@@ -502,10 +615,11 @@ function renderTables(c){
       <td class="auto">${r.kmL!=null?NUM(r.kmL,2):'—'}</td><td class="auto">${r.eurKm!=null?NUM(r.eurKm,3):'—'}</td>
       <td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditRif(${r.oi})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delRif(${r.oi})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
 
+  const sp=cur().spese;
   const ts=$('tbl-spesa');
-  if(!DB.spese.length)ts.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessuna spesa varia.</td></tr></tbody>';
+  if(!sp.length)ts.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessuna spesa varia.</td></tr></tbody>';
   else ts.innerHTML='<thead><tr><th>Data</th><th>Categoria</th><th>Descrizione</th><th>Importo</th><th></th></tr></thead><tbody>'+
-    DB.spese.map((s,i)=>[s,i]).sort((a,b)=>b[0].data.localeCompare(a[0].data)).map(([s,i])=>
+    sp.map((s,i)=>[s,i]).sort((a,b)=>b[0].data.localeCompare(a[0].data)).map(([s,i])=>
       `<tr><td>${itDate(s.data)}</td><td><span class="chip">${esc(s.cat)}</span></td><td style="text-align:left">${esc(s.desc||'')}</td>
        <td>${EUR(s.imp)}</td><td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditSpesa(${i})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delSpesa(${i})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
 }
@@ -513,7 +627,7 @@ function renderTables(c){
 function monthly(c){
   const m={};
   c.rows.forEach(r=>{const k=r.data.slice(0,7);m[k]=(m[k]||0)+r.costo;});
-  DB.spese.forEach(s=>{const k=s.data.slice(0,7);m[k]=(m[k]||0)+s.imp;});
+  cur().spese.forEach(s=>{const k=s.data.slice(0,7);m[k]=(m[k]||0)+s.imp;});
   return Object.keys(m).sort().slice(-12).map(k=>{const[y,mo]=k.split('-');
     return{label:['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'][+mo-1]+' '+y.slice(2),y:m[k]};});
 }
@@ -560,8 +674,63 @@ function stationChart(id,st){
   el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${bars}</svg>`;
 }
 
+// ---------- veicoli ----------
+function renderVehicles(){
+  const v=cur();
+  $('veh-select').innerHTML=DB.vehicles.map(x=>`<option value="${x.id}"${x.id===v.id?' selected':''}>${VTYPE[x.type]||'🚗'} ${esc(x.name)}${x.plate?' · '+esc(x.plate):''}</option>`).join('');
+  const list=$('veh-list');
+  if(list)list.innerHTML=DB.vehicles.map(x=>`<div class="veh-row">
+      <span class="veh-ic">${VTYPE[x.type]||'🚗'}</span>
+      <div class="veh-meta"><div class="veh-name">${esc(x.name)}${x.id===v.id?' <span class="chip ok">attivo</span>':''}</div>
+        <div class="veh-sub">${VTYPE_LABEL[x.type]||'Veicolo'}${x.plate?' · '+esc(x.plate):''} · ${x.rif.length} rif · ${x.spese.length} spese</div></div>
+      <button class="iconbtn edit" aria-label="Modifica veicolo" onclick="startEditVehicle('${x.id}')">${svgI(EDITICON,15)}</button>
+      <button class="iconbtn" aria-label="Elimina veicolo" onclick="deleteVehicle('${x.id}')">${svgI(XICON,16)}</button>
+    </div>`).join('');
+}
+function switchVehicle(id){
+  if(!DB.vehicles.some(v=>v.id===id))return;
+  if(editRif!=null)cancelEditRif(); if(editSpesa!=null)cancelEditSpesa(); if(editScad!=null)cancelEditScad();
+  DB.currentId=id;persistLocal();render();
+}
+let editVeh=null;
+function startEditVehicle(id){const x=DB.vehicles.find(v=>v.id===id);if(!x)return;editVeh=id;
+  $('veh-name').value=x.name;$('veh-type').value=x.type;$('veh-plate').value=x.plate||'';
+  $('veh-submit').innerHTML=svgI(EDITICON,18)+' Salva veicolo';$('veh-cancel').hidden=false;
+  navTo('impostazioni');$('veh-name').focus();}
+function cancelEditVehicle(){editVeh=null;$('veh-name').value=$('veh-plate').value='';$('veh-type').value='auto';
+  $('veh-submit').innerHTML=svgI(PLUSICON,18)+' Aggiungi veicolo';$('veh-cancel').hidden=true;}
+function saveVehicle(e){e.preventDefault();
+  const name=$('veh-name').value.trim();if(!name){alert('Dai un nome al veicolo.');return false;}
+  const type=$('veh-type').value,plate=$('veh-plate').value.trim();
+  if(editVeh){const x=DB.vehicles.find(v=>v.id===editVeh);if(x){x.name=name;x.type=type;x.plate=plate;}cancelEditVehicle();}
+  else{const x=blankVehicle(name,type,plate);DB.vehicles.push(x);DB.currentId=x.id;DB.example=false;cancelEditVehicle();}
+  save();return false;}
+function deleteVehicle(id){
+  if(DB.vehicles.length<=1){alert('Deve restare almeno un veicolo.');return;}
+  const x=DB.vehicles.find(v=>v.id===id);if(!x)return;
+  if(!confirm('Eliminare il veicolo «'+x.name+'» e tutti i suoi dati?'))return;
+  DB.vehicles=DB.vehicles.filter(v=>v.id!==id);
+  if(DB.currentId===id)DB.currentId=DB.vehicles[0].id;
+  if(editVeh===id)cancelEditVehicle();
+  save();
+}
+
+// ---------- navigazione a pagine ----------
+const PAGES=['panoramica','rifornimenti','spese','scadenze','impostazioni'];
+function showPage(name){
+  if(!PAGES.includes(name))name='panoramica';
+  document.querySelectorAll('section[data-page]').forEach(s=>{s.hidden=s.dataset.page!==name;});
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+  window.scrollTo(0,0);
+}
+function navTo(name){
+  if((location.hash.slice(1)||'panoramica')===name)showPage(name);
+  else location.hash=name;
+}
+window.addEventListener('hashchange',()=>showPage(location.hash.slice(1)||'panoramica'));
+
 // ---------- azioni ----------
-function clearExample(){if(DB.example){DB.rif=[];DB.spese=[];DB.scadenze=[];DB.example=false;}}
+function clearExample(){if(DB.example){const V=cur();V.rif=[];V.spese=[];V.scadenze=[];DB.example=false;}}
 // numero (1.85) -> stringa form italiana ("1,85")
 const fNum=n=>(n==null||isNaN(n))?'':String(n).replace('.',',');
 // aggiunge un tipo carburante non in elenco (es. dati storici) così l'edit lo mostra
@@ -573,7 +742,7 @@ function setEditMode(sub,can,on){
   $(can).hidden=!on;
   const f=b.closest('form'); if(f) f.classList.toggle('editing',on);
 }
-function startEditRif(i){const r=DB.rif[i];if(!r)return;editRif=i;
+function startEditRif(i){const r=cur().rif[i];if(!r)return;editRif=i;
   $('r-data').value=r.data;$('r-km').value=r.km;$('r-litri').value=fNum(r.litri);$('r-prezzo').value=fNum(r.prezzo);
   ensureTipo(r.tipo);$('r-tipo').value=r.tipo||'Benzina';$('r-benz').value=r.benz||'';
   setEditMode('rif-submit','rif-cancel',true);$('form-rif').scrollIntoView({behavior:'smooth',block:'center'});$('r-km').focus();}
@@ -583,8 +752,8 @@ function addRif(e){e.preventDefault();
   const km=pInt($('r-km').value),litri=pNum($('r-litri').value),prezzo=pNum($('r-prezzo').value),data=$('r-data').value;
   if(!data||isNaN(km)||isNaN(litri)||isNaN(prezzo)){alert('Controlla i campi.');return false;}
   const rec={data,km,litri,prezzo,tipo:$('r-tipo').value,benz:$('r-benz').value.trim()};
-  if(editRif!=null){DB.rif[editRif]=rec;editRif=null;DB.example=false;setEditMode('rif-submit','rif-cancel',false);}
-  else{clearExample();DB.rif.push(rec);}
+  if(editRif!=null){cur().rif[editRif]=rec;editRif=null;DB.example=false;setEditMode('rif-submit','rif-cancel',false);}
+  else{clearExample();cur().rif.push(rec);}
   save();
   $('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';$('r-km').focus();return false;}
 
@@ -601,7 +770,7 @@ let AI=loadAI();
 function loadAI(){try{return JSON.parse(localStorage.getItem(AIK))||{};}catch(e){return{};}}
 function saveAICfg(){localStorage.setItem(AIK,JSON.stringify(AI));}
 function aiReady(){return !!(AI&&AI.key&&AI.provider);}
-function scrollToAI(){$('ai-section').scrollIntoView({behavior:'smooth',block:'start'});}
+function scrollToAI(){showPage('impostazioni');location.hash='impostazioni';requestAnimationFrame(()=>$('ai-section').scrollIntoView({behavior:'smooth',block:'start'}));}
 function renderAI(){
   const p=AI.provider||'anthropic';
   $('ai-provider').value=p;
@@ -698,7 +867,7 @@ function pickReceipt(cam){const i=$('scan-file');if(cam)i.setAttribute('capture'
 async function scanReceipt(input){
   const f=input.files&&input.files[0];input.value='';
   if(!f)return;
-  if(!aiReady()){showScan('Prima configura una chiave API qui sotto (sezione «Scansione scontrini»).','#FBBF24');scrollToAI();return;}
+  if(!aiReady()){showScan('Prima configura una chiave API in Impostazioni › «Scansione scontrini».','#FBBF24');scrollToAI();return;}
   const cam=$('scan-cam'),gal=$('scan-gal');cam.disabled=gal.disabled=true;
   try{
     showScan('Preparo l\'immagine…');
@@ -718,7 +887,7 @@ async function scanReceipt(input){
   }catch(e){showScan(e.message||'Errore durante la lettura dello scontrino.','#F87171');}
   finally{cam.disabled=gal.disabled=false;}
 }
-function startEditSpesa(i){const s=DB.spese[i];if(!s)return;editSpesa=i;
+function startEditSpesa(i){const s=cur().spese[i];if(!s)return;editSpesa=i;
   $('s-data').value=s.data;$('s-cat').value=s.cat;$('s-desc').value=s.desc||'';$('s-imp').value=fNum(s.imp);
   setEditMode('spesa-submit','spesa-cancel',true);$('form-spesa').scrollIntoView({behavior:'smooth',block:'center'});$('s-desc').focus();}
 function cancelEditSpesa(){editSpesa=null;setEditMode('spesa-submit','spesa-cancel',false);
@@ -727,40 +896,42 @@ function addSpesa(e){e.preventDefault();
   const imp=pNum($('s-imp').value),data=$('s-data').value;
   if(!data||isNaN(imp)){alert('Controlla i campi.');return false;}
   const rec={data,cat:$('s-cat').value,desc:$('s-desc').value,imp};
-  if(editSpesa!=null){DB.spese[editSpesa]=rec;editSpesa=null;DB.example=false;setEditMode('spesa-submit','spesa-cancel',false);}
-  else{clearExample();DB.spese.push(rec);}
+  if(editSpesa!=null){cur().spese[editSpesa]=rec;editSpesa=null;DB.example=false;setEditMode('spesa-submit','spesa-cancel',false);}
+  else{clearExample();cur().spese.push(rec);}
   save();
   $('s-desc').value=$('s-imp').value='';return false;}
-function startEditScad(i){const s=(DB.scadenze||[])[i];if(!s)return;editScad=i;
+function startEditScad(i){const s=(cur().scadenze||[])[i];if(!s)return;editScad=i;
   $('sc-tipo').value=s.tipo;$('sc-data').value=s.data;$('sc-note').value=s.note||'';
   setEditMode('scad-submit','scad-cancel',true);$('form-scad').scrollIntoView({behavior:'smooth',block:'center'});$('sc-note').focus();}
 function cancelEditScad(){editScad=null;setEditMode('scad-submit','scad-cancel',false);
   $('sc-data').value=todayISO();$('sc-note').value='';}
 function addScad(e){e.preventDefault();
   const data=$('sc-data').value;if(!data){alert('Inserisci la data.');return false;}
-  DB.scadenze=DB.scadenze||[];
+  const V=cur();V.scadenze=V.scadenze||[];
   const rec={tipo:$('sc-tipo').value,data,note:$('sc-note').value.trim()};
-  if(editScad!=null){DB.scadenze[editScad]=rec;editScad=null;DB.example=false;setEditMode('scad-submit','scad-cancel',false);}
-  else{clearExample();DB.scadenze.push(rec);}
+  if(editScad!=null){V.scadenze[editScad]=rec;editScad=null;DB.example=false;setEditMode('scad-submit','scad-cancel',false);}
+  else{clearExample();V.scadenze.push(rec);}
   save();
   $('sc-note').value='';return false;}
-function delRif(i){if(i>=0){if(editRif!=null)cancelEditRif();DB.rif.splice(i,1);DB.example=false;save();}}
-function delSpesa(i){if(editSpesa!=null)cancelEditSpesa();DB.spese.splice(i,1);DB.example=false;save();}
-function delScad(i){if(editScad!=null)cancelEditScad();DB.scadenze.splice(i,1);DB.example=false;save();}
-function clearAll(){if(confirm('Cancellare tutti i dati di questo dispositivo?')){DB={example:false,updatedAt:Date.now(),rif:[],spese:[],scadenze:[]};persistLocal();render();schedulePush();}}
+function delRif(i){if(i>=0){if(editRif!=null)cancelEditRif();cur().rif.splice(i,1);DB.example=false;save();}}
+function delSpesa(i){if(editSpesa!=null)cancelEditSpesa();cur().spese.splice(i,1);DB.example=false;save();}
+function delScad(i){if(editScad!=null)cancelEditScad();cur().scadenze.splice(i,1);DB.example=false;save();}
+function clearAll(){if(confirm('Cancellare TUTTI i dati (tutti i veicoli) di questo dispositivo?')){const v=blankVehicle('Veicolo 1','auto','');DB={v:2,example:false,updatedAt:Date.now(),currentId:v.id,vehicles:[v]};if(editVeh)cancelEditVehicle();persistLocal();render();schedulePush();}}
 
-function exportJSON(){dl('pit-backup.json',JSON.stringify({rif:DB.rif,spese:DB.spese,scadenze:DB.scadenze},null,2),'application/json');}
+function exportJSON(){dl('pit-backup.json',JSON.stringify({v:2,currentId:DB.currentId,vehicles:DB.vehicles},null,2),'application/json');}
 function importJSON(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();
-  rd.onload=()=>{try{const d=JSON.parse(rd.result);if(d.rif){DB={example:false,updatedAt:Date.now(),rif:d.rif,spese:d.spese||[],scadenze:d.scadenze||[]};save();alert('Importato ✓');}else alert('File non valido.');}catch(e){alert('File non valido.');}};
+  rd.onload=()=>{try{const d=migrate(JSON.parse(rd.result));if(d){DB=d;DB.example=false;save();alert('Importato ✓');}else alert('File non valido.');}catch(e){alert('File non valido.');}};
   rd.readAsText(f);inp.value='';}
-function exportCSV(){const c=computed();
-  let s='Data;Km;Litri;€/litro;Tipo;Benzinaio;Costo;Km percorsi;km/litro;L/100km;€/km\n';
+function exportCSV(){const V=cur(),c=computed();
+  let s='Veicolo;'+(V.name||'')+(V.plate?' ('+V.plate+')':'')+'\n\n';
+  s+='Data;Km;Litri;€/litro;Tipo;Benzinaio;Costo;Km percorsi;km/litro;L/100km;€/km\n';
   c.rows.forEach(r=>{s+=[itDate(r.data),r.km,r.litri,r.prezzo,r.tipo||'',r.benz||'',r.costo.toFixed(2),r.kmP==null?'':r.kmP,r.kmL?r.kmL.toFixed(2):'',r.l100?r.l100.toFixed(2):'',r.eurKm?r.eurKm.toFixed(3):''].join(';')+'\n';});
   s+='\nSPESE VARIE\nData;Categoria;Descrizione;Importo\n';
-  DB.spese.forEach(x=>{s+=[itDate(x.data),x.cat,x.desc,x.imp].join(';')+'\n';});
+  V.spese.forEach(x=>{s+=[itDate(x.data),x.cat,x.desc,x.imp].join(';')+'\n';});
   s+='\nSCADENZE\nTipo;Scadenza;Note\n';
-  (DB.scadenze||[]).forEach(x=>{s+=[x.tipo,itDate(x.data),x.note||''].join(';')+'\n';});
-  dl('pit.csv',s,'text/csv');}
+  (V.scadenze||[]).forEach(x=>{s+=[x.tipo,itDate(x.data),x.note||''].join(';')+'\n';});
+  const slug=(V.name||'veicolo').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'veicolo';
+  dl('pit-'+slug+'.csv',s,'text/csv');}
 function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();}
 
 // ---------- sincronizzazione (GitHub Gist) ----------
@@ -802,7 +973,7 @@ async function syncPull(adopt){
   let content=f.content;
   if(f.truncated&&f.raw_url){content=await(await fetch(f.raw_url)).text();}
   let remote;try{remote=JSON.parse(content);}catch(e){return;}
-  if(remote&&(remote.updatedAt||0)>(DB.updatedAt||0)){DB=remote;DB.scadenze=DB.scadenze||[];persistLocal();render();}
+  if(remote&&(remote.updatedAt||0)>(DB.updatedAt||0)){const mig=migrate(remote);if(mig){DB=mig;persistLocal();render();}}
   else if(adopt){await syncPush();}
 }
 async function syncPush(){
@@ -812,10 +983,11 @@ async function syncPush(){
 function schedulePush(){if(!(SYNC.token&&SYNC.gistId))return;clearTimeout(pushTimer);setSync('pending');pushTimer=setTimeout(doPush,1500);}
 async function doPush(){try{setSync('syncing');await syncPush();setSync('ok');}catch(e){setSync('error',e.message);}}
 async function syncNow(){try{setSync('syncing');await syncPull();await syncPush();setSync('ok');}catch(e){setSync('error',e.message);}}
-function scrollToSync(){$('sync-section').scrollIntoView({behavior:'smooth',block:'start'});}
+function scrollToSync(){showPage('impostazioni');location.hash='impostazioni';requestAnimationFrame(()=>$('sync-section').scrollIntoView({behavior:'smooth',block:'start'}));}
 
 // ---------- init ----------
 $('r-data').value=todayISO();$('s-data').value=todayISO();$('sc-data').value=todayISO();
+showPage(location.hash.slice(1)||'panoramica');
 renderAI();render();
 if(SYNC.token&&SYNC.gistId){setSync('syncing');syncPull().then(()=>setSync('ok')).catch(e=>setSync('error',e.message));}
 else setSync('off');
