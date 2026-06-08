@@ -1,7 +1,7 @@
 {
   "name": "Pit",
   "short_name": "Pit",
-  "description": "Spese, rifornimenti, consumi e scadenze della moto.",
+  "description": "Spese, rifornimenti, consumi e scadenze dei tuoi veicoli.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
