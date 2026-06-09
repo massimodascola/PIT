@@ -188,6 +188,12 @@
   .vf-val small{font-size:11px;color:var(--muted);font-weight:500;font-family:inherit}
   .vf-sub{font-size:12px;color:var(--muted);white-space:nowrap}
 
+  /* ordinamento liste */
+  .sortbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+  .sortbar-lab{font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+  .sortbar select{width:auto;flex:0 1 auto;min-width:150px;height:40px;min-height:40px}
+  .sortbar button{flex:0 0 auto}
+
   .sync-help{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6}
   .sync-help code{background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:12px}
   .inline-input{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
@@ -337,6 +343,19 @@
 
     <div class="section">
       <div class="section-h">Rifornimenti</div>
+      <div class="sortbar">
+        <span class="sortbar-lab">Ordina per</span>
+        <select id="sort-rif" onchange="setSort('rif',this.value)">
+          <option value="data">Data</option>
+          <option value="km">Km</option>
+          <option value="litri">Litri</option>
+          <option value="prezzo">€/litro</option>
+          <option value="costo">Costo</option>
+          <option value="tipo">Carburante</option>
+          <option value="benz">Benzinaio</option>
+        </select>
+        <button type="button" class="ghost sm" id="sortdir-rif" onclick="toggleSortDir('rif')">↑ Crescente</button>
+      </div>
       <div class="tbl-wrap"><table id="tbl-rif"></table></div>
     </div>
   </section>
@@ -363,6 +382,16 @@
 
     <div class="section">
       <div class="section-h">Spese varie</div>
+      <div class="sortbar">
+        <span class="sortbar-lab">Ordina per</span>
+        <select id="sort-spese" onchange="setSort('spese',this.value)">
+          <option value="data">Data</option>
+          <option value="cat">Categoria</option>
+          <option value="imp">Importo</option>
+          <option value="desc">Descrizione</option>
+        </select>
+        <button type="button" class="ghost sm" id="sortdir-spese" onclick="toggleSortDir('spese')">↑ Crescente</button>
+      </div>
       <div class="tbl-wrap"><table id="tbl-spesa"></table></div>
     </div>
   </section>
@@ -383,7 +412,16 @@
             <button type="button" class="ghost" id="scad-cancel" hidden onclick="cancelEditScad()">Annulla</button>
           </div>
         </form>
-        <div id="scad-list" class="scad-list" style="margin-top:14px"></div>
+        <div class="sortbar" style="margin-top:16px">
+        <span class="sortbar-lab">Ordina per</span>
+        <select id="sort-scad" onchange="setSort('scad',this.value)">
+          <option value="urg">Urgenza</option>
+          <option value="data">Scadenza</option>
+          <option value="tipo">Tipo</option>
+        </select>
+        <button type="button" class="ghost sm" id="sortdir-scad" onclick="toggleSortDir('scad')">↑ Crescente</button>
+      </div>
+      <div id="scad-list" class="scad-list" style="margin-top:10px"></div>
       </div>
     </div>
   </section>
@@ -593,6 +631,25 @@ const EDITICON='<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4
 const PLUSICON='<path d="M12 5v14"/><path d="M5 12h14"/>';
 
 // ---------- render ----------
+// ---------- ordinamento liste ----------
+let SORT=loadSort();
+function loadSort(){const def={rif:{key:'data',dir:'desc'},spese:{key:'data',dir:'desc'},scad:{key:'urg',dir:'asc'}};
+  try{const d=JSON.parse(localStorage.getItem('pit_sort'));return d?{rif:{...def.rif,...d.rif},spese:{...def.spese,...d.spese},scad:{...def.scad,...d.scad}}:def;}catch(e){return def;}}
+function saveSort(){localStorage.setItem('pit_sort',JSON.stringify(SORT));}
+function setSort(list,key){SORT[list].key=key;saveSort();render();}
+function toggleSortDir(list){SORT[list].dir=SORT[list].dir==='asc'?'desc':'asc';saveSort();render();}
+function renderSortBars(){
+  [['rif','sort-rif','sortdir-rif'],['spese','sort-spese','sortdir-spese'],['scad','sort-scad','sortdir-scad']].forEach(([l,s,b])=>{
+    const sel=$(s),btn=$(b);if(sel)sel.value=SORT[l].key;if(btn)btn.textContent=SORT[l].dir==='asc'?'↑ Crescente':'↓ Decrescente';});
+}
+function cmpSort(x,y,m){if(typeof x==='string'||typeof y==='string')return m*String(x==null?'':x).localeCompare(String(y==null?'':y));return m*((x||0)-(y||0));}
+function sortRows(rows){const {key,dir}=SORT.rif,m=dir==='asc'?1:-1;
+  const f=({data:r=>r.data,km:r=>r.km,litri:r=>r.litri,prezzo:r=>r.prezzo,costo:r=>r.costo,tipo:r=>r.tipo||'',benz:r=>r.benz||''})[key]||(r=>r.data);
+  return rows.slice().sort((a,b)=>cmpSort(f(a),f(b),m));}
+function sortSpese(arr){const {key,dir}=SORT.spese,m=dir==='asc'?1:-1;
+  const f=({data:s=>s.data,cat:s=>s.cat||'',imp:s=>s.imp,desc:s=>s.desc||''})[key]||(s=>s.data);
+  return arr.map((s,i)=>[s,i]).sort((a,b)=>cmpSort(f(a[0]),f(b[0]),m));}
+
 let fuelFilter='';
 function setFuelFilter(v){fuelFilter=v||'';render();}
 function renderFuelFilter(types){
@@ -649,6 +706,7 @@ function render(){
   barChart('ch-mese',monthly(c));
   stationChart('ch-stations',pStations);
 
+  renderSortBars();
   renderScad();
   renderTables(c);
   renderVehicles();
@@ -656,8 +714,8 @@ function render(){
 }
 
 function renderScad(){
-  const list=(cur().scadenze||[]).map((s,i)=>({...s,oi:i,st:scadStatus(s.data)})).sort((a,b)=>a.st.days-b.st.days);
-  const urgent=list.filter(s=>s.st.cls!=='green');
+  const base=(cur().scadenze||[]).map((s,i)=>({...s,oi:i,st:scadStatus(s.data)}));
+  const urgent=base.slice().sort((a,b)=>a.st.days-b.st.days).filter(s=>s.st.cls!=='green');
   const al=$('alert-scad');
   if(urgent.length){
     al.style.display='';
@@ -668,8 +726,14 @@ function renderScad(){
   } else al.style.display='none';
 
   const el=$('scad-list');
-  if(!list.length){el.innerHTML='<div class="empty">Nessuna scadenza. Aggiungine una sopra (assicurazione, bollo, revisione…).</div>';return;}
-  el.innerHTML=list.map(s=>`<div class="scad ${s.st.cls}">
+  if(!base.length){el.innerHTML='<div class="empty">Nessuna scadenza. Aggiungine una sopra (assicurazione, bollo, revisione…).</div>';return;}
+  const {key,dir}=SORT.scad,m=dir==='asc'?1:-1;
+  const display=base.slice().sort((a,b)=>{
+    if(key==='data')return m*a.data.localeCompare(b.data);
+    if(key==='tipo')return m*String(a.tipo).localeCompare(String(b.tipo));
+    return m*(a.st.days-b.st.days);
+  });
+  el.innerHTML=display.map(s=>`<div class="scad ${s.st.cls}">
       <span class="ico-wrap">${svgI(SCAD_ICON[s.tipo]||SCAD_ICON.Altro,18)}</span>
       <div class="meta"><div class="t">${esc(s.tipo)}</div><div class="d">${itDate(s.data)}${s.note?' · '+esc(s.note):''}</div></div>
       <span class="badge">${s.st.label}</span>
@@ -682,7 +746,7 @@ function renderTables(c){
   const tr=$('tbl-rif');
   if(!c.rows.length)tr.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessun rifornimento.</td></tr></tbody>';
   else tr.innerHTML='<thead><tr><th>Data</th><th>Km</th><th>Litri</th><th>€/l</th><th>Tipo</th><th>Benzinaio</th><th>Costo</th><th>Km perc.</th><th>km/l</th><th>€/km</th><th></th></tr></thead><tbody>'+
-    c.rows.slice().reverse().map(r=>`<tr><td>${itDate(r.data)}</td><td>${NUM(r.km,0)}</td><td>${NUM(r.litri,2)}</td><td>${NUM(r.prezzo,3)}</td>
+    sortRows(c.rows).map(r=>`<tr><td>${itDate(r.data)}</td><td>${NUM(r.km,0)}</td><td>${NUM(r.litri,2)}</td><td>${NUM(r.prezzo,3)}</td>
       <td style="text-align:left"><span class="chip">${esc(r.tipo||'—')}</span></td>
       <td style="text-align:left">${r.benz?esc(r.benz):'—'}</td>
       <td>${EUR(r.costo)}</td><td>${r.kmP!=null?NUM(r.kmP,0):'—'}</td>
@@ -693,7 +757,7 @@ function renderTables(c){
   const ts=$('tbl-spesa');
   if(!sp.length)ts.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessuna spesa varia.</td></tr></tbody>';
   else ts.innerHTML='<thead><tr><th>Data</th><th>Categoria</th><th>Descrizione</th><th>Importo</th><th></th></tr></thead><tbody>'+
-    sp.map((s,i)=>[s,i]).sort((a,b)=>b[0].data.localeCompare(a[0].data)).map(([s,i])=>
+    sortSpese(sp).map(([s,i])=>
       `<tr><td>${itDate(s.data)}</td><td><span class="chip">${esc(s.cat)}</span></td><td style="text-align:left">${esc(s.desc||'')}</td>
        <td>${EUR(s.imp)}</td><td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditSpesa(${i})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delSpesa(${i})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
 }
