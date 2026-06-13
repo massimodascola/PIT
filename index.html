@@ -104,6 +104,8 @@
   select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239AA7BD' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
   input::placeholder{color:var(--faint)}
   input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+  input[type=checkbox]{width:20px;height:20px;min-height:0;padding:0;flex:none;background:transparent;border:0;accent-color:var(--primary);cursor:pointer}
+  .chk{flex-direction:row;align-items:center;gap:9px;font-size:14px;color:var(--txt);font-weight:500;cursor:pointer;min-height:46px;align-self:end}
   :focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 
   button{font:inherit;cursor:pointer;border:none;border-radius:var(--radius-sm);
@@ -154,6 +156,7 @@
     background:var(--surface-3);border:1px solid var(--border);border-radius:999px;padding:3px 9px;color:var(--muted)}
   .chip .ic{color:var(--faint)}
   .chip.ok{color:var(--green);border-color:rgba(52,211,153,.32)} .chip.off{color:var(--faint)}
+  .chip.warn{color:var(--amber);border-color:rgba(251,191,36,.32);background:rgba(251,191,36,.10)}
 
   /* scadenze */
   .scad-list{display:flex;flex-direction:column;gap:9px}
@@ -352,13 +355,14 @@
             <select id="r-tipo"><option>Benzina</option><option>Benzina Premium</option><option>Diesel</option><option>GPL</option><option>Metano</option><option>Altro</option></select>
           </label>
           <label>Benzinaio<input type="text" id="r-benz" list="benzlist" placeholder="es. Eni Via Roma"></label>
+          <label class="chk"><input type="checkbox" id="r-pieno" checked> Pieno</label>
           <div class="form-actions">
             <button type="submit" id="rif-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
             <button type="button" class="ghost" id="rif-cancel" hidden onclick="cancelEditRif()">Annulla</button>
           </div>
         </form>
         <datalist id="benzlist"></datalist>
-        <div class="hint" style="margin:10px 0 0">Km = contachilometri totale; la distanza la calcola l'app.</div>
+        <div class="hint" style="margin:10px 0 0">Km = contachilometri totale; la distanza la calcola l'app. Togli «Pieno» se è un rabbocco parziale: i km/l si calcolano da pieno a pieno.</div>
       </div>
     </div>
 
@@ -581,11 +585,21 @@ function cur(){return DB.vehicles.find(v=>v.id===DB.currentId)||DB.vehicles[0];}
 function computed(){
   const V=cur();
   const rif=V.rif.map((r,oi)=>({...r,oi})).sort((a,b)=>a.km-b.km||a.data.localeCompare(b.data));
-  let prev=null;
+  // consumo "da pieno a pieno": i km/l si misurano tra due pieni, sommando
+  // tutta la benzina messa in mezzo (rabbocchi parziali compresi). Un rabbocco
+  // (pieno=false) non ha un suo km/l: i suoi litri confluiscono nel pieno dopo.
+  let prev=null, lastFull=null, accL=0, accC=0;
   const rows=rif.map(r=>{
     const costo=r.litri*r.prezzo, kmP=prev!=null?r.km-prev:null; prev=r.km;
-    const ok=kmP!=null&&kmP>0;
-    return {...r,costo,kmP,kmL:ok?kmP/r.litri:null,l100:ok?r.litri/kmP*100:null,eurKm:ok?costo/kmP:null};
+    const full=r.pieno!==false;
+    accL+=r.litri; accC+=costo;
+    let kmL=null,l100=null,eurKm=null;
+    if(full&&lastFull!=null){
+      const dist=r.km-lastFull;
+      if(dist>0&&accL>0){kmL=dist/accL;l100=accL/dist*100;eurKm=accC/dist;}
+    }
+    if(full){lastFull=r.km;accL=0;accC=0;}
+    return {...r,costo,kmP,full,kmL,l100,eurKm};
   });
   const wd=rows.filter(r=>r.kmP!=null&&r.kmP>0), sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
   const spesaCarb=sum(rows,r=>r.costo), litriTot=sum(rows,r=>r.litri), kmTot=sum(wd,r=>r.kmP),
@@ -746,14 +760,14 @@ function renderTables(c){
   }else{
     tr.innerHTML='<thead><tr>'+th('rif','data','Data')+th('rif','km','Km')+th('rif','litri','Litri')+th('rif','prezzo','€/l')+th('rif','tipo','Tipo')+th('rif','benz','Benzinaio')+th('rif','costo','Costo')+'<th>Km perc.</th><th>km/l</th><th>€/km</th><th></th></tr></thead><tbody>'+
       rifRows.map(r=>`<tr><td>${itDate(r.data)}</td><td>${NUM(r.km,0)}</td><td>${NUM(r.litri,2)}</td><td>${NUM(r.prezzo,3)}</td>
-        <td style="text-align:left"><span class="chip">${esc(r.tipo||'—')}</span></td>
+        <td style="text-align:left"><span class="chip">${esc(r.tipo||'—')}</span>${r.full===false?' <span class="chip warn">rabbocco</span>':''}</td>
         <td style="text-align:left">${r.benz?esc(r.benz):'—'}</td>
         <td>${EUR(r.costo)}</td><td>${r.kmP!=null?NUM(r.kmP,0):'—'}</td>
         <td class="auto">${r.kmL!=null?NUM(r.kmL,2):'—'}</td><td class="auto">${r.eurKm!=null?NUM(r.eurKm,3):'—'}</td>
         <td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditRif(${r.oi})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delRif(${r.oi})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
     $('cards-rif').innerHTML=rifRows.map(r=>`<div class="rc">
       <div class="rc-h"><span class="rc-amt">${EUR(r.costo)}</span><span class="rc-date">${itDate(r.data)}</span>${acts('startEditRif('+r.oi+')','delRif('+r.oi+')')}</div>
-      <div class="rc-sub"><span class="chip">${esc(r.tipo||'—')}</span>${r.benz?'<span class="rc-benz">'+esc(r.benz)+'</span>':''}${r.kmL!=null?'<span class="rc-eff">'+NUM(r.kmL,2)+' km/l</span>':''}</div>
+      <div class="rc-sub"><span class="chip">${esc(r.tipo||'—')}</span>${r.full===false?'<span class="chip warn">rabbocco</span>':''}${r.benz?'<span class="rc-benz">'+esc(r.benz)+'</span>':''}${r.kmL!=null?'<span class="rc-eff">'+NUM(r.kmL,2)+' km/l</span>':''}</div>
       <div class="rc-stats">${NUM(r.litri,2)} L · ${NUM(r.prezzo,3)} €/l · ${NUM(r.km,0)} km${r.eurKm!=null?' · '+NUM(r.eurKm,3)+' €/km':''}</div>
     </div>`).join('');
     $('sort-rif-m').innerHTML='<span class="sortchip-lab">Ordina</span>'+sortChip('rif','data','Data')+sortChip('rif','costo','Costo')+sortChip('rif','prezzo','€/l')+sortChip('rif','litri','Litri')+sortChip('rif','km','Km');
@@ -898,18 +912,18 @@ function setEditMode(sub,can,on){
 }
 function startEditRif(i){const r=cur().rif[i];if(!r)return;editRif=i;
   $('r-data').value=r.data;$('r-km').value=r.km;$('r-litri').value=fNum(r.litri);$('r-prezzo').value=fNum(r.prezzo);
-  ensureTipo(r.tipo);$('r-tipo').value=r.tipo||'Benzina';$('r-benz').value=r.benz||'';
+  ensureTipo(r.tipo);$('r-tipo').value=r.tipo||'Benzina';$('r-benz').value=r.benz||'';$('r-pieno').checked=r.pieno!==false;
   setEditMode('rif-submit','rif-cancel',true);$('form-rif').scrollIntoView({behavior:'smooth',block:'center'});$('r-km').focus();}
 function cancelEditRif(){editRif=null;setEditMode('rif-submit','rif-cancel',false);
-  $('r-data').value=todayISO();$('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';}
+  $('r-data').value=todayISO();$('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';$('r-pieno').checked=true;}
 function addRif(e){e.preventDefault();
   const km=pInt($('r-km').value),litri=pNum($('r-litri').value),prezzo=pNum($('r-prezzo').value),data=$('r-data').value;
   if(!data||isNaN(km)||isNaN(litri)||isNaN(prezzo)){alert('Controlla i campi.');return false;}
-  const rec={data,km,litri,prezzo,tipo:$('r-tipo').value,benz:$('r-benz').value.trim()};
+  const rec={data,km,litri,prezzo,tipo:$('r-tipo').value,benz:$('r-benz').value.trim(),pieno:$('r-pieno').checked};
   if(editRif!=null){cur().rif[editRif]=rec;editRif=null;DB.example=false;setEditMode('rif-submit','rif-cancel',false);}
   else{clearExample();cur().rif.push(rec);}
   save();
-  $('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';$('r-km').focus();return false;}
+  $('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';$('r-pieno').checked=true;$('r-km').focus();return false;}
 
 // ---------- scansione scontrino (visione AI · chiave dell'utente) ----------
 const AIK='pit_ai';
