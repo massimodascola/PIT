@@ -198,6 +198,20 @@
   .sortchip:hover{background:var(--surface-3);filter:none}
   .sortchip.active{background:rgba(91,141,239,.16);color:var(--primary);border-color:rgba(91,141,239,.35)}
 
+  /* righe come card compatte (mobile) */
+  .row-cards{display:none;flex-direction:column;gap:10px}
+  .row-sort{display:none}
+  .rc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;box-shadow:var(--sh)}
+  .rc-h{display:flex;align-items:center;gap:8px}
+  .rc-amt{font-size:18px;font-weight:720;letter-spacing:-.01em;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+  .rc-date{margin-left:auto;font-size:12.5px;color:var(--muted)}
+  .rc-acts{display:flex;gap:2px;flex:none}
+  .rc-acts .iconbtn{min-width:32px;min-height:32px}
+  .rc-sub{margin-top:7px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .rc-benz{color:var(--txt)}
+  .rc-eff{color:var(--green);font-weight:600}
+  .rc-stats{margin-top:6px;font-size:12.5px;color:var(--faint)}
+
   .sync-help{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6}
   .sync-help code{background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:12px}
   .inline-input{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
@@ -219,6 +233,9 @@
     .scad .ico-wrap{width:30px;height:30px}
     .scad .badge{font-size:11px;padding:4px 8px}
     .scad .iconbtn{min-width:34px;min-height:34px}
+    .tbl-wrap{display:none}
+    .row-cards{display:flex}
+    .row-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px}
   }
   /* mobile: nav "liquid glass" flottante a capsula (ovale) */
   @media(max-width:780px){
@@ -347,7 +364,9 @@
 
     <div class="section">
       <div class="section-h">Rifornimenti</div>
+      <div class="row-sort" id="sort-rif-m"></div>
       <div class="tbl-wrap"><table id="tbl-rif"></table></div>
+      <div class="row-cards" id="cards-rif"></div>
     </div>
   </section>
 
@@ -373,7 +392,9 @@
 
     <div class="section">
       <div class="section-h">Spese varie</div>
+      <div class="row-sort" id="sort-spesa-m"></div>
       <div class="tbl-wrap"><table id="tbl-spesa"></table></div>
+      <div class="row-cards" id="cards-spesa"></div>
     </div>
   </section>
 
@@ -612,7 +633,7 @@ function saveSort(){localStorage.setItem('pit_sort',JSON.stringify(SORT));}
 function sortBy(list,key){const s=SORT[list];if(s.key===key)s.dir=s.dir==='asc'?'desc':'asc';else{s.key=key;s.dir='asc';}saveSort();render();}
 function sortArrow(list,key){const s=SORT[list];return s.key===key?(s.dir==='asc'?' ▲':' ▼'):'';}
 function th(list,key,label){const a=SORT[list].key===key;return `<th class="sortable${a?' active':''}" onclick="sortBy('${list}','${key}')">${label}${sortArrow(list,key)}</th>`;}
-function scadChip(key,label){const a=SORT.scad.key===key;return `<button type="button" class="sortchip${a?' active':''}" onclick="sortBy('scad','${key}')">${label}${sortArrow('scad',key)}</button>`;}
+function sortChip(list,key,label){const a=SORT[list].key===key;return `<button type="button" class="sortchip${a?' active':''}" onclick="sortBy('${list}','${key}')">${label}${sortArrow(list,key)}</button>`;}
 function cmpSort(x,y,m){if(typeof x==='string'||typeof y==='string')return m*String(x==null?'':x).localeCompare(String(y==null?'':y));return m*((x||0)-(y||0));}
 function sortRows(rows){const {key,dir}=SORT.rif,m=dir==='asc'?1:-1;
   const f=({data:r=>r.data,km:r=>r.km,litri:r=>r.litri,prezzo:r=>r.prezzo,costo:r=>r.costo,tipo:r=>r.tipo||'',benz:r=>r.benz||''})[key]||(r=>r.data);
@@ -697,7 +718,7 @@ function renderScad(){
 
   const el=$('scad-list');
   if(!base.length){$('scad-sort').innerHTML='';el.innerHTML='<div class="empty">Nessuna scadenza. Aggiungine una sopra (assicurazione, bollo, revisione…).</div>';return;}
-  $('scad-sort').innerHTML='<span class="sortchip-lab">Ordina</span>'+scadChip('urg','Urgenza')+scadChip('data','Scadenza')+scadChip('tipo','Tipo');
+  $('scad-sort').innerHTML='<span class="sortchip-lab">Ordina</span>'+sortChip('scad','urg','Urgenza')+sortChip('scad','data','Scadenza')+sortChip('scad','tipo','Tipo');
   const {key,dir}=SORT.scad,m=dir==='asc'?1:-1;
   const display=base.slice().sort((a,b)=>{
     if(key==='data')return m*a.data.localeCompare(b.data);
@@ -714,23 +735,47 @@ function renderScad(){
 }
 
 function renderTables(c){
-  const tr=$('tbl-rif');
-  if(!c.rows.length)tr.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessun rifornimento.</td></tr></tbody>';
-  else tr.innerHTML='<thead><tr>'+th('rif','data','Data')+th('rif','km','Km')+th('rif','litri','Litri')+th('rif','prezzo','€/l')+th('rif','tipo','Tipo')+th('rif','benz','Benzinaio')+th('rif','costo','Costo')+'<th>Km perc.</th><th>km/l</th><th>€/km</th><th></th></tr></thead><tbody>'+
-    sortRows(c.rows).map(r=>`<tr><td>${itDate(r.data)}</td><td>${NUM(r.km,0)}</td><td>${NUM(r.litri,2)}</td><td>${NUM(r.prezzo,3)}</td>
-      <td style="text-align:left"><span class="chip">${esc(r.tipo||'—')}</span></td>
-      <td style="text-align:left">${r.benz?esc(r.benz):'—'}</td>
-      <td>${EUR(r.costo)}</td><td>${r.kmP!=null?NUM(r.kmP,0):'—'}</td>
-      <td class="auto">${r.kmL!=null?NUM(r.kmL,2):'—'}</td><td class="auto">${r.eurKm!=null?NUM(r.eurKm,3):'—'}</td>
-      <td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditRif(${r.oi})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delRif(${r.oi})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
+  const acts=(e,d)=>`<span class="rc-acts"><button class="iconbtn edit" aria-label="Modifica" onclick="${e}">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="${d}">${svgI(XICON,16)}</button></span>`;
 
-  const sp=cur().spese;
-  const ts=$('tbl-spesa');
-  if(!sp.length)ts.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessuna spesa varia.</td></tr></tbody>';
-  else ts.innerHTML='<thead><tr>'+th('spese','data','Data')+th('spese','cat','Categoria')+th('spese','desc','Descrizione')+th('spese','imp','Importo')+'<th></th></tr></thead><tbody>'+
-    sortSpese(sp).map(([s,i])=>
-      `<tr><td>${itDate(s.data)}</td><td><span class="chip">${esc(s.cat)}</span></td><td style="text-align:left">${esc(s.desc||'')}</td>
-       <td>${EUR(s.imp)}</td><td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditSpesa(${i})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delSpesa(${i})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
+  // ---- Rifornimenti: tabella (desktop) + card (mobile) ----
+  const rifRows=sortRows(c.rows), tr=$('tbl-rif');
+  if(!c.rows.length){
+    tr.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessun rifornimento.</td></tr></tbody>';
+    $('cards-rif').innerHTML='<div class="empty">Nessun rifornimento.</div>';
+    $('sort-rif-m').innerHTML='';
+  }else{
+    tr.innerHTML='<thead><tr>'+th('rif','data','Data')+th('rif','km','Km')+th('rif','litri','Litri')+th('rif','prezzo','€/l')+th('rif','tipo','Tipo')+th('rif','benz','Benzinaio')+th('rif','costo','Costo')+'<th>Km perc.</th><th>km/l</th><th>€/km</th><th></th></tr></thead><tbody>'+
+      rifRows.map(r=>`<tr><td>${itDate(r.data)}</td><td>${NUM(r.km,0)}</td><td>${NUM(r.litri,2)}</td><td>${NUM(r.prezzo,3)}</td>
+        <td style="text-align:left"><span class="chip">${esc(r.tipo||'—')}</span></td>
+        <td style="text-align:left">${r.benz?esc(r.benz):'—'}</td>
+        <td>${EUR(r.costo)}</td><td>${r.kmP!=null?NUM(r.kmP,0):'—'}</td>
+        <td class="auto">${r.kmL!=null?NUM(r.kmL,2):'—'}</td><td class="auto">${r.eurKm!=null?NUM(r.eurKm,3):'—'}</td>
+        <td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditRif(${r.oi})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delRif(${r.oi})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
+    $('cards-rif').innerHTML=rifRows.map(r=>`<div class="rc">
+      <div class="rc-h"><span class="rc-amt">${EUR(r.costo)}</span><span class="rc-date">${itDate(r.data)}</span>${acts('startEditRif('+r.oi+')','delRif('+r.oi+')')}</div>
+      <div class="rc-sub"><span class="chip">${esc(r.tipo||'—')}</span>${r.benz?'<span class="rc-benz">'+esc(r.benz)+'</span>':''}${r.kmL!=null?'<span class="rc-eff">'+NUM(r.kmL,2)+' km/l</span>':''}</div>
+      <div class="rc-stats">${NUM(r.litri,2)} L · ${NUM(r.prezzo,3)} €/l · ${NUM(r.km,0)} km${r.eurKm!=null?' · '+NUM(r.eurKm,3)+' €/km':''}</div>
+    </div>`).join('');
+    $('sort-rif-m').innerHTML='<span class="sortchip-lab">Ordina</span>'+sortChip('rif','data','Data')+sortChip('rif','costo','Costo')+sortChip('rif','prezzo','€/l')+sortChip('rif','litri','Litri')+sortChip('rif','km','Km');
+  }
+
+  // ---- Spese: tabella (desktop) + card (mobile) ----
+  const sp=cur().spese, ts=$('tbl-spesa');
+  if(!sp.length){
+    ts.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessuna spesa varia.</td></tr></tbody>';
+    $('cards-spesa').innerHTML='<div class="empty">Nessuna spesa varia.</div>';
+    $('sort-spesa-m').innerHTML='';
+  }else{
+    const sps=sortSpese(sp);
+    ts.innerHTML='<thead><tr>'+th('spese','data','Data')+th('spese','cat','Categoria')+th('spese','desc','Descrizione')+th('spese','imp','Importo')+'<th></th></tr></thead><tbody>'+
+      sps.map(([s,i])=>`<tr><td>${itDate(s.data)}</td><td><span class="chip">${esc(s.cat)}</span></td><td style="text-align:left">${esc(s.desc||'')}</td>
+         <td>${EUR(s.imp)}</td><td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditSpesa(${i})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delSpesa(${i})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
+    $('cards-spesa').innerHTML=sps.map(([s,i])=>`<div class="rc">
+      <div class="rc-h"><span class="rc-amt">${EUR(s.imp)}</span><span class="rc-date">${itDate(s.data)}</span>${acts('startEditSpesa('+i+')','delSpesa('+i+')')}</div>
+      <div class="rc-sub"><span class="chip">${esc(s.cat)}</span>${s.desc?'<span class="rc-benz">'+esc(s.desc)+'</span>':''}</div>
+    </div>`).join('');
+    $('sort-spesa-m').innerHTML='<span class="sortchip-lab">Ordina</span>'+sortChip('spese','data','Data')+sortChip('spese','cat','Categoria')+sortChip('spese','imp','Importo');
+  }
 }
 
 function monthly(c){
