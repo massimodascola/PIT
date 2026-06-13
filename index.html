@@ -705,10 +705,10 @@ function render(){
     ['Rifornimenti',c.nRif],
   ].map(([lab,v,cls])=>`<div class="stat ${cls||''}"><div class="k">${lab}</div><div class="v">${v}</div></div>`).join('');
 
-  const dist=c.rows.filter(r=>r.kmP!=null&&r.kmP>0);
-  lineChart('ch-consumo',dist.map(r=>({x:r.data,y:r.kmL})),{color:'#34D399',dec:1});
+  // consumo e €/km: solo i punti con valore (i rabbocchi non hanno km/l -> esclusi)
+  lineChart('ch-consumo',c.rows.filter(r=>r.kmL!=null).map(r=>({x:r.data,y:r.kmL})),{color:'#34D399',dec:1});
   lineChart('ch-prezzo',pr.map(r=>({x:r.data,y:r.prezzo})),{color:'#FBBF24',dec:3});
-  lineChart('ch-eurkm',dist.map(r=>({x:r.data,y:r.eurKm})),{color:'#F87171',dec:3});
+  lineChart('ch-eurkm',c.rows.filter(r=>r.eurKm!=null).map(r=>({x:r.data,y:r.eurKm})),{color:'#F87171',dec:3});
   barChart('ch-mese',monthly(c));
   stationChart('ch-stations',pStations);
 
