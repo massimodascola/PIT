@@ -81,8 +81,9 @@
   .stat{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--sh)}
   .stat.clk{cursor:pointer;transition:border-color .15s,background .15s}
   .stat.clk:hover{border-color:var(--border-strong);background:var(--surface-2)}
-  .stat.clk .k{padding-right:14px}
-  .stat.clk::after{content:"";position:absolute;top:17px;right:15px;width:6px;height:6px;border-right:2px solid var(--faint);border-top:2px solid var(--faint);transform:rotate(45deg)}
+  .stat .dots{position:absolute;right:14px;bottom:12px;display:flex;gap:4px}
+  .stat .dots i{width:5px;height:5px;border-radius:50%;background:var(--faint);opacity:.5}
+  .stat .dots i.on{background:var(--primary);opacity:1}
   .stat .k{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
   .stat .k .ic{color:var(--faint)}
   .stat .v{font-size:25px;font-weight:720;margin-top:7px;letter-spacing:-.02em;
@@ -224,18 +225,6 @@
   .inline-input{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
   .inline-input label{flex:1;min-width:200px}
   .footer{color:var(--faint);font-size:12px;text-align:center;margin:34px 0 8px}
-
-  /* modale dettaglio card */
-  .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:18px;
-    background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
-  .modal-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border-strong);
-    border-radius:var(--radius);box-shadow:var(--sh);padding:16px 18px 14px;max-height:80vh;overflow:auto}
-  .modal-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-  .modal-h span{font-size:15.5px;font-weight:680}
-  .md-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
-  .md-row:last-child{border-bottom:none}
-  .md-row span{color:var(--muted)}
-  .md-row b{font-weight:700;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
 
   @media(max-width:640px){
     .wrap{padding:6px 12px 0}
@@ -532,13 +521,6 @@
 
 </main>
 
-<div id="modal" class="modal" hidden onclick="if(event.target===this)closeModal()">
-  <div class="modal-card">
-    <div class="modal-h"><span id="modal-title"></span><button type="button" class="iconbtn" aria-label="Chiudi" onclick="closeModal()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button></div>
-    <div id="modal-body"></div>
-  </div>
-</div>
-
 <script>
 const K='moto_data_v1', SYNCK='moto_sync', GIST_FILE='spese-moto.json';
 const $=id=>document.getElementById(id);
@@ -682,13 +664,18 @@ function sortSpese(arr){const {key,dir}=SORT.spese,m=dir==='asc'?1:-1;
 let fuelFilter='';
 function setFuelFilter(v){fuelFilter=v||'';render();}
 
-// dettaglio card (modale)
-let cardDetails={};
-function openDetail(key){const d=cardDetails[key];if(!d)return;
-  $('modal-title').textContent=d.title;
-  $('modal-body').innerHTML=d.rows.map(([l,v])=>`<div class="md-row"><span>${esc(l)}</span><b>${esc(v)}</b></div>`).join('');
-  $('modal').hidden=false;}
-function closeModal(){$('modal').hidden=true;}
+// voci "a scorrimento": il tap sulla card cambia la voce mostrata (in-place)
+let cardViews={}, cardView={};
+function cycleCard(key){
+  const views=cardViews[key]; if(!views||views.length<2)return;
+  cardView[key]=((cardView[key]||0)+1)%views.length;
+  const el=document.querySelector('.stat[data-key="'+key+'"]'); if(!el)return;
+  const v=views[cardView[key]];
+  el.querySelector('.k').innerHTML=v.lab;
+  el.querySelector('.v').innerHTML=v.val;
+  const dots=el.querySelector('.dots');
+  if(dots)[...dots.children].forEach((d,i)=>{d.className=i===cardView[key]?'on':'';});
+}
 function renderFuelFilter(types){
   const row=$('fuel-filter-row'),sel=$('fuel-filter');
   if(!types||types.length<2){row.style.display='none';return;}
@@ -724,35 +711,41 @@ function render(){
   pr.forEach(r=>{const k=(r.benz||'').trim();if(!k)return;(pst[k]=pst[k]||{litri:0,costo:0});pst[k].litri+=r.litri;pst[k].costo+=r.costo;});
   const pStations=Object.keys(pst).map(k=>({nome:k,avg:pst[k].costo/pst[k].litri})).sort((a,b)=>a.avg-b.avg);
 
-  // dettagli mostrati al tap su una card
+  // voci "a scorrimento": un tap sulla card cambia la voce mostrata, in-place
   const spByCat={}; cur().spese.forEach(s=>{const k=s.cat||'Altro';spByCat[k]=(spByCat[k]||0)+s.imp;});
-  const meas=c.rows.filter(r=>r.kmL!=null), klList=meas.map(r=>r.kmL);
+  const spCat=Object.keys(spByCat).sort((a,b)=>spByCat[b]-spByCat[a]);
+  const meas=c.rows.filter(r=>r.kmL!=null), kl=meas.map(r=>r.kmL);
   const lastMeas=meas.slice().sort((a,b)=>a.data.localeCompare(b.data)).pop();
-  const ekRows=c.rows.filter(r=>r.eurKm!=null), lastEk=ekRows.slice().sort((a,b)=>a.data.localeCompare(b.data)).pop();
+  const ek=c.rows.filter(r=>r.eurKm!=null), lastEk=ek.slice().sort((a,b)=>a.data.localeCompare(b.data)).pop();
   const nPieni=c.rows.filter(r=>r.full!==false).length, nRab=c.rows.length-nPieni, multiFuel=c.byFuel.length>1;
-  cardDetails={};
-  if(multiFuel){
-    cardDetails.spesaCarb={title:'Spesa carburante per tipo',rows:c.byFuel.map(f=>[f.tipo,EUR(f.costo)]).concat([['Totale',EUR(c.spesaCarb)]])};
-    cardDetails.prezzo={title:'Prezzo medio per carburante',rows:c.byFuel.map(f=>[f.tipo,NUM(f.avg,3)+' €/l'])};
-  }
-  if(Object.keys(spByCat).length) cardDetails.speseVarie={title:'Spese varie per categoria',rows:Object.keys(spByCat).sort((a,b)=>spByCat[b]-spByCat[a]).map(k=>[k,EUR(spByCat[k])]).concat([['Totale',EUR(c.speseTot)]])};
-  if(c.spesaCarb||c.speseTot) cardDetails.totale={title:'Composizione totale',rows:[['Carburante',EUR(c.spesaCarb)],['Spese varie',EUR(c.speseTot)],['Totale',EUR(c.totale)]]};
-  if(meas.length) cardDetails.consumo={title:'Consumo (km/l)',rows:[['Migliore',NUM(Math.max(...klList),1)+' km/l'],['Peggiore',NUM(Math.min(...klList),1)+' km/l'],['Ultima rilevazione',NUM(lastMeas.kmL,1)+' km/l'],['Pieni misurati',String(meas.length)]]};
-  if(ekRows.length) cardDetails.eurkm={title:'Costo al km (€/km)',rows:[['Migliore',NUM(Math.min(...ekRows.map(r=>r.eurKm)),3)+' €/km'],['Peggiore',NUM(Math.max(...ekRows.map(r=>r.eurKm)),3)+' €/km'],['Ultima rilevazione',NUM(lastEk.eurKm,3)+' €/km']]};
-  if(c.nRif) cardDetails.nrif={title:'Rifornimenti',rows:(multiFuel?c.byFuel.map(f=>[f.tipo,String(f.n)]):[]).concat([['Pieni',String(nPieni)],['Rabbocchi',String(nRab)]])};
+  const U=(s,unit)=>s+' <small>'+unit+'</small>';
+  cardViews={
+    spesaCarb:[{lab:'Spesa carburante',val:EUR(c.spesaCarb)}].concat(multiFuel?c.byFuel.map(f=>({lab:'Spesa · '+esc(f.tipo),val:EUR(f.costo)})):[]),
+    speseVarie:[{lab:'Spese varie',val:EUR(c.speseTot)}].concat(spCat.length>1?spCat.map(k=>({lab:'Spese · '+esc(k),val:EUR(spByCat[k])})):[]),
+    totale:[{lab:'Totale',val:EUR(c.totale)},{lab:'Totale · carburante',val:EUR(c.spesaCarb)},{lab:'Totale · spese varie',val:EUR(c.speseTot)}],
+    consumo:[{lab:'Consumo medio',val:c.kmLavg?U(NUM(c.kmLavg,1),'km/l'):'—'}].concat(meas.length?[
+      {lab:'Consumo · migliore',val:U(NUM(Math.max(...kl),1),'km/l')},
+      {lab:'Consumo · peggiore',val:U(NUM(Math.min(...kl),1),'km/l')},
+      {lab:'Consumo · ultima',val:U(NUM(lastMeas.kmL,1),'km/l')}]:[]),
+    eurkm:[{lab:'Costo al km',val:c.eurKmAvg?U(NUM(c.eurKmAvg,3),'€/km'):'—'}].concat(ek.length?[
+      {lab:'Costo/km · migliore',val:U(NUM(Math.min(...ek.map(r=>r.eurKm)),3),'€/km')},
+      {lab:'Costo/km · peggiore',val:U(NUM(Math.max(...ek.map(r=>r.eurKm)),3),'€/km')}]:[]),
+    prezzo:[{lab:prezzoLab,val:pEurL!=null?U(NUM(pEurL,3),'€/l'):'—'}].concat(multiFuel?c.byFuel.map(f=>({lab:'Prezzo · '+esc(f.tipo),val:U(NUM(f.avg,3),'€/l')})):[]),
+    nrif:[{lab:'Rifornimenti',val:String(c.nRif)}].concat(c.nRif?(multiFuel?c.byFuel.map(f=>({lab:'Rif. · '+esc(f.tipo),val:String(f.n)})):[]).concat([{lab:'Rif. · pieni',val:String(nPieni)},{lab:'Rif. · rabbocchi',val:String(nRab)}]):[]),
+  };
 
-  $('cards').innerHTML=[
-    ['Spesa carburante',EUR(c.spesaCarb),'big','spesaCarb'],
-    ['Spese varie',EUR(c.speseTot),'','speseVarie'],
-    ['Totale',EUR(c.totale),'big','totale'],
-    ['Consumo medio',c.kmLavg?NUM(c.kmLavg,1)+' <small>km/l</small>':'—','','consumo'],
-    ['L/100 km',c.l100avg?NUM(c.l100avg,1):'—','',''],
-    ['Costo al km',c.eurKmAvg?NUM(c.eurKmAvg,3)+' <small>€/km</small>':'—','','eurkm'],
-    [prezzoLab,pEurL!=null?NUM(pEurL,3)+' <small>€/l</small>':'—','','prezzo'],
-    ['Km percorsi',NUM(c.kmTot,0)+' <small>km</small>','',''],
-    ['Rifornimenti',c.nRif,'','nrif'],
-  ].map(([lab,v,cls,key])=>{const clk=key&&cardDetails[key];
-    return `<div class="stat ${cls||''}${clk?' clk':''}"${clk?' onclick="openDetail(\''+key+'\')"':''}><div class="k">${lab}</div><div class="v">${v}</div></div>`;}).join('');
+  const layout=[
+    {key:'spesaCarb',cls:'big'},{key:'speseVarie'},{key:'totale',cls:'big'},
+    {key:'consumo'},{lab:'L/100 km',val:c.l100avg?NUM(c.l100avg,1):'—'},
+    {key:'eurkm'},{key:'prezzo'},
+    {lab:'Km percorsi',val:NUM(c.kmTot,0)+' <small>km</small>'},{key:'nrif'},
+  ];
+  $('cards').innerHTML=layout.map(card=>{
+    if(!card.key)return `<div class="stat ${card.cls||''}"><div class="k">${card.lab}</div><div class="v">${card.val}</div></div>`;
+    const views=cardViews[card.key], idx=Math.min(cardView[card.key]||0,views.length-1), v=views[idx], multi=views.length>1;
+    const dots=multi?'<div class="dots">'+views.map((_,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')+'</div>':'';
+    return `<div class="stat ${card.cls||''}${multi?' clk':''}" data-key="${card.key}"${multi?' onclick="cycleCard(\''+card.key+'\')"':''}><div class="k">${v.lab}</div><div class="v">${v.val}</div>${dots}</div>`;
+  }).join('');
 
   // consumo e €/km: solo i punti con valore (i rabbocchi non hanno km/l -> esclusi)
   lineChart('ch-consumo',c.rows.filter(r=>r.kmL!=null).map(r=>({x:r.data,y:r.kmL})),{color:'#34D399',dec:1});
@@ -1204,7 +1197,6 @@ function scrollToSync(){showPage('impostazioni');location.hash='impostazioni';re
 
 // ---------- init ----------
 $('r-data').value=todayISO();$('s-data').value=todayISO();$('sc-data').value=todayISO();
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 showPage(location.hash.slice(1)||'panoramica');
 renderAI();render();
 if(SYNC.token&&SYNC.gistId){setSync('syncing');syncPull().then(()=>setSync('ok')).catch(e=>setSync('error',e.message));}
