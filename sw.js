@@ -2,8 +2,11 @@
  * Strategia: network-first sulle navigazioni (index.html), cache-first
  * sugli asset statici. Online vedi sempre l'ultima versione; offline ricade
  * sulla copia in cache. I dati sono in localStorage, non in cache.
+ * I font (Google Fonts) si mettono in cache al primo uso, così l'app
+ * mantiene il suo aspetto anche offline.
  */
-const CACHE = 'pit-v1.9.1';
+const CACHE = 'pit-v2.0.0';
+const FONTS = 'pit-fonts-v1';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest',
   './icon-180.png', './icon-192.png', './icon-512.png'];
 
@@ -17,7 +20,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)));
+    await Promise.all(keys.filter((k) => k !== CACHE && k !== FONTS).map((k) => caches.delete(k)));
     await self.clients.claim();
   })());
 });
@@ -27,6 +30,25 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
+
+  // Google Fonts: il CSS si aggiorna in background, i file dei font non cambiano mai
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+    event.respondWith((async () => {
+      const cache = await caches.open(FONTS);
+      const cached = await cache.match(req);
+      const fresh = fetch(req).then((res) => {
+        if (res.ok || res.type === 'opaque') cache.put(req, res.clone()).catch(() => {});
+        return res;
+      }).catch(() => null);
+      if (cached) {
+        if (url.hostname === 'fonts.googleapis.com') event.waitUntil(fresh);
+        return cached;
+      }
+      return (await fresh) || new Response('', { status: 504, statusText: 'Offline' });
+    })());
+    return;
+  }
+
   if (url.origin !== self.location.origin) return;
 
   const accept = req.headers.get('accept') || '';

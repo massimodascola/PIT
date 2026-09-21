@@ -4,586 +4,694 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pit</title>
-<meta name="theme-color" content="#0A0A0B">
+<meta name="description" content="Pieni, consumi, spese e scadenze dei tuoi veicoli.">
+<meta name="theme-color" content="#F7F5F1">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Pit">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* Pit v2 · carta, inchiostro, numeri in mono, un solo accento (rosso Pit) */
   :root{
-    --bg:#0A0A0B; --surface:#151517; --surface-2:#1D1D21; --surface-3:#27272D;
-    --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.15);
-    --txt:#F3F4F6; --muted:#9B9BA6; --faint:#6C6C76;
-    --primary:#3B82F6; --primary-d:#2563EB; --on-primary:#fff;
-    --green:#34D399; --amber:#FBBF24; --red:#F87171; --blue:#60A5FA; --violet:#A78BFA;
-    --radius:16px; --radius-sm:11px;
-    --sh:0 1px 2px rgba(0,0,0,.5),0 12px 32px -16px rgba(0,0,0,.85);
-    --maxw:1080px;
+    --paper:#F7F5F1; --canvas:#EAE6DE; --card:#FFFFFF;
+    --ink:#15140F; --ink-2:#605D55; --label:#6B6860; --faint:#7A776D; --ph:#ADA89D;
+    --line:#E6E2DA; --line-2:#DDD8CE; --bar:#E0DBD2; --tag:#EDEAE3; --dim:#6C6A62;
+    --signal:#D6442B; --good:#2F7D5C;
+    --warn-bg:#FFF6EE; --warn-line:#F0DCC6; --warn-sub:#7A6A55; --warn:#8A5E06;
+    --bad-bg:#FCEFEB; --bad-line:#F1D2C9; --bad-sub:#86503F; --bad:#B8361F;
+    --sans:'Schibsted Grotesk',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --col:560px;
+    --safe-t:env(safe-area-inset-top,0px);
+    --safe-b:env(safe-area-inset-bottom,0px);
+    --tabs-h:calc(46px + max(18px,var(--safe-b)));
   }
   *{box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%}
-  body{margin:0;background:var(--bg);color:var(--txt);
-    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
-    font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;
-    padding-bottom:calc(28px + env(safe-area-inset-bottom))}
-  body::before{content:"";position:fixed;left:0;right:0;top:0;height:380px;z-index:-1;pointer-events:none;
-    background:radial-gradient(115% 80% at 50% -12%, rgba(80,120,255,.14), rgba(120,90,255,.06) 38%, transparent 64%)}
-  .num,td,th,.stat .v,input,select{font-variant-numeric:tabular-nums}
-  h1,h2,h3{margin:0}
-  a{color:var(--blue)}
-  .ic{display:inline-block;vertical-align:-.18em;flex:none}
+  html{-webkit-text-size-adjust:100%;background:var(--canvas)}
+  body{margin:0;min-height:100vh;background:var(--canvas);color:var(--ink);
+    font:400 16px/1.45 var(--sans);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+  body.lock{overflow:hidden}
+  button,input,select{font:inherit;color:inherit;margin:0}
+  button{cursor:pointer;background:none;border:0;padding:0;text-align:inherit;-webkit-appearance:none;appearance:none}
+  h1,h2,h3,p{margin:0}
+  a{color:var(--signal);text-decoration:none}
   [hidden]{display:none!important}
+  :focus{outline:none}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  input:focus-visible,select:focus-visible{outline:none} /* il focus lo mostra il riquadro del campo */
+  .good{color:var(--good)!important} .bad-t{color:var(--signal)!important} .faint{color:var(--faint)!important}
 
-  /* barra superiore: header + nav (su desktop restano in alto insieme) */
-  /* niente backdrop-filter qui: creerebbe un containing-block per la nav fixed (che finirebbe in alto invece che in basso su mobile) */
-  .topbar{position:sticky;top:0;z-index:30;background:#0D0D0F;border-bottom:1px solid var(--border)}
-  header{display:flex;align-items:center;gap:12px;max-width:var(--maxw);margin:0 auto;
-    padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top))}
-  .logo{width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;
-    background:linear-gradient(150deg,#262630,#121214);border:1px solid var(--border-strong);color:var(--amber)}
-  .veh-select{width:auto;max-width:min(58vw,260px);height:38px;min-height:38px;
-    background:var(--surface-2);border:1px solid var(--border-strong);border-radius:999px;
-    padding:0 30px 0 12px;font-size:13.5px;font-weight:650;color:var(--txt)}
-  .pill{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
-    padding:7px 11px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
-    color:var(--muted);cursor:pointer;min-height:36px;transition:background .2s,color .2s,border-color .2s}
-  .pill:hover{border-color:var(--border-strong)}
-  .pill .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
-  .pill.ok{color:var(--green)} .pill.err{color:var(--red)} .pill.busy{color:var(--amber)} .pill.off{color:var(--faint)}
-  .pill .lab{display:inline}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .spin{animation:spin 1s linear infinite}
+  /* ---------- colonna app (su desktop resta una colonna centrata) ---------- */
+  #app{max-width:var(--col);margin:0 auto;min-height:100vh;min-height:100dvh;background:var(--paper);position:relative;
+    padding-bottom:calc(var(--tabs-h) + 36px)}
+  #app.fab-on{padding-bottom:calc(var(--tabs-h) + 104px)}
+  #app.sub{padding-bottom:calc(40px + var(--safe-b))}
+  @media(min-width:600px){#app{border-left:1px solid var(--line-2);border-right:1px solid var(--line-2)}}
 
-  /* navigazione a pagine */
-  #nav{display:flex;gap:6px;align-items:center;max-width:var(--maxw);margin:0 auto;padding:2px 12px 10px}
-  #nav button{flex:1;min-height:40px;padding:0 10px;background:transparent;color:var(--muted);
-    border:1px solid transparent;border-radius:10px;font-size:13px;font-weight:600;box-shadow:none;gap:7px}
-  #nav button:hover{background:var(--surface-2);filter:none;color:var(--txt)}
-  #nav button.active{background:var(--surface-2);color:var(--txt);border-color:var(--border-strong)}
-  #nav button span{white-space:nowrap}
+  /* ---------- testi ricorrenti ---------- */
+  .eyebrow{font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--label)}
+  .eyebrow.sm{font-size:11px;color:var(--faint)}
+  .lab{font:500 12px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--label)}
+  .lab .opt{text-transform:none;letter-spacing:0;color:var(--faint)}
+  .hint{font-size:14px;line-height:1.45;color:var(--label);text-wrap:pretty}
+  .hint code{font:500 12.5px var(--mono);background:var(--tag);border-radius:4px;padding:1px 5px;color:var(--ink-2)}
+  .empty{font-size:14px;line-height:1.45;color:var(--label);text-align:center;padding:26px 14px;border:1px dashed var(--line-2);border-radius:14px;text-wrap:pretty}
+  .plate{display:inline-block;font:500 12px var(--mono);letter-spacing:.05em;color:var(--label);background:var(--tag);border-radius:5px;padding:4px 7px;line-height:1.2}
 
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:8px 16px 0}
-  .section{margin-top:26px}
-  .section:first-child{margin-top:18px}
-  .section-h{display:flex;align-items:center;gap:9px;margin:0 0 12px;color:var(--muted);
-    font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
-  .section-h .ic{color:var(--faint)}
-  .page-title{font-size:20px;font-weight:720;letter-spacing:-.02em;margin:6px 0 2px}
-  .page-sub{color:var(--muted);font-size:13px;margin:0 0 6px}
+  /* ---------- testata Panoramica ---------- */
+  .top{display:flex;justify-content:space-between;align-items:center;padding:calc(18px + var(--safe-t)) 24px 0}
+  .veh-btn{display:flex;align-items:center;gap:9px;min-height:40px;min-width:0}
+  .veh-btn .nm{font:600 19px var(--sans);letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .caret{font:500 14px var(--sans);color:var(--faint)}
+  .round{position:relative;flex:none;width:34px;height:34px;border-radius:999px;border:1px solid var(--bar);background:var(--card);
+    display:flex;align-items:center;justify-content:center;color:var(--ink-2)}
+  .round::after{content:"";position:absolute;inset:-6px}
+  .round .dot{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;border:2px solid var(--paper);background:var(--faint)}
+  .round .dot.err{background:var(--signal)} .round .dot.busy{background:#C98A0B}
 
-  .banner{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;
-    background:linear-gradient(180deg,rgba(251,191,36,.10),rgba(251,191,36,.04));
-    border:1px solid rgba(251,191,36,.32);color:#FCD980;padding:12px 14px;border-radius:var(--radius-sm);font-size:13.5px}
+  /* ---------- numero eroe + istogramma ---------- */
+  .hero{display:flex;flex-direction:column;gap:14px;padding:30px 24px 0;cursor:pointer}
+  .hero-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .big{display:flex;align-items:baseline;gap:12px}
+  .big .n{font:600 60px/1 var(--mono);letter-spacing:-.04em}
+  .big .u{font:500 26px var(--mono);color:var(--faint)}
+  .big.md{gap:10px} .big.md .n{font-size:48px} .big.md .u{font-size:22px}
+  .delta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--label)}
+  .delta b{font:600 14px var(--mono);color:var(--ink-2)}
+  .delta b.down{color:var(--good)} .delta b.up{color:var(--signal)}
+  .bars{display:flex;align-items:flex-end;gap:10px;height:118px;margin-top:6px}
+  .bars .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .bars .b{width:100%;border-radius:4px;background:var(--bar)}
+  .bars .l{font:500 11px var(--mono);color:var(--faint);text-transform:uppercase}
+  .bars .cur .b{background:var(--ink)} .bars .cur .l{font-weight:600;color:var(--ink)}
 
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-  .stat{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--sh)}
-  .stat.clk{cursor:pointer;transition:border-color .15s,background .15s}
-  .stat.clk:hover{border-color:var(--border-strong);background:var(--surface-2)}
-  .stat .dots{position:absolute;right:14px;bottom:12px;display:flex;gap:4px}
-  .stat .dots i{width:5px;height:5px;border-radius:50%;background:var(--faint);opacity:.5}
-  .stat .dots i.on{background:var(--primary);opacity:1}
-  .stat .k{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-  .stat .k .ic{color:var(--faint)}
-  .stat .v{font-size:25px;font-weight:720;margin-top:7px;letter-spacing:-.02em;
-    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
-  .stat .v small{font-size:12.5px;color:var(--muted);font-weight:500;font-family:inherit}
-  .stat.big{grid-column:span 2}
-  @media(max-width:520px){.stat.big{grid-column:span 1}}
+  /* ---------- indicatori ---------- */
+  .kpis{display:flex;gap:10px;padding:26px 24px 0}
+  .kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:24px 24px 0}
+  .kpi{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 13px;display:flex;flex-direction:column;gap:5px}
+  .kpi .k{font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--label);white-space:nowrap}
+  .kpi .v{font:600 22px var(--mono);letter-spacing:-.02em;white-space:nowrap}
+  .kpi .u{font-size:12px;color:var(--faint)}
+  @media(max-width:360px){.kpi .v{font-size:18px}}
 
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:780px){.grid2{grid-template-columns:1fr}}
-  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 16px 14px;box-shadow:var(--sh)}
-  .panel h3{font-size:14.5px;font-weight:650;display:flex;align-items:center;gap:8px}
-  .panel h3 .ic{color:var(--faint)}
-  .panel .hint{color:var(--muted);font-size:12px;margin:3px 0 10px}
-  svg.chart{width:100%;height:auto;display:block}
-  .empty{color:var(--faint);font-size:13px;text-align:center;padding:34px 10px;border:1px dashed var(--border);border-radius:var(--radius-sm)}
+  /* ---------- card a riga (scadenza, ultimo pieno) ---------- */
+  .stack{display:flex;flex-direction:column;gap:10px;padding:14px 24px 0}
+  .note{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .note .tx{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .note .t{font:600 16px var(--sans)}
+  .note .s{font-size:13px;color:var(--label)}
+  .note .r{flex:none;font:600 17px var(--mono)}
+  .note .r.bdg{font-size:14px;color:var(--label)}
+  .note.warn{background:var(--warn-bg);border-color:var(--warn-line)} .note.warn .s{color:var(--warn-sub)} .note.warn .r{color:var(--warn)}
+  .note.bad{background:var(--bad-bg);border-color:var(--bad-line)} .note.bad .s{color:var(--bad-sub)} .note.bad .r{color:var(--bad)}
+  .mini{flex:none;background:var(--ink);color:#fff;border-radius:11px;padding:10px 14px;font:600 14px var(--sans)}
 
-  form{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;align-items:end}
-  label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--muted);font-weight:500}
-  input,select{background:var(--surface-2);border:1px solid var(--border-strong);color:var(--txt);
-    border-radius:var(--radius-sm);padding:0 12px;height:46px;font-size:15px;width:100%;
-    transition:border-color .15s,box-shadow .15s}
-  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239AA7BD' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
-  input::placeholder{color:var(--faint)}
-  input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.25)}
-  input[type=checkbox]{width:20px;height:20px;min-height:0;padding:0;flex:none;background:transparent;border:0;accent-color:var(--primary);cursor:pointer}
-  .chk{flex-direction:row;align-items:center;gap:9px;font-size:14px;color:var(--txt);font-weight:500;cursor:pointer;min-height:46px;align-self:end}
-  :focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  /* ---------- pagine lista ---------- */
+  .page{display:flex;flex-direction:column;gap:16px;padding:calc(24px + var(--safe-t)) 24px 0}
+  .page-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .page-head h1{font:600 28px var(--sans);letter-spacing:-.02em}
+  .veh-eb{align-self:flex-start;margin-bottom:-10px;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:2px 0}
+  .yearsel{position:relative;font:500 13px var(--mono);color:var(--label);padding:8px 0 8px 10px;white-space:nowrap}
+  .yearsel select{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:pointer;-webkit-appearance:none;appearance:none}
+  .stats{display:flex;gap:22px;border-bottom:1px solid var(--line);padding-bottom:16px}
+  .stats>span{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .stats b{font:600 19px var(--mono);white-space:nowrap}
+  .stats i{font-style:normal;font-size:12px;color:var(--label)}
+  .list{display:flex;flex-direction:column;gap:12px;padding:20px 24px 0}
+  .list .grp:not(:first-child){margin-top:8px}
+  .rows{display:flex;flex-direction:column;gap:9px}
+  .row{width:100%;display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 17px}
+  .row .dt{flex:none;width:34px;display:flex;flex-direction:column;align-items:center}
+  .row .dt b{font:600 17px var(--mono)}
+  .row .dt span{font:500 10px var(--mono);color:var(--faint);text-transform:uppercase}
+  .row .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .row .mid b{font:600 16px var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .mid span{font-size:13px;color:var(--label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .mid span.mono{font-family:var(--mono)}
+  .row .end{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+  .row .end b{font:600 17px var(--mono)}
+  .row .end span{font:500 12px var(--mono);color:var(--label)}
+  .cats{display:flex;flex-direction:column;gap:16px;padding:26px 24px 0}
+  .cat{display:flex;flex-direction:column;gap:9px}
+  .cat-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .cat-h span{font:500 16px var(--sans)} .cat-h b{font:600 16px var(--mono)}
+  .track{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+  .track div{height:6px;border-radius:3px;background:var(--ink)}
+  .sec{display:flex;flex-direction:column;gap:10px;padding:26px 24px 0}
+  .sec.tight{padding-top:14px}
+  .foot{padding:30px 24px 0;text-align:center;font-size:13px;color:var(--faint)}
 
-  button{font:inherit;cursor:pointer;border:none;border-radius:var(--radius-sm);
-    display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    min-height:46px;padding:0 18px;font-size:15px;font-weight:650;
-    background:linear-gradient(135deg,#3B82F6,#5B63F0);color:var(--on-primary);
-    box-shadow:0 6px 18px -8px rgba(79,110,247,.7);transition:filter .15s,transform .06s}
-  button:hover{filter:brightness(1.08)} button:active{transform:translateY(1px)}
-  button.ghost{background:var(--surface-3);color:var(--txt);border:1px solid var(--border-strong);font-weight:600;
-    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 4px 14px -10px rgba(0,0,0,.8)}
-  button.ghost:hover{background:#30303A;border-color:rgba(255,255,255,.22);filter:none}
-  button.danger{background:transparent;color:var(--red);border:1px solid rgba(248,113,113,.4);box-shadow:none}
-  button.danger:hover{background:rgba(248,113,113,.12);filter:none}
-  button.sm{min-height:36px;padding:0 12px;font-size:13px}
-  button.iconbtn{min-height:38px;min-width:38px;padding:0;background:var(--surface-3);color:var(--muted);border:1px solid var(--border);box-shadow:none}
-  button.iconbtn:hover{color:var(--red);background:rgba(248,113,113,.14);border-color:rgba(248,113,113,.35);filter:none}
-  form button[type="submit"]{grid-column:1 / -1;justify-self:start}
-  .form-actions{grid-column:1 / -1;display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
-  .form-actions button{min-height:46px}
-  form.editing::before{content:"✏️ Stai modificando questa voce";grid-column:1 / -1;
-    font-size:12.5px;font-weight:650;color:#FBBF24;background:rgba(251,191,36,.10);
-    border:1px solid rgba(251,191,36,.28);border-radius:10px;padding:8px 12px}
-  form.editing button[type="submit"]{background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#1A1205;
-    box-shadow:0 6px 18px -8px rgba(251,191,36,.7)}
-  td.acts{white-space:nowrap;text-align:center}
-  td.acts .iconbtn{margin:0 1px}
-  button.iconbtn.edit:hover{color:#5B8DEF;background:rgba(91,141,239,.14);border-color:rgba(91,141,239,.35)}
-  .scan-row{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
-  .scan-btns{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
-  .scan-btns button{flex:0 0 auto}
-  #scan-pill{align-self:flex-start}
-  .scan-row .hint{margin:0;color:var(--muted);font-size:12.5px}
-  input[type="date"]{text-align:left;-webkit-appearance:none;appearance:none;display:flex;align-items:center}
-  input[type="date"]::-webkit-date-and-time-value{text-align:left;margin:0}
-  input[type="date"]::-webkit-datetime-edit{text-align:left;padding:0}
-  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  /* ---------- gruppi a righe (impostazioni, distributori) ---------- */
+  .group{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .srow{width:100%;min-height:56px;display:flex;align-items:center;gap:12px;text-align:left;padding:14px 17px;border-top:1px solid var(--line)}
+  .srow:first-child{border-top:0}
+  .srow .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .srow .mid b{font:600 16px var(--sans)}
+  .srow .mid b .plate{margin-left:6px;vertical-align:2px}
+  .srow .mid span{font-size:13px;color:var(--label)}
+  .srow .st{flex:none;font:500 13px var(--mono);color:var(--label)}
+  .srow .st.big{font:600 16px var(--mono);color:var(--ink)}
+  .srow .chev{flex:none;font:400 20px var(--sans);color:var(--faint);line-height:1}
+  .srow.add .mid b{color:var(--signal)}
+  .srow.danger .mid b{color:var(--bad)}
+  .on-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--signal)}
 
-  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--sh)}
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th,td{text-align:right;padding:11px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
-  th:first-child,td:first-child{text-align:left}
-  tr:last-child td{border-bottom:none}
-  thead th{position:sticky;top:0;background:var(--surface-2);color:var(--muted);font-weight:600;font-size:11px;
-    text-transform:uppercase;letter-spacing:.04em;z-index:1}
-  td.auto{color:var(--blue)}
-  tbody tr:hover td{background:rgba(255,255,255,.03)}
-  .chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;
-    background:var(--surface-3);border:1px solid var(--border);border-radius:999px;padding:3px 9px;color:var(--muted)}
-  .chip .ic{color:var(--faint)}
-  .chip.ok{color:var(--green);border-color:rgba(52,211,153,.32)} .chip.off{color:var(--faint)}
-  .chip.warn{color:var(--amber);border-color:rgba(251,191,36,.32);background:rgba(251,191,36,.10)}
+  /* ---------- sottopagine (Analisi, Impostazioni) ---------- */
+  .subhead{display:flex;align-items:center;gap:10px;padding:calc(20px + var(--safe-t)) 24px 0}
+  .subhead h1{font:600 28px var(--sans);letter-spacing:-.02em}
+  .back{flex:none;width:36px;height:36px;margin-left:-8px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 12px 10px}
+  .panel .empty{border:0;padding:22px 10px}
+  svg.chart{width:100%;height:auto;display:block;font-family:var(--mono)}
+  .vf{display:flex;align-items:center;gap:10px;padding:10px 2px;border-top:1px solid var(--line)}
+  .vf:first-child{border-top:0}
+  .vf span{flex:1;font:500 15px var(--sans)} .vf b{font:600 15px var(--mono)} .vf i{font-style:normal;font-size:12px;color:var(--label);min-width:74px;text-align:right}
 
-  /* scadenze */
-  .scad-list{display:flex;flex-direction:column;gap:9px}
-  .scad{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);
-    border-left:4px solid var(--faint);border-radius:var(--radius-sm);padding:12px 14px}
-  .scad .ico-wrap{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}
-  .scad .meta{flex:1;min-width:0}
-  .scad .t{font-weight:620;font-size:14.5px}
-  .scad .d{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
-  .scad .badge{flex:none;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;white-space:nowrap}
-  .red{--c:var(--red)} .amber{--c:var(--amber)} .green{--c:var(--green)}
-  .scad.red{border-left-color:var(--red)} .scad.amber{border-left-color:var(--amber)} .scad.green{border-left-color:var(--green)}
-  .scad .ico-wrap{background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c)}
-  .scad .badge{background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c)}
+  /* ---------- barra schede + pulsante + ---------- */
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;max-width:var(--col);margin:0 auto;display:flex;
+    background:var(--card);border-top:1px solid var(--line);padding:12px 16px max(18px,var(--safe-b))}
+  .tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:6px;font:500 13px var(--sans);color:var(--label);white-space:nowrap}
+  .tabs button i{display:block;width:20px;height:3px;border-radius:2px;background:transparent}
+  .tabs button.on{font-weight:600;color:var(--ink)} .tabs button.on i{background:var(--signal)}
+  .fab{position:fixed;z-index:41;width:58px;height:58px;border-radius:999px;background:var(--signal);color:#fff;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(214,68,43,.34);
+    bottom:calc(var(--tabs-h) + 24px);right:max(22px,calc((100vw - var(--col)) / 2 + 22px))}
+  .fab:active{transform:scale(.96)}
 
-  /* veicoli */
-  .veh-list{display:flex;flex-direction:column;gap:9px}
-  .veh-row{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px}
-  .veh-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;font-size:19px;background:var(--surface-3)}
-  .veh-meta{flex:1;min-width:0}
-  .veh-name{font-weight:620;font-size:14.5px;display:flex;align-items:center;gap:8px}
-  .veh-sub{font-size:12px;color:var(--muted)}
+  /* ---------- pulsanti ---------- */
+  .btn{width:100%;display:flex;align-items:center;justify-content:center;border-radius:14px;padding:19px;font:600 17px var(--sans);color:#fff;background:var(--ink)}
+  .btn.red{background:var(--signal)}
+  .btn:disabled{opacity:.45;cursor:default}
+  .btn:active:not(:disabled){transform:translateY(1px)}
+  .lnk{display:block;width:100%;text-align:center;font:500 15px var(--sans);color:var(--label);padding:6px}
+  .lnk.red{color:var(--bad)}
+  .inl{font:inherit;color:var(--signal);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 
-  /* filtro carburante + prezzo medio per carburante */
-  .fuelbar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;box-shadow:var(--sh)}
-  .fuelbar .ic{color:var(--faint)}
-  .fuelbar-lab{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
-  .fuelbar select{flex:1;max-width:280px;height:42px;min-height:42px}
-  .vf-row{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--border)}
-  .vf-row:last-child{border-bottom:none}
-  .vf-val{margin-left:auto;font-weight:700;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;white-space:nowrap}
-  .vf-val small{font-size:11px;color:var(--muted);font-weight:500;font-family:inherit}
-  .vf-sub{font-size:12px;color:var(--muted);white-space:nowrap}
+  /* ---------- chip di scelta ---------- */
+  .chips{display:flex;gap:9px;flex-wrap:wrap}
+  .chip{background:var(--card);border:1px solid var(--line);color:var(--ink-2);border-radius:11px;padding:13px 20px;font:500 16px var(--sans)}
+  .chips.fuel .chip{padding:13px 18px}
+  .chips.sm{gap:8px} .chips.sm .chip{padding:10px 14px;font-size:15px;border-radius:10px}
+  .chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
 
-  /* ordinamento: intestazioni cliccabili + chip (scadenze) */
-  th.sortable{cursor:pointer;user-select:none;white-space:nowrap}
-  th.sortable:hover{color:var(--txt)}
-  th.sortable.active{color:var(--primary)}
-  .scad-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px}
-  .sortchip-lab{font-size:12px;color:var(--faint);margin-right:2px}
-  .sortchip{min-height:30px;padding:0 11px;font-size:12.5px;font-weight:600;background:var(--surface-2);color:var(--muted);border:1px solid var(--border);box-shadow:none;border-radius:999px}
-  .sortchip:hover{background:var(--surface-3);filter:none}
-  .sortchip.active{background:rgba(91,141,239,.16);color:var(--primary);border-color:rgba(91,141,239,.35)}
+  /* ---------- campi ---------- */
+  .fields{display:flex;flex-direction:column;gap:14px}
+  .frow{display:flex;gap:10px}
+  .field{flex:1;min-width:0;position:relative;display:flex;flex-direction:column;gap:4px;cursor:text;
+    background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px}
+  .field.grow{flex:1.4}
+  .field:focus-within{border-color:var(--ink);box-shadow:0 0 0 .5px var(--ink)}
+  .field>span:first-child{font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--label)}
+  .field input{width:100%;min-width:0;border:0;background:transparent;padding:0;font:600 24px var(--mono);color:var(--ink);border-radius:0}
+  .field input::placeholder,.inp::placeholder,.kmbox input::placeholder{color:var(--ph);opacity:1}
+  .field.txt input{font:500 17px var(--sans)}
+  .field.txt input.plate-in{font:500 17px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+  .field .val{font:500 17px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .field .val.sans{font-family:var(--sans)}
+  .field.pick{cursor:pointer}
+  .field.pick input,.field.pick select{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:pointer;display:block;-webkit-appearance:none;appearance:none}
+  .kmline{display:flex;align-items:baseline;gap:8px;min-width:0}
+  .kmline input{width:auto;flex:none}
+  .kmline em{font-style:normal;font-size:13px;color:var(--label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kmline em.up{color:var(--good)} .kmline em.no{color:var(--signal)}
+  .switch{flex:1;min-width:0;position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px;font:500 16px var(--sans)}
+  .switch input{position:absolute;opacity:0;pointer-events:none}
+  .switch i{flex:none;width:48px;height:28px;border-radius:999px;background:var(--line-2);display:flex;align-items:center;padding:3px;transition:background .15s}
+  .switch i::after{content:"";width:22px;height:22px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.18);transition:transform .15s}
+  .switch input:checked+i{background:var(--ink)} .switch input:checked+i::after{transform:translateX(20px)}
+  .switch input:focus-visible+i{outline:2px solid var(--ink);outline-offset:2px}
+  .inp{width:100%;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:17px 18px;font:500 18px var(--sans);color:var(--ink)}
+  .inp:focus{border-color:var(--ink);box-shadow:0 0 0 .5px var(--ink)}
+  .inp.plate-in{font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase}
+  @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .err{border-color:var(--signal)!important;box-shadow:0 0 0 .5px var(--signal)!important;animation:shake .22s 2}
+  .err-msg{font-size:14px;color:var(--bad);margin-top:-18px}
 
-  /* righe come card compatte (mobile) */
-  .row-cards{display:none;flex-direction:column;gap:10px}
-  .row-sort{display:none}
-  .rc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;box-shadow:var(--sh)}
-  .rc-h{display:flex;align-items:center;gap:8px}
-  .rc-amt{font-size:18px;font-weight:720;letter-spacing:-.01em;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
-  .rc-date{margin-left:auto;font-size:12.5px;color:var(--muted)}
-  .rc-acts{display:flex;gap:2px;flex:none}
-  .rc-acts .iconbtn{min-width:32px;min-height:32px}
-  .rc-sub{margin-top:7px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .rc-benz{color:var(--txt)}
-  .rc-eff{color:var(--green);font-weight:600}
-  .rc-stats{margin-top:6px;font-size:12.5px;color:var(--faint)}
+  /* ---------- sheet dal basso ---------- */
+  .scrim{position:fixed;inset:0;z-index:60;background:rgba(21,20,15,.42);opacity:0;pointer-events:none;transition:opacity .22s}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;max-width:var(--col);margin:0 auto;
+    display:flex;flex-direction:column;gap:20px;background:var(--paper);border-radius:30px 30px 0 0;
+    box-shadow:0 -12px 40px rgba(20,18,12,.18);padding:14px 24px calc(24px + var(--safe-b));
+    max-height:calc(100vh - 40px);max-height:calc(100dvh - 24px - var(--safe-t));overflow-y:auto;overscroll-behavior:contain;
+    transform:translateY(105%);visibility:hidden;transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s linear .28s}
+  .sheet.on{transform:none;visibility:visible;transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s}
+  .handle{flex:none;align-self:center;width:44px;height:4px;border-radius:2px;background:var(--line-2)}
+  .sh-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .sh-head h3{font:600 24px var(--sans);letter-spacing:-.02em}
+  .sh-head button{font:500 15px var(--sans);color:var(--label);padding:6px 0 6px 12px}
+  .sh-sep{display:flex;align-items:center;gap:12px;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .sh-sep::before,.sh-sep::after{content:"";flex:1;height:1px;background:var(--line-2)}
+  .scan{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:var(--ink);border-radius:14px;padding:15px 18px}
+  .scan:disabled{opacity:.7}
+  .scan-ic{flex:none;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--dim);display:flex;align-items:center;justify-content:center;color:var(--paper)}
+  .scan-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .scan-tx b{font:600 15px var(--sans);color:#fff}
+  .scan-tx span{font-size:13px;color:#A8A59B}
+  .scan-ar{flex:none;color:var(--dim);display:flex}
+  .scan-msg{margin-top:-8px;font-size:14px;line-height:1.45;color:var(--label)}
+  .scan-msg.good{color:var(--good)} .scan-msg.warn{color:var(--warn)} .scan-msg.bad{color:var(--bad)}
+  .total{display:flex;align-items:center;justify-content:space-between;padding:0 4px}
+  .total span{font-size:15px;color:var(--label)}
+  .total b{font:600 26px var(--mono);letter-spacing:-.02em}
+  .pick-card{width:100%;display:flex;flex-direction:column;gap:3px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .pick-card b{font:600 16px var(--sans)} .pick-card span{font-size:13px;color:var(--label)}
 
-  .sync-help{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6}
-  .sync-help code{background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:12px}
-  .inline-input{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
-  .inline-input label{flex:1;min-width:200px}
-  .footer{color:var(--faint);font-size:12px;text-align:center;margin:34px 0 8px}
+  /* ---------- wizard primo avvio ---------- */
+  .wizard{position:fixed;inset:0;z-index:50;background:var(--canvas);overflow-y:auto}
+  .wz{max-width:var(--col);margin:0 auto;min-height:100%;background:var(--paper);display:flex;flex-direction:column}
+  .wz-step{flex:1;display:flex;flex-direction:column;animation:wzin .28s ease}
+  @keyframes wzin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+  .wz-welcome{justify-content:space-between;gap:32px;padding:calc(40px + var(--safe-t)) 32px calc(44px + var(--safe-b))}
+  .logo{font:600 20px var(--sans);letter-spacing:-.02em}
+  .logo i{font-style:normal;color:var(--signal)}
+  .wz-hero{display:flex;flex-direction:column;gap:18px}
+  .wz-hero h1{font:600 40px/1.08 var(--sans);letter-spacing:-.03em;text-wrap:pretty}
+  .wz-hero p{font-size:17px;line-height:1.5;color:var(--ink-2);text-wrap:pretty}
+  .wz-prog{display:flex;align-items:center;gap:16px;padding:calc(26px + var(--safe-t)) 32px 0}
+  .wz-prog button{flex:none;display:flex;margin-left:-6px;padding:4px;color:var(--ink)}
+  .wz-prog button.dim{color:var(--label)}
+  .wz-prog .track{flex:1;height:3px;background:var(--bar);border-radius:2px}
+  .wz-prog .fill{height:3px;background:var(--signal);border-radius:2px;transition:width .3s ease}
+  .wz-prog .cnt{font:500 13px var(--mono);color:var(--label)}
+  .wz-body{flex:1;display:flex;flex-direction:column;gap:30px;padding:36px 32px calc(44px + var(--safe-b))}
+  .wz-body.tight{gap:26px}
+  .wz-body h2{font:600 32px/1.12 var(--sans);letter-spacing:-.025em;text-wrap:pretty}
+  .wz-fields{display:flex;flex-direction:column;gap:22px}
+  .wz-f{display:flex;flex-direction:column;gap:9px}
+  .wz-cta{margin-top:auto;display:flex;flex-direction:column;gap:13px}
+  .kmbox{display:flex;align-items:baseline;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:20px 18px;cursor:text}
+  .kmbox:focus-within{border-color:var(--ink);box-shadow:0 0 0 .5px var(--ink)}
+  .kmbox input{flex:none;min-width:0;max-width:100%;border:0;background:transparent;padding:0;font:600 38px var(--mono);letter-spacing:-.02em;color:var(--ink)}
+  .kmbox span{font:500 18px var(--mono);color:var(--faint)}
+  .scadrows{display:flex;flex-direction:column;gap:10px}
+  .scadrow{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px 18px}
+  .scadrow:focus-within{border-color:var(--ink)}
+  .scadrow b{font:500 17px var(--sans)}
+  .scadrow span{font:500 16px var(--mono)}
+  .scadrow span.none{color:var(--faint)}
+  .scadrow input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;display:block;-webkit-appearance:none;appearance:none}
+  .ready{display:flex;flex-direction:column;gap:5px;background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:13px;padding:16px 18px}
+  .ready b{font:600 15px var(--sans)} .ready span{font-size:14px;line-height:1.45;color:var(--warn-sub)}
 
-  @media(max-width:640px){
-    .wrap{padding:6px 12px 0}
-    .section{margin-top:20px}
-    .panel{padding:14px}
-    form{grid-template-columns:1fr;gap:11px}
-    form button[type="submit"]{justify-self:stretch}
-    .form-actions button{flex:1}
-    .cards{gap:10px}
-    .inline-input{flex-direction:column;align-items:stretch}
-    .inline-input label{min-width:0}
-    .inline-input button{width:100%}
-    .scad{gap:9px;padding:11px}
-    .scad .ico-wrap{width:30px;height:30px}
-    .scad .badge{font-size:11px;padding:4px 8px}
-    .scad .iconbtn{min-width:34px;min-height:34px}
-    .tbl-wrap{display:none}
-    .row-cards{display:flex}
-    .row-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px}
-  }
-  /* mobile: nav "liquid glass" flottante a capsula (ovale) */
-  @media(max-width:780px){
-    #nav{position:fixed;left:14px;right:14px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:40;
-      gap:2px;margin:0;max-width:none;padding:7px 8px;border-radius:28px;
-      background:rgba(30,30,38,.55);
-      backdrop-filter:saturate(180%) blur(22px);-webkit-backdrop-filter:saturate(180%) blur(22px);
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow:0 10px 34px -10px rgba(0,0,0,.75),0 1px 0 rgba(255,255,255,.07) inset}
-    #nav button{flex:1;flex-direction:column;gap:3px;min-height:50px;font-size:10px;border-radius:20px;padding:6px 2px;color:var(--muted)}
-    #nav button:hover{background:transparent}
-    #nav button.active{background:rgba(120,140,255,.16);border-color:transparent;color:var(--primary)}
-    #nav button span{font-size:9.5px;letter-spacing:-.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis}
-    body{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
-    .pill .lab{display:none}
-    .pill{padding:7px 9px}
-    .veh-select{max-width:52vw}
-  }
+  /* ---------- avviso breve ---------- */
+  .toast{position:fixed;left:50%;top:calc(14px + var(--safe-t));z-index:80;transform:translate(-50%,-8px);opacity:0;pointer-events:none;
+    background:var(--ink);color:#fff;font:500 14px var(--sans);padding:10px 16px;border-radius:999px;white-space:nowrap;
+    box-shadow:0 8px 24px rgba(20,18,12,.2);transition:opacity .2s,transform .2s}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <header>
-    <span class="logo" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24"><text x="12" y="17.5" font-family="Helvetica,Arial,sans-serif" font-size="18" font-weight="800" text-anchor="middle" fill="#F3F4F6">P</text><rect x="7" y="19" width="10" height="2" rx="1" fill="#FBBF24"/></svg>
-    </span>
-    <select id="veh-select" class="veh-select" aria-label="Veicolo" onchange="switchVehicle(this.value)"></select>
-    <button id="syncpill" class="pill off" onclick="scrollToSync()" aria-label="Stato sincronizzazione">
-      <span class="dot"></span><span id="syncpill-txt" class="lab">Locale</span>
-    </button>
-  </header>
-  <nav id="nav">
-    <button class="active" data-page="panoramica" onclick="navTo('panoramica')"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/></svg><span>Panoramica</span></button>
-    <button data-page="rifornimenti" onclick="navTo('rifornimenti')"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/><path d="M3 21h13"/><path d="M4 12h10"/><path d="M14 7h3l3 3v7a2 2 0 0 1-4 0v-3h-2"/></svg><span>Rifornimenti</span></button>
-    <button data-page="spese" onclick="navTo('spese')"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18l2.5-1.6L10 21l2-1.6L14 21l2.5-1.6L19 21V3z"/><path d="M8 8h8M8 12h6"/></svg><span>Spese</span></button>
-    <button data-page="scadenze" onclick="navTo('scadenze')"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg><span>Scadenze</span></button>
-    <button data-page="impostazioni" onclick="navTo('impostazioni')"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l1.8-1.4-1.8-3.1-2.2.9a7.6 7.6 0 0 0-1.7-1L15 4H9l-.5 2.4a7.6 7.6 0 0 0-1.7 1l-2.2-.9-1.8 3.1L4.6 11a7.6 7.6 0 0 0 0 2l-1.8 1.4 1.8 3.1 2.2-.9a7.6 7.6 0 0 0 1.7 1L9 20h6l.5-2.4a7.6 7.6 0 0 0 1.7-1l2.2.9 1.8-3.1z"/></svg><span>Impostazioni</span></button>
-  </nav>
-</div>
-
-<main class="wrap">
+<div id="app">
+<main>
 
   <!-- ===================== PANORAMICA ===================== -->
   <section data-page="panoramica">
-    <div id="banner" class="banner" style="display:none;margin-top:14px">
-      <span>Stai vedendo <b>dati di esempio</b>. Aggiungi un rifornimento o svuota tutto per iniziare.</span>
-      <button class="ghost sm" onclick="clearAll()">Svuota tutto</button>
+    <header class="top">
+      <button class="veh-btn" onclick="openSwitch()" aria-label="Cambia veicolo">
+        <span class="nm" id="h-name">Veicolo</span><span class="plate" id="h-plate" hidden></span><span class="caret">▾</span>
+      </button>
+      <button class="round" onclick="navTo('impostazioni')" aria-label="Impostazioni">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <span class="dot" id="sync-dot" hidden></span>
+      </button>
+    </header>
+    <div class="hero" role="button" tabindex="0" onclick="navTo('analisi')" onkeydown="if(event.key==='Enter')navTo('analisi')" aria-label="Apri l'analisi">
+      <div class="hero-top"><span class="eyebrow" id="o-month"></span><span class="eyebrow sm">Analisi →</span></div>
+      <div class="big"><span class="n" id="o-amt">0,00</span><span class="u">€</span></div>
+      <div class="delta" id="o-delta"></div>
+      <div class="bars" id="o-bars"></div>
     </div>
-
-    <div id="alert-scad" class="section" style="display:none"></div>
-
-    <div class="section">
-      <div class="cards" id="cards"></div>
-    </div>
-
-    <div class="section">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg> Grafici</div>
-      <div class="grid2">
-        <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4"/><path d="M3.5 14a8.5 8.5 0 1 1 17 0"/></svg> Consumo (km/l)</h3><div class="hint">più alto = consumi meno</div><div id="ch-consumo"></div></div>
-        <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5s6.5 7 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.5 12 2.5 12 2.5z"/></svg> Prezzo carburante (€/litro)</h3><div class="hint">quanto paghi al litro nel tempo</div><div id="ch-prezzo"></div></div>
-        <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg> Spesa per mese (€)</h3><div class="hint">carburante + spese varie</div><div id="ch-mese"></div></div>
-        <div class="panel"><h3><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 7a6 6 0 1 0 0 10"/><path d="M4 10h8"/><path d="M4 14h7"/></svg> Costo al km (€/km)</h3><div class="hint">quanto ti costa ogni km di carburante</div><div id="ch-eurkm"></div></div>
-      </div>
-    </div>
-
-    <div class="section" id="byfuel-section" style="display:none">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5s6.5 7 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.5 12 2.5 12 2.5z"/></svg> Prezzo medio per carburante</div>
-      <div class="panel"><div class="hint">ogni carburante ha il suo prezzo: qui la media di ciascuno, separata</div><div id="byfuel"></div></div>
-    </div>
-
-    <div class="section" id="fuel-filter-row" style="display:none">
-      <div class="fuelbar">
-        <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h12M5 21V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v16M5 12h8M15 8h2l2 2v7a2 2 0 0 1-4 0v-3h-2"/></svg>
-        <span class="fuelbar-lab">Confronto prezzi</span>
-        <select id="fuel-filter" onchange="setFuelFilter(this.value)"></select>
-      </div>
-      <div class="hint" style="margin:8px 2px 0">Filtra prezzo medio, grafico prezzo e distributori: carburanti diversi (es. Benzina e Premium) non sono confrontabili tra loro.</div>
-    </div>
-
-    <div class="section">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Confronto distributori</div>
-      <div class="panel"><div class="hint">prezzo medio €/litro per benzinaio — più corto è più conveniente</div><div id="ch-stations"></div></div>
-    </div>
+    <div class="kpis" id="o-kpis"></div>
+    <div class="stack" id="o-cards"></div>
   </section>
 
-  <!-- ===================== RIFORNIMENTI ===================== -->
-  <section data-page="rifornimenti" hidden>
-    <div class="section">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi rifornimento</div>
-      <div class="panel">
-        <div class="scan-row">
-          <div class="scan-btns">
-            <button type="button" class="ghost" id="scan-cam" onclick="pickReceipt(true)">
-              <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg>
-              Scatta foto
-            </button>
-            <button type="button" class="ghost" id="scan-gal" onclick="pickReceipt(false)">
-              <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg>
-              Dalla galleria
-            </button>
-            <input type="file" id="scan-file" accept="image/*" hidden onchange="scanReceipt(this)">
-          </div>
-          <span class="chip off" id="scan-pill">AI non configurata</span>
-          <span class="hint" id="scan-status" style="display:none"></span>
-          <span class="hint" id="scan-hint">Scatta o scegli la foto dello scontrino: l'AI legge data, litri, prezzo e benzinaio. A te restano solo i KM. <a href="#" onclick="scrollToAI();return false">Configura le chiavi AI</a>.</span>
-        </div>
-        <form id="form-rif" onsubmit="return addRif(event)">
-          <label>Data<input type="date" id="r-data" required></label>
-          <label>Km (contachilometri)<input type="text" inputmode="numeric" id="r-km" placeholder="es. 10300" required></label>
-          <label>Litri<input type="text" inputmode="decimal" id="r-litri" placeholder="es. 14" required></label>
-          <label>€/litro<input type="text" inputmode="decimal" id="r-prezzo" placeholder="es. 1,85" required></label>
-          <label>Tipo
-            <select id="r-tipo"><option>Benzina</option><option>Benzina Premium</option><option>Diesel</option><option>GPL</option><option>Metano</option><option>Altro</option></select>
-          </label>
-          <label>Benzinaio<input type="text" id="r-benz" list="benzlist" placeholder="es. Eni Via Roma"></label>
-          <label class="chk"><input type="checkbox" id="r-pieno" checked> Pieno</label>
-          <div class="form-actions">
-            <button type="submit" id="rif-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
-            <button type="button" class="ghost" id="rif-cancel" hidden onclick="cancelEditRif()">Annulla</button>
-          </div>
-        </form>
-        <datalist id="benzlist"></datalist>
-        <div class="hint" style="margin:10px 0 0">Km = contachilometri totale; la distanza la calcola l'app. Togli «Pieno» se è un rabbocco parziale: i km/l si calcolano da pieno a pieno.</div>
+  <!-- ===================== PIENI ===================== -->
+  <section data-page="pieni" hidden>
+    <div class="page">
+      <button class="veh-eb" onclick="openSwitch()" hidden></button>
+      <div class="page-head">
+        <h1>Pieni</h1>
+        <label class="yearsel"><span id="yp-txt"></span> ▾<select id="yp" onchange="setYear('p',this.value)" aria-label="Anno"></select></label>
       </div>
+      <div class="stats" id="pl-stats"></div>
     </div>
-
-    <div class="section">
-      <div class="section-h">Rifornimenti</div>
-      <div class="row-sort" id="sort-rif-m"></div>
-      <div class="tbl-wrap"><table id="tbl-rif"></table></div>
-      <div class="row-cards" id="cards-rif"></div>
+    <div class="list" id="pl-list"></div>
+    <div class="sec" id="pl-st" hidden>
+      <div class="eyebrow sm" id="pl-st-h">Distributori</div>
+      <div class="chips sm" id="pl-st-fuel"></div>
+      <div class="group" id="pl-st-list"></div>
+      <p class="hint" id="pl-st-hint"></p>
     </div>
   </section>
 
   <!-- ===================== SPESE ===================== -->
   <section data-page="spese" hidden>
-    <div class="section">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg> Aggiungi spesa varia</div>
-      <div class="panel">
-        <form id="form-spesa" onsubmit="return addSpesa(event)">
-          <label>Data<input type="date" id="s-data" required></label>
-          <label>Categoria
-            <select id="s-cat"><option>Tagliando</option><option>Gomme</option><option>Assicurazione</option><option>Bollo</option><option>Revisione</option><option>Riparazione</option><option>Accessori</option><option>Altro</option></select>
-          </label>
-          <label>Descrizione<input type="text" id="s-desc" placeholder="es. cambio olio"></label>
-          <label>Importo €<input type="text" inputmode="decimal" id="s-imp" placeholder="es. 120" required></label>
-          <div class="form-actions">
-            <button type="submit" id="spesa-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
-            <button type="button" class="ghost" id="spesa-cancel" hidden onclick="cancelEditSpesa()">Annulla</button>
-          </div>
-        </form>
+    <div class="page" style="gap:18px">
+      <button class="veh-eb" onclick="openSwitch()" hidden></button>
+      <div class="page-head">
+        <h1>Spese</h1>
+        <label class="yearsel"><span id="ys-txt"></span> ▾<select id="ys" onchange="setYear('s',this.value)" aria-label="Anno"></select></label>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span class="eyebrow">Oltre al carburante</span>
+        <div class="big md"><span class="n" id="s-amt">0,00</span><span class="u">€</span></div>
+        <span class="hint" id="s-sub"></span>
       </div>
     </div>
-
-    <div class="section">
-      <div class="section-h">Spese varie</div>
-      <div class="row-sort" id="sort-spesa-m"></div>
-      <div class="tbl-wrap"><table id="tbl-spesa"></table></div>
-      <div class="row-cards" id="cards-spesa"></div>
+    <div class="cats" id="s-cats"></div>
+    <div class="sec" style="gap:10px">
+      <span class="eyebrow sm" id="s-list-h">Ultime</span>
+      <div class="rows" id="s-list"></div>
     </div>
   </section>
 
   <!-- ===================== SCADENZE ===================== -->
   <section data-page="scadenze" hidden>
-    <div class="section">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg> Scadenze</div>
-      <div class="panel">
-        <form id="form-scad" onsubmit="return addScad(event)">
-          <label>Tipo
-            <select id="sc-tipo"><option>Assicurazione</option><option>Bollo</option><option>Revisione</option><option>Tagliando</option><option>Patente</option><option>Altro</option></select>
-          </label>
-          <label>Scadenza<input type="date" id="sc-data" required></label>
-          <label>Note<input type="text" id="sc-note" placeholder="es. compagnia, importo…"></label>
-          <div class="form-actions">
-            <button type="submit" id="scad-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi</button>
-            <button type="button" class="ghost" id="scad-cancel" hidden onclick="cancelEditScad()">Annulla</button>
-          </div>
-        </form>
-        <div class="scad-sort" id="scad-sort" style="margin-top:16px"></div>
-      <div id="scad-list" class="scad-list"></div>
-      </div>
+    <div class="page">
+      <button class="veh-eb" onclick="openSwitch()" hidden></button>
+      <div class="page-head"><h1>Scadenze</h1></div>
+      <p class="hint">Quelle entro 30 giorni compaiono anche in Panoramica.</p>
     </div>
+    <div class="list"><div class="rows" id="sc-list"></div></div>
+  </section>
+
+  <!-- ===================== ANALISI ===================== -->
+  <section data-page="analisi" hidden>
+    <div class="subhead">
+      <button class="back" onclick="goBack()" aria-label="Indietro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg></button>
+      <h1>Analisi</h1>
+    </div>
+    <div class="kgrid" id="a-kpis"></div>
+    <div class="sec"><span class="eyebrow sm">Spesa per mese · pieni e spese</span><div class="panel"><div id="ch-mese"></div></div></div>
+    <div class="sec"><span class="eyebrow sm" id="a-cons-h">Consumo</span><div class="panel"><div id="ch-consumo"></div></div><p class="hint">Misurato da pieno a pieno: più alto è meglio. I rabbocchi confluiscono nel pieno dopo.</p></div>
+    <div class="sec"><span class="eyebrow sm" id="a-prezzo-h">Prezzo pagato</span><div class="chips sm" id="a-fuel"></div><div class="panel"><div id="ch-prezzo"></div></div><div class="group" id="a-byfuel" style="padding:4px 14px" hidden></div></div>
+    <div class="sec"><span class="eyebrow sm">Costo al km · solo carburante</span><div class="panel"><div id="ch-eurkm"></div></div></div>
   </section>
 
   <!-- ===================== IMPOSTAZIONI ===================== -->
   <section data-page="impostazioni" hidden>
-    <div class="section">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2v-3l2-5a2 2 0 0 1 2-1.4h8A2 2 0 0 1 19 7l2 5v3a2 2 0 0 1-2 2"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg> Veicoli</div>
-      <div class="panel">
-        <div id="veh-list" class="veh-list"></div>
-        <form id="form-veh" onsubmit="return saveVehicle(event)" style="margin-top:14px">
-          <label>Nome<input type="text" id="veh-name" placeholder="es. Panda, Scooter"></label>
-          <label>Tipo
-            <select id="veh-type"><option value="auto">Auto</option><option value="moto">Moto</option><option value="scooter">Scooter</option><option value="altro">Altro</option></select>
-          </label>
-          <label>Targa (opzionale)<input type="text" id="veh-plate" placeholder="es. AB123CD"></label>
-          <div class="form-actions">
-            <button type="submit" id="veh-submit"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Aggiungi veicolo</button>
-            <button type="button" class="ghost" id="veh-cancel" hidden onclick="cancelEditVehicle()">Annulla</button>
-          </div>
-        </form>
+    <div class="subhead">
+      <button class="back" onclick="goBack()" aria-label="Indietro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg></button>
+      <h1>Impostazioni</h1>
+    </div>
+    <div class="sec"><span class="eyebrow sm">Veicoli</span><div class="group" id="st-veh"></div></div>
+    <div class="sec"><span class="eyebrow sm">Scansione scontrini</span>
+      <div class="group"><button class="srow" onclick="openAI()"><span class="mid"><b>Chiave AI</b><span>legge data, litri, prezzo e benzinaio dalla foto</span></span><span class="st" id="st-ai"></span><span class="chev">›</span></button></div>
+    </div>
+    <div class="sec"><span class="eyebrow sm">Sincronizzazione</span>
+      <div class="group"><button class="srow" onclick="openSync()"><span class="mid"><b>GitHub Gist</b><span>stessi dati su telefono e Mac</span></span><span class="st" id="st-sync"></span><span class="chev">›</span></button></div>
+    </div>
+    <div class="sec"><span class="eyebrow sm">Dati</span>
+      <div class="group">
+        <button class="srow" onclick="exportJSON()"><span class="mid"><b>Backup completo</b><span>file .json con tutti i veicoli</span></span><span class="chev">›</span></button>
+        <button class="srow" onclick="$('imp').click()"><span class="mid"><b>Importa backup</b><span>sostituisce i dati di questo dispositivo</span></span><span class="chev">›</span></button>
+        <button class="srow" onclick="exportCSV()"><span class="mid"><b>Esporta CSV</b><span id="st-csv">solo il veicolo in uso</span></span><span class="chev">›</span></button>
+        <button class="srow danger" onclick="clearAll()"><span class="mid"><b>Svuota tutto</b><span>cancella tutti i veicoli e riparte da capo</span></span></button>
       </div>
     </div>
-
-    <div class="section" id="ai-section">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg> Scansione scontrini (AI)</div>
-      <div class="panel">
-        <p class="hint" style="margin:0 0 12px">Per leggere gli scontrini da una foto serve la <b>tua</b> chiave API di un servizio AI con visione. La chiave resta solo su questo dispositivo: non finisce nei backup né nella sincronizzazione. Ogni scansione consuma una piccola quota sul tuo account del servizio.</p>
-        <form onsubmit="return saveAI(event)">
-          <label>Servizio
-            <select id="ai-provider" onchange="onAIProvider()">
-              <option value="anthropic">Anthropic (Claude)</option>
-              <option value="openai">OpenAI (GPT)</option>
-              <option value="google">Google (Gemini)</option>
-            </select>
-          </label>
-          <label>Chiave API
-            <input type="password" id="ai-key" placeholder="incolla la tua chiave API" autocomplete="off">
-          </label>
-          <label>Modello (opzionale)
-            <input type="text" id="ai-model" placeholder="claude-haiku-4-5">
-          </label>
-          <div class="form-actions">
-            <button type="submit"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Salva</button>
-            <button type="button" class="danger" id="ai-clear" hidden onclick="clearAI()">Rimuovi chiave</button>
-          </div>
-        </form>
-        <div class="sync-help" id="ai-help"></div>
-      </div>
-    </div>
-
-    <div class="section" id="sync-section">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.7 3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.7-3L3 16"/><path d="M3 21v-5h5"/></svg> Sincronizzazione (GitHub Gist)</div>
-      <div class="panel">
-        <div id="sync-on" style="display:none">
-          <p style="margin:0 0 10px;font-size:14px">Sincronizzazione <b style="color:var(--green)">attiva</b> <span id="sync-state-txt" class="hint" style="display:inline"></span></p>
-          <div class="actions" style="margin-top:0">
-            <button class="ghost sm" onclick="syncNow()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.7 3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.7-3L3 16"/><path d="M3 21v-5h5"/></svg> Sincronizza ora</button>
-            <button class="danger sm" onclick="disableSync()">Disattiva</button>
-          </div>
-        </div>
-        <div id="sync-off">
-          <p style="margin:0 0 12px;font-size:14px;color:var(--muted)">Attiva per vedere gli stessi dati su telefono e Mac. Serve un <b>Personal Access Token</b> di GitHub con il solo permesso <code>gist</code>.</p>
-          <div class="inline-input">
-            <label>Token GitHub
-              <input type="password" id="sync-token" placeholder="ghp_… (permesso gist)" autocomplete="off">
-            </label>
-            <button onclick="enableSync()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Attiva</button>
-          </div>
-          <div class="sync-help">
-            Crea il token qui → <a href="https://github.com/settings/tokens/new?scopes=gist&description=Pit" target="_blank" rel="noopener">github.com/settings/tokens</a> (scope: <code>gist</code>).<br>
-            Il token resta solo su questo dispositivo (non viene caricato online né incluso nei backup). I dati vengono salvati in un <b>Gist segreto</b> sul tuo account.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-h"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg> Backup dati</div>
-      <div class="panel">
-        <div class="actions" style="margin-top:0">
-          <button class="ghost" onclick="exportJSON()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> Backup (JSON)</button>
-          <button class="ghost" onclick="document.getElementById('imp').click()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg> Importa</button>
-          <input type="file" id="imp" accept="application/json" style="display:none" onchange="importJSON(this)">
-          <button class="ghost" onclick="exportCSV()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg> Esporta CSV (veicolo)</button>
-          <button class="danger" onclick="clearAll()"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Svuota tutto</button>
-        </div>
-        <div class="hint" style="margin:12px 0 0">Il backup JSON include <b>tutti</b> i veicoli. L'export CSV riguarda solo il veicolo attivo. I dati restano su questo dispositivo (e nel Gist se la sync è attiva).</div>
-      </div>
-    </div>
-
-    <div class="footer">Pit · i dati vivono nel tuo browser. Fai un backup ogni tanto.</div>
+    <p class="foot">Pit · i dati vivono su questo dispositivo. Fai un backup ogni tanto.</p>
   </section>
 
 </main>
 
-<script>
-const K='moto_data_v1', SYNCK='moto_sync', GIST_FILE='spese-moto.json';
-const $=id=>document.getElementById(id);
-const EUR=n=>n==null||isNaN(n)?'—':n.toLocaleString('it-IT',{style:'currency',currency:'EUR'});
-const NUM=(n,d=2)=>n==null||isNaN(n)?'—':n.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:d});
-function pNum(s){s=String(s).trim();if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s);}
-const pInt=s=>parseInt(String(s).replace(/[^\d-]/g,''),10);
-const itDate=iso=>{if(!iso)return'';const[y,m,d]=iso.split('-');return d+'/'+m+'/'+y;};
-const todayISO=()=>new Date().toISOString().slice(0,10);
-const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const genId=()=>'veh_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const VTYPE={auto:'🚗',moto:'🏍️',scooter:'🛵',altro:'🚐'};
-const VTYPE_LABEL={auto:'Auto',moto:'Moto',scooter:'Scooter',altro:'Altro'};
+<button class="fab" id="fab" onclick="fabAction()" aria-label="Aggiungi" hidden>
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+<nav class="tabs" id="tabs">
+  <button data-page="panoramica" onclick="navTo('panoramica')">Panoramica<i></i></button>
+  <button data-page="pieni" onclick="navTo('pieni')">Pieni<i></i></button>
+  <button data-page="spese" onclick="navTo('spese')">Spese<i></i></button>
+  <button data-page="scadenze" onclick="navTo('scadenze')">Scadenze<i></i></button>
+</nav>
+</div>
 
-// ---------- dati (schema v2: più veicoli) ----------
-function blankVehicle(name,type,plate){return{id:genId(),name:name||'Veicolo',type:type||'auto',plate:plate||'',rif:[],spese:[],scadenze:[]};}
-function seed(){return{
-  v:2, example:true, updatedAt:0, currentId:'veh_demo',
-  vehicles:[{ id:'veh_demo', name:'Veicolo 1', type:'auto', plate:'',
-    rif:[
-      {data:'2026-03-01',km:9500,litri:14,prezzo:1.80,tipo:'Benzina',benz:'Eni Via Roma'},
-      {data:'2026-04-05',km:9780,litri:13,prezzo:1.82,tipo:'Diesel',benz:'Q8 Tangenziale'},
-      {data:'2026-05-10',km:10050,litri:15,prezzo:1.88,tipo:'Benzina Premium',benz:'Eni Via Roma'},
-      {data:'2026-06-01',km:10300,litri:14,prezzo:1.85,tipo:'Benzina',benz:'IP Centro'},
-    ],
-    spese:[
-      {data:'2026-04-10',cat:'Gomme',desc:'Pneumatico posteriore',imp:160},
-      {data:'2026-05-06',cat:'Tagliando',desc:'Cambio olio + filtri',imp:120},
-    ],
-    scadenze:[
-      {tipo:'Revisione',data:'2026-05-20',note:'da prenotare'},
-      {tipo:'Bollo',data:'2026-06-30',note:''},
-      {tipo:'Tagliando',data:'2026-07-15',note:'ogni 6.000 km'},
-      {tipo:'Assicurazione',data:'2026-09-15',note:'rinnovo annuale'},
-    ]
-  }]
-};}
+<!-- ===================== WIZARD PRIMO AVVIO ===================== -->
+<div class="wizard" id="wizard" hidden>
+  <div class="wz">
+    <section class="wz-step wz-welcome" id="wz0">
+      <div class="logo">Pit<i>.</i></div>
+      <div class="wz-hero">
+        <h1>Quanto ti costa davvero la tua auto?</h1>
+        <p>Segni i pieni, Pit calcola consumi, costo al km e ti avvisa prima delle scadenze. Tutto sul telefono, niente account.</p>
+      </div>
+      <div class="wz-cta" style="gap:14px">
+        <button class="btn" onclick="wzGo(1)">Inizia</button>
+        <button class="lnk" onclick="openRestore()">Ho già un backup</button>
+      </div>
+    </section>
+
+    <div class="wz-prog" id="wz-prog" hidden>
+      <button id="wz-back" onclick="wzBack()" aria-label="Indietro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg></button>
+      <div class="track"><div class="fill" id="wz-fill"></div></div>
+      <span class="cnt" id="wz-cnt">1/3</span>
+    </div>
+
+    <section class="wz-step" id="wz1" hidden>
+      <div class="wz-body">
+        <h2>Che veicolo segui?</h2>
+        <div class="wz-fields">
+          <label class="wz-f"><span class="lab">Nome</span><input class="inp" id="wz-name" placeholder="es. Panda" autocomplete="off" enterkeyhint="next"></label>
+          <div class="wz-f"><span class="lab">Tipo</span><div class="chips" id="wz-type"></div></div>
+          <label class="wz-f"><span class="lab">Targa <span class="opt">facoltativa</span></span><input class="inp plate-in" id="wz-plate" placeholder="AB 123 CD" autocomplete="off" autocapitalize="characters" enterkeyhint="done"></label>
+        </div>
+        <p class="err-msg" id="wz-name-err" hidden>Dai un nome al veicolo.</p>
+        <div class="wz-cta"><button class="btn" onclick="wzNext()">Avanti</button></div>
+      </div>
+    </section>
+
+    <section class="wz-step" id="wz2" hidden>
+      <div class="wz-body">
+        <h2>Cosa mette e quanti km ha?</h2>
+        <div class="wz-f"><span class="lab">Carburante</span><div class="chips fuel" id="wz-fuel"></div></div>
+        <div class="wz-f">
+          <span class="lab">Km sul contachilometri</span>
+          <label class="kmbox"><input id="wz-km" inputmode="numeric" placeholder="0" autocomplete="off" aria-label="Km sul contachilometri"><span>km</span></label>
+          <span class="hint">Serve solo come punto di partenza: da qui in poi Pit calcola le distanze da sé.</span>
+        </div>
+        <div class="wz-cta"><button class="btn" onclick="wzNext()">Avanti</button></div>
+      </div>
+    </section>
+
+    <section class="wz-step" id="wz3" hidden>
+      <div class="wz-body tight">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <h2>Quando scadono?</h2>
+          <p class="hint" style="font-size:15px">Anche solo una: Pit ti avvisa 30 giorni prima. Le altre le aggiungi dopo.</p>
+        </div>
+        <div class="scadrows" id="wz-scad"></div>
+        <div class="ready"><b id="wz-ready-t">Pronto.</b><span id="wz-ready-s"></span></div>
+        <div class="wz-cta">
+          <button class="btn" onclick="wzFinish(true)">Aggiungi il primo pieno</button>
+          <button class="lnk" onclick="wzFinish(false)">Lo faccio dopo</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ===================== SHEET ===================== -->
+<div class="scrim" id="scrim" onclick="closeSheet()"></div>
+
+<div class="sheet" id="sh-pieno" role="dialog" aria-modal="true" aria-labelledby="pn-title">
+  <span class="handle"></span>
+  <div class="sh-head"><h3 id="pn-title">Nuovo pieno</h3><button onclick="closeSheet()">Annulla</button></div>
+  <button class="scan" id="scan-btn" onclick="pickReceipt()">
+    <span class="scan-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg></span>
+    <span class="scan-tx"><b>Fotografa lo scontrino</b><span>compila tutto tranne i km</span></span>
+    <span class="scan-ar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+  </button>
+  <p class="scan-msg" id="scan-msg" hidden></p>
+  <input type="file" id="scan-file" accept="image/*" hidden onchange="scanReceipt(this)">
+  <div class="fields">
+    <div class="frow">
+      <label class="field"><span id="pn-qty-l">Litri</span><input id="pn-litri" inputmode="decimal" placeholder="0,0" autocomplete="off"></label>
+      <label class="field"><span id="pn-price-l">€/litro</span><input id="pn-prezzo" inputmode="decimal" placeholder="0,000" autocomplete="off"></label>
+    </div>
+    <label class="field"><span>Km sul contachilometri</span><span class="kmline"><input id="pn-km" inputmode="numeric" placeholder="0" autocomplete="off"><em id="pn-km-hint"></em></span></label>
+    <div class="frow">
+      <label class="field pick"><span>Data</span><b class="val" id="pn-data-txt">—</b><input type="date" id="pn-data" aria-label="Data"></label>
+      <label class="field txt grow"><span>Benzinaio</span><input id="pn-benz" list="benzlist" placeholder="es. Eni Via Roma" autocomplete="off"></label>
+    </div>
+    <div class="frow">
+      <label class="field pick"><span>Carburante</span><b class="val sans" id="pn-tipo-txt">Benzina</b><select id="pn-tipo" aria-label="Carburante"></select></label>
+      <label class="switch"><span id="pn-pieno-l">Pieno</span><input type="checkbox" id="pn-pieno" checked><i></i></label>
+    </div>
+  </div>
+  <datalist id="benzlist"></datalist>
+  <div class="total"><span>Totale</span><b id="pn-tot">—</b></div>
+  <button class="btn red" id="pn-save" onclick="savePieno()">Salva pieno</button>
+  <button class="lnk red" id="pn-del" onclick="delPieno()" hidden>Elimina pieno</button>
+</div>
+
+<div class="sheet" id="sh-spesa" role="dialog" aria-modal="true" aria-labelledby="sp-title">
+  <span class="handle"></span>
+  <div class="sh-head"><h3 id="sp-title">Nuova spesa</h3><button onclick="closeSheet()">Annulla</button></div>
+  <div class="chips sm" id="sp-cat"></div>
+  <div class="fields">
+    <label class="field"><span>Importo €</span><input id="sp-imp" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
+    <div class="frow">
+      <label class="field pick"><span>Data</span><b class="val" id="sp-data-txt">—</b><input type="date" id="sp-data" aria-label="Data"></label>
+      <label class="field txt grow"><span>Descrizione</span><input id="sp-desc" placeholder="es. cambio olio" autocomplete="off"></label>
+    </div>
+  </div>
+  <button class="btn red" id="sp-save" onclick="saveSpesa()">Salva spesa</button>
+  <button class="lnk red" id="sp-del" onclick="delSpesa()" hidden>Elimina spesa</button>
+</div>
+
+<div class="sheet" id="sh-scad" role="dialog" aria-modal="true" aria-labelledby="sc-title">
+  <span class="handle"></span>
+  <div class="sh-head"><h3 id="sc-title">Nuova scadenza</h3><button onclick="closeSheet()">Annulla</button></div>
+  <div class="chips sm" id="sc-tipo"></div>
+  <div class="frow">
+    <label class="field pick"><span>Scade il</span><b class="val" id="sc-data-txt">—</b><input type="date" id="sc-data" aria-label="Data di scadenza"></label>
+    <label class="field txt grow"><span>Note</span><input id="sc-note" placeholder="es. compagnia" autocomplete="off"></label>
+  </div>
+  <button class="btn red" id="sc-save" onclick="saveScad()">Salva scadenza</button>
+  <button class="lnk red" id="sc-del" onclick="delScad()" hidden>Elimina scadenza</button>
+</div>
+
+<div class="sheet" id="sh-veh" role="dialog" aria-modal="true" aria-labelledby="vh-title">
+  <span class="handle"></span>
+  <div class="sh-head"><h3 id="vh-title">Modifica veicolo</h3><button onclick="closeSheet()">Annulla</button></div>
+  <label class="field txt"><span>Nome</span><input id="vh-name" autocomplete="off"></label>
+  <div class="wz-f"><span class="lab">Tipo</span><div class="chips sm" id="vh-type"></div></div>
+  <label class="field txt"><span>Targa</span><input class="plate-in" id="vh-plate" placeholder="facoltativa" autocomplete="off" autocapitalize="characters"></label>
+  <div class="wz-f"><span class="lab">Carburante</span><div class="chips sm" id="vh-fuel"></div></div>
+  <button class="btn" onclick="saveVeh()">Salva</button>
+  <button class="lnk red" id="vh-del" onclick="delVeh()">Elimina veicolo</button>
+</div>
+
+<div class="sheet" id="sh-switch" role="dialog" aria-modal="true" aria-labelledby="sw-title">
+  <span class="handle"></span>
+  <div class="sh-head"><h3 id="sw-title">Veicoli</h3><button onclick="closeSheet()">Chiudi</button></div>
+  <div class="group" id="sw-list"></div>
+  <button class="btn" onclick="startWizard('add')">Aggiungi veicolo</button>
+</div>
+
+<div class="sheet" id="sh-ai" role="dialog" aria-modal="true" aria-labelledby="ai-title">
+  <span class="handle"></span>
+  <div class="sh-head"><h3 id="ai-title">Scansione scontrini</h3><button onclick="closeSheet()">Chiudi</button></div>
+  <p class="hint">Serve la <b>tua</b> chiave API di un servizio AI con visione. Resta solo su questo dispositivo: non finisce nei backup né nella sincronizzazione. Ogni scansione consuma una piccola quota sul tuo account.</p>
+  <div class="wz-f"><span class="lab">Servizio</span><div class="chips sm" id="ai-prov"></div></div>
+  <label class="field txt"><span>Chiave API</span><input type="password" id="ai-key" autocomplete="off"></label>
+  <label class="field txt"><span>Modello · facoltativo</span><input id="ai-model" autocomplete="off"></label>
+  <p class="hint" id="ai-help"></p>
+  <button class="btn" onclick="saveAI()">Salva</button>
+  <button class="lnk red" id="ai-clear" onclick="clearAI()" hidden>Rimuovi la chiave</button>
+</div>
+
+<div class="sheet" id="sh-sync" role="dialog" aria-modal="true" aria-labelledby="sy-title">
+  <span class="handle"></span>
+  <div class="sh-head"><h3 id="sy-title">Sincronizzazione</h3><button onclick="closeSheet()">Chiudi</button></div>
+  <div id="sync-off" class="fields">
+    <p class="hint">Stessi dati su telefono e Mac. Serve un <b>Personal Access Token</b> di GitHub con il solo permesso <code>gist</code>. I dati finiscono in un Gist segreto sul tuo account; il token resta su questo dispositivo.</p>
+    <label class="field txt"><span>Token GitHub</span><input type="password" id="sync-token" placeholder="ghp_…" autocomplete="off"></label>
+    <a class="hint" href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Pit" target="_blank" rel="noopener" style="color:var(--signal)">Crea il token su github.com →</a>
+    <p class="hint" id="sync-err" style="color:var(--bad)"></p>
+    <button class="btn" onclick="enableSync()">Attiva</button>
+  </div>
+  <div id="sync-on" class="fields" hidden>
+    <p class="hint">Sincronizzazione <b style="color:var(--good)">attiva</b>. <span id="sync-state"></span></p>
+    <button class="btn" onclick="syncNow()">Sincronizza ora</button>
+    <button class="lnk red" onclick="disableSync()">Disattiva su questo dispositivo</button>
+  </div>
+</div>
+
+<div class="sheet" id="sh-restore" role="dialog" aria-modal="true" aria-labelledby="rs-title">
+  <span class="handle"></span>
+  <div class="sh-head"><h3 id="rs-title">Ripristina</h3><button onclick="closeSheet()">Annulla</button></div>
+  <button class="pick-card" onclick="$('imp').click()"><b>Da un file di backup</b><span>il file .json esportato da Pit</span></button>
+  <div class="sh-sep">oppure dalla sincronizzazione</div>
+  <label class="field txt"><span>Token GitHub · permesso gist</span><input type="password" id="rs-token" placeholder="ghp_…" autocomplete="off"></label>
+  <p class="hint" id="rs-msg"></p>
+  <button class="btn" id="rs-go" onclick="restoreGist()">Scarica dal Gist</button>
+</div>
+
+<input type="file" id="imp" accept="application/json,.json" hidden onchange="importJSON(this)">
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+const K='moto_data_v1', SYNCK='moto_sync', GIST_FILE='spese-moto.json', AIK='pit_ai';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MESI=['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+const MESI3=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+
+// numeri all'italiana; il separatore delle migliaia si mette a mano perché Intl in it-IT salta i numeri a 4 cifre (1242 invece di 1.242)
+function fmt(n,d){if(n==null||!isFinite(n))return'—';d=d==null?2:d;const neg=n<0;const p=Math.abs(n).toFixed(d).split('.');
+  return(neg?'-':'')+p[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.')+(p[1]?','+p[1]:'');}
+function fmtMax(n,d){const s=fmt(n,d);return s.includes(',')?s.replace(/0+$/,'').replace(/,$/,''):s;}
+const eur=n=>fmt(n,2)+' €';
+function pNum(s){s=String(s==null?'':s).trim();if(!s)return NaN;if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s);}
+const pInt=s=>parseInt(String(s==null?'':s).replace(/[^\d]/g,''),10);
+const fNum=n=>(n==null||isNaN(n))?'':String(n).replace('.',',');
+const pad2=n=>String(n).padStart(2,'0');
+const todayISO=()=>{const d=new Date();return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());};
+const ymd=iso=>{const p=String(iso||'').split('-').map(Number);return{y:p[0],m:p[1],d:p[2]};};
+const itDate=iso=>{if(!iso)return'';const{y,m,d}=ymd(iso);return pad2(d)+'/'+pad2(m)+'/'+y;};
+const shortDate=iso=>{if(!iso)return'—';const{y,m,d}=ymd(iso);return pad2(d)+'/'+pad2(m)+'/'+String(y).slice(2);};
+const dayMon=iso=>{const{m,d}=ymd(iso);return d+' '+MESI3[m-1];};
+const longDate=iso=>{const{y,m,d}=ymd(iso);return d+' '+MESI[m-1]+(y!==new Date().getFullYear()?' '+y:'');};
+const genId=()=>'veh_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+const VTYPES=[['auto','Auto'],['moto','Moto'],['furgone','Furgone'],['scooter','Scooter'],['altro','Altro']];
+const VTYPE_LABEL=Object.fromEntries(VTYPES);
+const WZ_TYPES=['auto','moto','furgone'];
+const WZ_FUELS=['Benzina','Diesel','GPL','Metano','Elettrico'];
+const WZ_SCAD=['Assicurazione','Bollo','Revisione'];
+const FUELS=['Benzina','Benzina Premium','Diesel','GPL','Metano','Elettrico','Altro'];
+const SPESA_CATS=['Tagliando','Gomme','Assicurazione','Bollo','Revisione','Riparazione','Accessori','Altro'];
+const SCAD_TIPI=['Assicurazione','Bollo','Revisione','Tagliando','Patente','Altro'];
+// unità di misura: il metano si paga al kg, l'elettrico al kWh, il resto al litro
+const UNIT={Elettrico:'kWh',Metano:'kg'};
+const unitOf=t=>UNIT[t]||'l';
+const QTY_LABEL={l:'Litri',kWh:'kWh',kg:'Kg'}, PER_WORD={l:'litro',kWh:'kWh',kg:'kg'};
+
+// ---------- dati (schema v2: più veicoli; v2.1 aggiunge fuel e kmStart al veicolo) ----------
+function blankVehicle(o){o=o||{};return{id:genId(),name:o.name||'Veicolo',type:o.type||'auto',plate:o.plate||'',fuel:o.fuel||'',
+  kmStart:o.kmStart==null?null:o.kmStart,rif:[],spese:[],scadenze:[]};}
+function emptyDB(){const v=blankVehicle({name:'Veicolo 1'});return{v:2,example:false,updatedAt:0,currentId:v.id,vehicles:[v]};}
 // migra qualsiasi formato salvato/importato al modello v2 (zero perdita dati)
 function migrate(d){
   if(!d||typeof d!=='object')return null;
   if(Array.isArray(d.vehicles)){
     d.v=2;
-    d.vehicles.forEach(v=>{v.id=v.id||genId();v.name=v.name||'Veicolo';v.type=v.type||'auto';v.plate=v.plate||'';
-      v.rif=v.rif||[];v.spese=v.spese||[];v.scadenze=v.scadenze||[];});
-    if(!d.vehicles.length)d.vehicles=[blankVehicle('Veicolo 1','auto','')];
+    d.vehicles.forEach(v=>{v.id=v.id||genId();v.name=v.name||'Veicolo';v.type=v.type||'auto';v.plate=v.plate||'';v.fuel=v.fuel||'';
+      if(v.kmStart===undefined)v.kmStart=null;v.rif=v.rif||[];v.spese=v.spese||[];v.scadenze=v.scadenze||[];});
+    if(!d.vehicles.length)d.vehicles=[blankVehicle({name:'Veicolo 1'})];
     if(!d.vehicles.some(v=>v.id===d.currentId))d.currentId=d.vehicles[0].id;
     d.updatedAt=d.updatedAt||0;
     return d;
   }
   if(Array.isArray(d.rif)){ // vecchio formato piatto (v1) o backup legacy
-    const v=blankVehicle('Veicolo 1','auto','');
-    v.rif=d.rif; v.spese=d.spese||[]; v.scadenze=d.scadenze||[];
-    return {v:2, example:!!d.example, updatedAt:d.updatedAt||0, currentId:v.id, vehicles:[v]};
+    const v=blankVehicle({name:'Veicolo 1'});v.rif=d.rif;v.spese=d.spese||[];v.scadenze=d.scadenze||[];
+    return{v:2,example:!!d.example,updatedAt:d.updatedAt||0,currentId:v.id,vehicles:[v]};
   }
   return null;
 }
-let DB=load();
-let SYNC=loadSync();
-function load(){try{const d=migrate(JSON.parse(localStorage.getItem(K)));if(d)return d;}catch(e){}return seed();}
-function loadSync(){try{return JSON.parse(localStorage.getItem(SYNCK))||{};}catch(e){return{};}}
+function loadJSON(k){try{return JSON.parse(localStorage.getItem(k))||{};}catch(e){return{};}}
+const STORED=(()=>{try{return migrate(JSON.parse(localStorage.getItem(K)));}catch(e){return null;}})();
+let DB=STORED||emptyDB();
+let SYNC=loadJSON(SYNCK), AI=loadJSON(AIK);
+// il wizard parte se sul dispositivo non c'è niente (o solo i vecchi dati di esempio)
+const NEEDS_SETUP=!STORED||!!STORED.example;
 function persistLocal(){localStorage.setItem(K,JSON.stringify(DB));}
 function saveSyncCfg(){localStorage.setItem(SYNCK,JSON.stringify(SYNC));}
-function save(){DB.updatedAt=Date.now();persistLocal();render();schedulePush();}
+function saveAICfg(){localStorage.setItem(AIK,JSON.stringify(AI));}
+function save(){DB.updatedAt=Date.now();DB.example=false;persistLocal();render();schedulePush();}
 function cur(){return DB.vehicles.find(v=>v.id===DB.currentId)||DB.vehicles[0];}
 
 // ---------- calcoli (sul veicolo attivo) ----------
@@ -593,414 +701,485 @@ function computed(){
   // consumo "da pieno a pieno": i km/l si misurano tra due pieni, sommando
   // tutta la benzina messa in mezzo (rabbocchi parziali compresi). Un rabbocco
   // (pieno=false) non ha un suo km/l: i suoi litri confluiscono nel pieno dopo.
-  let prev=null, lastFull=null, accL=0, accC=0;
+  let prev=null,lastFull=null,accL=0,accC=0;
   const rows=rif.map(r=>{
-    const costo=r.litri*r.prezzo, kmP=prev!=null?r.km-prev:null; prev=r.km;
+    const costo=r.litri*r.prezzo,kmP=prev!=null?r.km-prev:null;prev=r.km;
     const full=r.pieno!==false;
-    accL+=r.litri; accC+=costo;
-    let kmL=null,l100=null,eurKm=null;
+    accL+=r.litri;accC+=costo;
+    let kmL=null,l100=null,eurKm=null,seg=null;
     if(full&&lastFull!=null){
       const dist=r.km-lastFull;
-      if(dist>0&&accL>0){kmL=dist/accL;l100=accL/dist*100;eurKm=accC/dist;}
+      if(dist>0&&accL>0){kmL=dist/accL;l100=accL/dist*100;eurKm=accC/dist;seg={dist,l:accL};}
     }
     if(full){lastFull=r.km;accL=0;accC=0;}
-    return {...r,costo,kmP,full,kmL,l100,eurKm};
+    return{...r,costo,kmP,full,kmL,l100,eurKm,seg};
   });
-  const wd=rows.filter(r=>r.kmP!=null&&r.kmP>0), sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
-  const spesaCarb=sum(rows,r=>r.costo), litriTot=sum(rows,r=>r.litri), kmTot=sum(wd,r=>r.kmP),
-        litriDist=sum(wd,r=>r.litri), costoDist=sum(wd,r=>r.costo), speseTot=sum(V.spese,s=>s.imp);
-  const st={};
-  rows.forEach(r=>{const k=(r.benz||'').trim();if(!k)return;(st[k]=st[k]||{litri:0,costo:0,n:0});st[k].litri+=r.litri;st[k].costo+=r.costo;st[k].n++;});
-  const stations=Object.keys(st).map(k=>({nome:k,avg:st[k].costo/st[k].litri,n:st[k].n})).sort((a,b)=>a.avg-b.avg);
+  const wd=rows.filter(r=>r.kmP!=null&&r.kmP>0),sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
+  const spesaCarb=sum(rows,r=>r.costo),litriTot=sum(rows,r=>r.litri),kmTot=sum(wd,r=>r.kmP),
+        litriDist=sum(wd,r=>r.litri),costoDist=sum(wd,r=>r.costo),speseTot=sum(V.spese,s=>s.imp);
   // medie €/l per tipo di carburante (separate: tipi diversi non sono confrontabili)
   const fm={};
   rows.forEach(r=>{const t=r.tipo||'Altro';(fm[t]=fm[t]||{litri:0,costo:0,n:0});fm[t].litri+=r.litri;fm[t].costo+=r.costo;fm[t].n++;});
   const byFuel=Object.keys(fm).map(t=>({tipo:t,avg:fm[t].costo/fm[t].litri,litri:fm[t].litri,n:fm[t].n,costo:fm[t].costo})).sort((a,b)=>b.litri-a.litri);
-  const fuelTypes=byFuel.map(f=>f.tipo);
-  return {rows,stations,byFuel,fuelTypes,spesaCarb,litriTot,kmTot,speseTot,nRif:rows.length,
-    kmLavg:kmTot&&litriDist?kmTot/litriDist:null, l100avg:kmTot&&litriDist?litriDist/kmTot*100:null,
-    eurKmAvg:kmTot?costoDist/kmTot:null, eurLavg:litriTot?spesaCarb/litriTot:null, totale:spesaCarb+speseTot};
+  return{rows,byFuel,fuelTypes:byFuel.map(f=>f.tipo),spesaCarb,litriTot,kmTot,speseTot,nRif:rows.length,
+    kmLavg:kmTot&&litriDist?kmTot/litriDist:null,l100avg:kmTot&&litriDist?litriDist/kmTot*100:null,
+    eurKmAvg:kmTot?costoDist/kmTot:null,totale:spesaCarb+speseTot};
 }
+function primaryFuel(V,c){return V.fuel||(c.byFuel[0]&&c.byFuel[0].tipo)||'Benzina';}
 function scadStatus(iso){
   const t=new Date();t.setHours(0,0,0,0);
-  const days=Math.round((Date.parse(iso+'T00:00:00')-t.getTime())/86400000);
-  if(isNaN(days))return{cls:'green',label:'',days:9e9};
-  if(days<0)return{cls:'red',label:'scaduta '+(-days)+'g fa',days};
-  if(days===0)return{cls:'red',label:'oggi',days};
-  if(days<=30)return{cls:'amber',label:'tra '+days+'g',days};
-  return{cls:'green',label:'tra '+days+'g',days};
+  const days=Math.round((new Date(iso+'T00:00:00').getTime()-t.getTime())/86400000);
+  if(isNaN(days))return{days:9e9,cls:'',badge:''};
+  return{days,cls:days<0?'bad':days<=30?'warn':'',badge:days<0?'scaduta':days===0?'oggi':days+' gg'};
 }
-const SCAD_ICON={
-  Assicurazione:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
-  Bollo:'<path d="M18 7a6 6 0 1 0 0 10"/><path d="M4 10h8"/><path d="M4 14h7"/>',
-  Revisione:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.3 2.3-2.5-.5-.5-2.5z"/>',
-  Tagliando:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.3 2.3-2.5-.5-.5-2.5z"/>',
-  Patente:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M7 11h2M15 9h2"/>',
-  Altro:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/>'
-};
-const svgI=(p,sz)=>`<svg class="ic" width="${sz||18}" height="${sz||18}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
-const XICON='<path d="M18 6 6 18"/><path d="M6 6l12 12"/>';
-const EDITICON='<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>';
-const PLUSICON='<path d="M12 5v14"/><path d="M5 12h14"/>';
-
-// ---------- render ----------
-// ---------- ordinamento liste ----------
-let SORT=loadSort();
-function loadSort(){const def={rif:{key:'data',dir:'desc'},spese:{key:'data',dir:'desc'},scad:{key:'urg',dir:'asc'}};
-  try{const d=JSON.parse(localStorage.getItem('pit_sort'));return d?{rif:{...def.rif,...d.rif},spese:{...def.spese,...d.spese},scad:{...def.scad,...d.scad}}:def;}catch(e){return def;}}
-function saveSort(){localStorage.setItem('pit_sort',JSON.stringify(SORT));}
-function sortBy(list,key){const s=SORT[list];if(s.key===key)s.dir=s.dir==='asc'?'desc':'asc';else{s.key=key;s.dir='asc';}saveSort();render();}
-function sortArrow(list,key){const s=SORT[list];return s.key===key?(s.dir==='asc'?' ▲':' ▼'):'';}
-function th(list,key,label){const a=SORT[list].key===key;return `<th class="sortable${a?' active':''}" onclick="sortBy('${list}','${key}')">${label}${sortArrow(list,key)}</th>`;}
-function sortChip(list,key,label){const a=SORT[list].key===key;return `<button type="button" class="sortchip${a?' active':''}" onclick="sortBy('${list}','${key}')">${label}${sortArrow(list,key)}</button>`;}
-function cmpSort(x,y,m){if(typeof x==='string'||typeof y==='string')return m*String(x==null?'':x).localeCompare(String(y==null?'':y));return m*((x||0)-(y||0));}
-function sortRows(rows){const {key,dir}=SORT.rif,m=dir==='asc'?1:-1;
-  const f=({data:r=>r.data,km:r=>r.km,litri:r=>r.litri,prezzo:r=>r.prezzo,costo:r=>r.costo,tipo:r=>r.tipo||'',benz:r=>r.benz||''})[key]||(r=>r.data);
-  return rows.slice().sort((a,b)=>cmpSort(f(a),f(b),m));}
-function sortSpese(arr){const {key,dir}=SORT.spese,m=dir==='asc'?1:-1;
-  const f=({data:s=>s.data,cat:s=>s.cat||'',imp:s=>s.imp,desc:s=>s.desc||''})[key]||(s=>s.data);
-  return arr.map((s,i)=>[s,i]).sort((a,b)=>cmpSort(f(a[0]),f(b[0]),m));}
-
-let fuelFilter='';
-function setFuelFilter(v){fuelFilter=v||'';render();}
-
-// voci "a scorrimento": il tap sulla card cambia la voce mostrata (in-place)
-let cardViews={}, cardView={};
-function cycleCard(key){
-  const views=cardViews[key]; if(!views||views.length<2)return;
-  cardView[key]=((cardView[key]||0)+1)%views.length;
-  const el=document.querySelector('.stat[data-key="'+key+'"]'); if(!el)return;
-  const v=views[cardView[key]];
-  el.querySelector('.k').innerHTML=v.lab;
-  el.querySelector('.v').innerHTML=v.val;
-  const dots=el.querySelector('.dots');
-  if(dots)[...dots.children].forEach((d,i)=>{d.className=i===cardView[key]?'on':'';});
-}
-function renderFuelFilter(types){
-  const row=$('fuel-filter-row'),sel=$('fuel-filter');
-  if(!types||types.length<2){row.style.display='none';return;}
-  row.style.display='';
-  sel.innerHTML='<option value="">Tutti i carburanti</option>'+types.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
-  sel.value=fuelFilter;
-}
-function renderByFuel(byFuel){
-  const sec=$('byfuel-section');
-  if(!byFuel||byFuel.length<2){sec.style.display='none';return;}
-  sec.style.display='';
-  $('byfuel').innerHTML=byFuel.map(f=>`<div class="vf-row">
-      <span class="chip">${esc(f.tipo)}</span>
-      <span class="vf-val">${NUM(f.avg,3)} <small>€/l</small></span>
-      <span class="vf-sub">${f.n} rif · ${NUM(f.litri,0)} L</span></div>`).join('');
-}
-function render(){
-  const V=cur(), c=computed();
-  if(fuelFilter && !c.fuelTypes.includes(fuelFilter)) fuelFilter='';
-  $('banner').style.display=DB.example?'flex':'none';
-  $('benzlist').innerHTML=[...new Set(V.rif.map(r=>(r.benz||'').trim()).filter(Boolean))].map(b=>`<option value="${esc(b)}">`).join('');
-
-  renderFuelFilter(c.fuelTypes);
-  renderByFuel(c.byFuel);
-
-  // confronti di prezzo: limitati al carburante scelto (tipi diversi non sono paragonabili)
-  const multi=c.fuelTypes.length>1;
-  const pr=fuelFilter?c.rows.filter(r=>(r.tipo||'Altro')===fuelFilter):c.rows;
-  const pLitri=pr.reduce((s,r)=>s+r.litri,0), pCosto=pr.reduce((s,r)=>s+r.costo,0);
-  const pEurL=pLitri?pCosto/pLitri:null;
-  const prezzoLab='Prezzo medio'+(fuelFilter?' · '+fuelFilter:(multi?' · misto':''));
-  const pst={};
-  pr.forEach(r=>{const k=(r.benz||'').trim();if(!k)return;(pst[k]=pst[k]||{litri:0,costo:0});pst[k].litri+=r.litri;pst[k].costo+=r.costo;});
-  const pStations=Object.keys(pst).map(k=>({nome:k,avg:pst[k].costo/pst[k].litri})).sort((a,b)=>a.avg-b.avg);
-
-  // voci "a scorrimento": un tap sulla card cambia la voce mostrata, in-place
-  const spByCat={}; cur().spese.forEach(s=>{const k=s.cat||'Altro';spByCat[k]=(spByCat[k]||0)+s.imp;});
-  const spCat=Object.keys(spByCat).sort((a,b)=>spByCat[b]-spByCat[a]);
-  const meas=c.rows.filter(r=>r.kmL!=null), kl=meas.map(r=>r.kmL);
-  const lastMeas=meas.slice().sort((a,b)=>a.data.localeCompare(b.data)).pop();
-  const ek=c.rows.filter(r=>r.eurKm!=null), lastEk=ek.slice().sort((a,b)=>a.data.localeCompare(b.data)).pop();
-  const nPieni=c.rows.filter(r=>r.full!==false).length, nRab=c.rows.length-nPieni, multiFuel=c.byFuel.length>1;
-  const U=(s,unit)=>s+' <small>'+unit+'</small>';
-  cardViews={
-    spesaCarb:[{lab:'Spesa carburante',val:EUR(c.spesaCarb)}].concat(multiFuel?c.byFuel.map(f=>({lab:'Spesa · '+esc(f.tipo),val:EUR(f.costo)})):[]),
-    speseVarie:[{lab:'Spese varie',val:EUR(c.speseTot)}].concat(spCat.length>1?spCat.map(k=>({lab:'Spese · '+esc(k),val:EUR(spByCat[k])})):[]),
-    totale:[{lab:'Totale',val:EUR(c.totale)},{lab:'Totale · carburante',val:EUR(c.spesaCarb)},{lab:'Totale · spese varie',val:EUR(c.speseTot)}],
-    consumo:[{lab:'Consumo medio',val:c.kmLavg?U(NUM(c.kmLavg,1),'km/l'):'—'}].concat(meas.length?[
-      {lab:'Consumo · migliore',val:U(NUM(Math.max(...kl),1),'km/l')},
-      {lab:'Consumo · peggiore',val:U(NUM(Math.min(...kl),1),'km/l')},
-      {lab:'Consumo · ultima',val:U(NUM(lastMeas.kmL,1),'km/l')}]:[]),
-    eurkm:[{lab:'Costo al km',val:c.eurKmAvg?U(NUM(c.eurKmAvg,3),'€/km'):'—'}].concat(ek.length?[
-      {lab:'Costo/km · migliore',val:U(NUM(Math.min(...ek.map(r=>r.eurKm)),3),'€/km')},
-      {lab:'Costo/km · peggiore',val:U(NUM(Math.max(...ek.map(r=>r.eurKm)),3),'€/km')}]:[]),
-    prezzo:[{lab:prezzoLab,val:pEurL!=null?U(NUM(pEurL,3),'€/l'):'—'}].concat(multiFuel?c.byFuel.map(f=>({lab:'Prezzo · '+esc(f.tipo),val:U(NUM(f.avg,3),'€/l')})):[]),
-    nrif:[{lab:'Rifornimenti',val:String(c.nRif)}].concat(c.nRif?(multiFuel?c.byFuel.map(f=>({lab:'Rif. · '+esc(f.tipo),val:String(f.n)})):[]).concat([{lab:'Rif. · pieni',val:String(nPieni)},{lab:'Rif. · rabbocchi',val:String(nRab)}]):[]),
-  };
-
-  const layout=[
-    {key:'spesaCarb',cls:'big'},{key:'speseVarie'},{key:'totale',cls:'big'},
-    {key:'consumo'},{lab:'L/100 km',val:c.l100avg?NUM(c.l100avg,1):'—'},
-    {key:'eurkm'},{key:'prezzo'},
-    {lab:'Km percorsi',val:NUM(c.kmTot,0)+' <small>km</small>'},{key:'nrif'},
-  ];
-  $('cards').innerHTML=layout.map(card=>{
-    if(!card.key)return `<div class="stat ${card.cls||''}"><div class="k">${card.lab}</div><div class="v">${card.val}</div></div>`;
-    const views=cardViews[card.key], idx=Math.min(cardView[card.key]||0,views.length-1), v=views[idx], multi=views.length>1;
-    const dots=multi?'<div class="dots">'+views.map((_,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')+'</div>':'';
-    return `<div class="stat ${card.cls||''}${multi?' clk':''}" data-key="${card.key}"${multi?' onclick="cycleCard(\''+card.key+'\')"':''}><div class="k">${v.lab}</div><div class="v">${v.val}</div>${dots}</div>`;
-  }).join('');
-
-  // consumo e €/km: solo i punti con valore (i rabbocchi non hanno km/l -> esclusi)
-  lineChart('ch-consumo',c.rows.filter(r=>r.kmL!=null).map(r=>({x:r.data,y:r.kmL})),{color:'#34D399',dec:1});
-  lineChart('ch-prezzo',pr.map(r=>({x:r.data,y:r.prezzo})),{color:'#FBBF24',dec:3});
-  lineChart('ch-eurkm',c.rows.filter(r=>r.eurKm!=null).map(r=>({x:r.data,y:r.eurKm})),{color:'#F87171',dec:3});
-  barChart('ch-mese',monthly(c));
-  stationChart('ch-stations',pStations);
-
-  renderScad();
-  renderTables(c);
-  renderVehicles();
-  renderSyncUI();
-}
-
-function renderScad(){
-  const base=(cur().scadenze||[]).map((s,i)=>({...s,oi:i,st:scadStatus(s.data)}));
-  const urgent=base.slice().sort((a,b)=>a.st.days-b.st.days).filter(s=>s.st.cls!=='green');
-  const al=$('alert-scad');
-  if(urgent.length){
-    al.style.display='';
-    al.innerHTML=`<div class="scad ${urgent[0].st.cls}">
-      <span class="ico-wrap">${svgI('<path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>')}</span>
-      <div class="meta"><div class="t">${urgent.length===1?'1 scadenza da gestire':urgent.length+' scadenze da gestire'}</div>
-      <div class="d">${urgent.map(s=>esc(s.tipo)+' ('+s.st.label+')').join(' · ')}</div></div></div>`;
-  } else al.style.display='none';
-
-  const el=$('scad-list');
-  if(!base.length){$('scad-sort').innerHTML='';el.innerHTML='<div class="empty">Nessuna scadenza. Aggiungine una sopra (assicurazione, bollo, revisione…).</div>';return;}
-  $('scad-sort').innerHTML='<span class="sortchip-lab">Ordina</span>'+sortChip('scad','urg','Urgenza')+sortChip('scad','data','Scadenza')+sortChip('scad','tipo','Tipo');
-  const {key,dir}=SORT.scad,m=dir==='asc'?1:-1;
-  const display=base.slice().sort((a,b)=>{
-    if(key==='data')return m*a.data.localeCompare(b.data);
-    if(key==='tipo')return m*String(a.tipo).localeCompare(String(b.tipo));
-    return m*(a.st.days-b.st.days);
-  });
-  el.innerHTML=display.map(s=>`<div class="scad ${s.st.cls}">
-      <span class="ico-wrap">${svgI(SCAD_ICON[s.tipo]||SCAD_ICON.Altro,18)}</span>
-      <div class="meta"><div class="t">${esc(s.tipo)}</div><div class="d">${itDate(s.data)}${s.note?' · '+esc(s.note):''}</div></div>
-      <span class="badge">${s.st.label}</span>
-      <button class="iconbtn edit" aria-label="Modifica scadenza" onclick="startEditScad(${s.oi})">${svgI(EDITICON,15)}</button>
-      <button class="iconbtn" aria-label="Elimina scadenza" onclick="delScad(${s.oi})">${svgI(XICON,16)}</button>
-    </div>`).join('');
-}
-
-function renderTables(c){
-  const acts=(e,d)=>`<span class="rc-acts"><button class="iconbtn edit" aria-label="Modifica" onclick="${e}">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="${d}">${svgI(XICON,16)}</button></span>`;
-
-  // ---- Rifornimenti: tabella (desktop) + card (mobile) ----
-  const rifRows=sortRows(c.rows), tr=$('tbl-rif');
-  if(!c.rows.length){
-    tr.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessun rifornimento.</td></tr></tbody>';
-    $('cards-rif').innerHTML='<div class="empty">Nessun rifornimento.</div>';
-    $('sort-rif-m').innerHTML='';
-  }else{
-    tr.innerHTML='<thead><tr>'+th('rif','data','Data')+th('rif','km','Km')+th('rif','litri','Litri')+th('rif','prezzo','€/l')+th('rif','tipo','Tipo')+th('rif','benz','Benzinaio')+th('rif','costo','Costo')+'<th>Km perc.</th><th>km/l</th><th>€/km</th><th></th></tr></thead><tbody>'+
-      rifRows.map(r=>`<tr><td>${itDate(r.data)}</td><td>${NUM(r.km,0)}</td><td>${NUM(r.litri,2)}</td><td>${NUM(r.prezzo,3)}</td>
-        <td style="text-align:left"><span class="chip">${esc(r.tipo||'—')}</span>${r.full===false?' <span class="chip warn">rabbocco</span>':''}</td>
-        <td style="text-align:left">${r.benz?esc(r.benz):'—'}</td>
-        <td>${EUR(r.costo)}</td><td>${r.kmP!=null?NUM(r.kmP,0):'—'}</td>
-        <td class="auto">${r.kmL!=null?NUM(r.kmL,2):'—'}</td><td class="auto">${r.eurKm!=null?NUM(r.eurKm,3):'—'}</td>
-        <td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditRif(${r.oi})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delRif(${r.oi})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
-    $('cards-rif').innerHTML=rifRows.map(r=>`<div class="rc">
-      <div class="rc-h"><span class="rc-amt">${EUR(r.costo)}</span><span class="rc-date">${itDate(r.data)}</span>${acts('startEditRif('+r.oi+')','delRif('+r.oi+')')}</div>
-      <div class="rc-sub"><span class="chip">${esc(r.tipo||'—')}</span>${r.full===false?'<span class="chip warn">rabbocco</span>':''}${r.benz?'<span class="rc-benz">'+esc(r.benz)+'</span>':''}${r.kmL!=null?'<span class="rc-eff">'+NUM(r.kmL,2)+' km/l</span>':''}</div>
-      <div class="rc-stats">${NUM(r.litri,2)} L · ${NUM(r.prezzo,3)} €/l · ${NUM(r.km,0)} km${r.eurKm!=null?' · '+NUM(r.eurKm,3)+' €/km':''}</div>
-    </div>`).join('');
-    $('sort-rif-m').innerHTML='<span class="sortchip-lab">Ordina</span>'+sortChip('rif','data','Data')+sortChip('rif','costo','Costo')+sortChip('rif','prezzo','€/l')+sortChip('rif','litri','Litri')+sortChip('rif','km','Km');
-  }
-
-  // ---- Spese: tabella (desktop) + card (mobile) ----
-  const sp=cur().spese, ts=$('tbl-spesa');
-  if(!sp.length){
-    ts.innerHTML='<tbody><tr><td class="empty" style="border:none">Nessuna spesa varia.</td></tr></tbody>';
-    $('cards-spesa').innerHTML='<div class="empty">Nessuna spesa varia.</div>';
-    $('sort-spesa-m').innerHTML='';
-  }else{
-    const sps=sortSpese(sp);
-    ts.innerHTML='<thead><tr>'+th('spese','data','Data')+th('spese','cat','Categoria')+th('spese','desc','Descrizione')+th('spese','imp','Importo')+'<th></th></tr></thead><tbody>'+
-      sps.map(([s,i])=>`<tr><td>${itDate(s.data)}</td><td><span class="chip">${esc(s.cat)}</span></td><td style="text-align:left">${esc(s.desc||'')}</td>
-         <td>${EUR(s.imp)}</td><td class="acts"><button class="iconbtn edit" aria-label="Modifica" onclick="startEditSpesa(${i})">${svgI(EDITICON,15)}</button><button class="iconbtn" aria-label="Elimina" onclick="delSpesa(${i})">${svgI(XICON,16)}</button></td></tr>`).join('')+'</tbody>';
-    $('cards-spesa').innerHTML=sps.map(([s,i])=>`<div class="rc">
-      <div class="rc-h"><span class="rc-amt">${EUR(s.imp)}</span><span class="rc-date">${itDate(s.data)}</span>${acts('startEditSpesa('+i+')','delSpesa('+i+')')}</div>
-      <div class="rc-sub"><span class="chip">${esc(s.cat)}</span>${s.desc?'<span class="rc-benz">'+esc(s.desc)+'</span>':''}</div>
-    </div>`).join('');
-    $('sort-spesa-m').innerHTML='<span class="sortchip-lab">Ordina</span>'+sortChip('spese','data','Data')+sortChip('spese','cat','Categoria')+sortChip('spese','imp','Importo');
-  }
-}
-
-function monthly(c){
+function scadSub(s){const d=s.st.days;return d<0?'scaduta il '+longDate(s.data):d===0?'scade oggi':'scade il '+longDate(s.data);}
+const mkey=(y,m)=>y+'-'+pad2(m);
+function monthTotals(c){
   const m={};
   c.rows.forEach(r=>{const k=r.data.slice(0,7);m[k]=(m[k]||0)+r.costo;});
   cur().spese.forEach(s=>{const k=s.data.slice(0,7);m[k]=(m[k]||0)+s.imp;});
-  return Object.keys(m).sort().slice(-12).map(k=>{const[y,mo]=k.split('-');
-    return{label:['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'][+mo-1]+' '+y.slice(2),y:m[k]};});
+  return m;
+}
+// ultimi n mesi di calendario, fino a quello corrente
+function lastMonths(n){const now=new Date(),out=[];for(let i=n-1;i>=0;i--){let y=now.getFullYear(),m=now.getMonth()+1-i;while(m<1){m+=12;y--;}out.push({k:mkey(y,m),m,cur:i===0});}return out;}
+
+// ---------- stato di vista ----------
+let yearP=null,yearS=null,fuelFilter='',stFuel='';
+function setYear(which,v){if(which==='p')yearP=v;else yearS=v;render();}
+function yearsOf(dates){const ys=[...new Set(dates.filter(Boolean).map(d=>String(d).slice(0,4)))].sort().reverse();return ys.length?ys:[String(new Date().getFullYear())];}
+function fillYear(sel,txt,years,val){$(sel).innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('')+'<option value="all">Tutto</option>';$(sel).value=val;$(txt).textContent=val==='all'?'Tutto':val;}
+const inYear=(iso,y)=>y==='all'||String(iso).startsWith(y);
+
+// gruppo di chip a scelta singola: il valore scelto sta in data-val del contenitore
+function chips(id,opts,val){const el=$(id);el.dataset.val=val==null?'':val;
+  el.innerHTML=opts.map(([v,l])=>`<button type="button" class="chip${v===val?' on':''}" aria-pressed="${v===val}" data-v="${esc(v)}">${esc(l)}</button>`).join('');}
+const chipVal=id=>$(id).dataset.val||'';
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.chips .chip');if(!b)return;
+  const g=b.parentElement;g.dataset.val=b.dataset.v;
+  g.querySelectorAll('.chip').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);});
+  g.dispatchEvent(new Event('change'));
+});
+
+// ---------- render ----------
+function render(){
+  const c=computed();
+  renderHeader();renderPanoramica(c);renderPieni(c);renderSpese(c);renderScadenze();renderAnalisi(c);renderSettings();renderSyncUI();
+}
+function renderHeader(){
+  const V=cur();
+  $('h-name').textContent=V.name;
+  $('h-plate').textContent=V.plate||'';$('h-plate').hidden=!V.plate;
+  document.querySelectorAll('.veh-eb').forEach(e=>{e.textContent=V.name+' ▾';e.hidden=DB.vehicles.length<2;});
 }
 
-// ---------- grafici SVG ----------
-const GRID='rgba(255,255,255,.08)', AXIS='#6B7890', LABELT='#C7D0E0';
+function renderPanoramica(c){
+  const V=cur(),now=new Date(),y=now.getFullYear(),m=now.getMonth()+1;
+  const mt=monthTotals(c),tot=k=>mt[k]||0;
+  const pmY=m===1?y-1:y,pmM=m===1?12:m-1,curT=tot(mkey(y,m)),prevT=tot(mkey(pmY,pmM));
+  $('o-month').textContent=MESI[m-1]+' '+y;
+  const n=fmt(curT,2);$('o-amt').textContent=n;$('o-amt').style.fontSize=n.length>8?'46px':'';
+  const pm=MESI[pmM-1],prep=/^[aeiou]/.test(pm)?'ad ':'a ';
+  if(prevT>0&&curT===0)$('o-delta').innerHTML=`<span>ancora niente questo mese · ${pm}: ${eur(prevT)}</span>`;
+  else if(prevT>0){
+    const dir=curT<prevT?'down':curT>prevT?'up':'';
+    $('o-delta').innerHTML=`<b class="${dir}">${dir==='down'?'↓ ':dir==='up'?'↑ ':''}${Math.round(Math.abs(curT-prevT)/prevT*100)}%</b><span>rispetto ${prep}${pm} (${eur(prevT)})</span>`;
+  }else $('o-delta').innerHTML=`<span>nessuna spesa ${prep}${pm}</span>`;
+  const cols=lastMonths(6),mx=Math.max(0,...cols.map(x=>tot(x.k)));
+  $('o-bars').innerHTML=cols.map(x=>{const v=tot(x.k),h=mx?Math.max(3,Math.round(v/mx*92)):3;
+    return `<div class="col${x.cur?' cur':''}" title="${MESI[x.m-1]}: ${eur(v)}"><div class="b" style="height:${h}px"></div><span class="l">${MESI3[x.m-1]}</span></div>`;}).join('');
+
+  // tre indicatori piccoli: consumo, costo al km, prezzo medio del carburante principale
+  const pf=primaryFuel(V,c),u=unitOf(pf),fr=c.byFuel.find(f=>f.tipo===pf);
+  const kpi=(k,v,s)=>`<div class="kpi"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${s}</span></div>`;
+  $('o-kpis').innerHTML=kpi('Consumo',c.kmLavg?fmt(c.kmLavg,1):'—','km/'+u)+kpi('Al km',c.eurKmAvg?fmt(c.eurKmAvg,3):'—','€/km')
+    +kpi('Al '+PER_WORD[u],fr?fmt(fr.avg,3):'—','€/'+u);
+
+  let h='';
+  const sc=(V.scadenze||[]).map(s=>({...s,st:scadStatus(s.data)})).filter(s=>s.st.days<=30).sort((a,b)=>a.st.days-b.st.days);
+  if(sc.length){const s=sc[0],more=sc.length-1;
+    h+=`<button class="note ${s.st.cls}" onclick="navTo('scadenze')"><span class="tx"><b class="t">${esc(s.tipo)}</b><span class="s">${scadSub(s)}${more?` · +${more} ${more===1?'altra':'altre'}`:''}</span></span><span class="r bdg">${s.st.badge}</span></button>`;}
+  const last=c.rows.slice().sort((a,b)=>b.data.localeCompare(a.data)||b.km-a.km)[0];
+  if(last){const lu=unitOf(last.tipo);
+    h+=`<button class="note" onclick="navTo('pieni')"><span class="tx"><b class="t">${esc(last.benz||last.tipo||'Pieno')}</b><span class="s">${dayMon(last.data)} · ${fmtMax(last.litri,2)} ${lu} · ${fmt(last.prezzo,3)} €/${lu}</span></span><span class="r">${eur(last.costo)}</span></button>`;}
+  else h+=`<div class="note"><span class="tx"><b class="t">Nessun pieno ancora</b><span class="s">Segna il primo e Pit inizia a contare.</span></span><button class="mini" onclick="openPieno()">Aggiungi</button></div>`;
+  $('o-cards').innerHTML=h;
+}
+
+function renderPieni(c){
+  const V=cur(),pf=primaryFuel(V,c),u=unitOf(pf);
+  const years=yearsOf(c.rows.map(r=>r.data));
+  if(!(yearP==='all'||years.includes(yearP)))yearP=years[0];
+  fillYear('yp','yp-txt',years,yearP);
+  const rows=c.rows.filter(r=>inYear(r.data,yearP)).sort((a,b)=>b.data.localeCompare(a.data)||b.km-a.km);
+  const segs=rows.filter(r=>r.seg),dist=segs.reduce((s,r)=>s+r.seg.dist,0),lit=segs.reduce((s,r)=>s+r.seg.l,0);
+  $('pl-stats').innerHTML=`<span><b>${rows.length}</b><i>${rows.length===1?'pieno':'pieni'}</i></span>`
+    +`<span><b>${eur(rows.reduce((s,r)=>s+r.costo,0))}</b><i>spesi</i></span>`
+    +`<span><b>${lit?fmt(dist/lit,1):'—'}</b><i>km/${u} medi</i></span>`;
+  // migliore e peggiore del periodo, solo se c'è abbastanza storia per dirlo
+  const meas=rows.filter(r=>r.kmL!=null);let best=null,worst=null;
+  if(meas.length>=3){best=meas.reduce((a,b)=>b.kmL>a.kmL?b:a);worst=meas.reduce((a,b)=>b.kmL<a.kmL?b:a);}
+  if(!rows.length){
+    $('pl-list').innerHTML=`<p class="empty">${c.rows.length?'Nessun pieno in questo periodo.':'Ancora nessun pieno. Tocca + per segnare il primo.'}</p>`;
+  }else{
+    const groups=[];
+    rows.forEach(r=>{const k=r.data.slice(0,7);let g=groups[groups.length-1];if(!g||g.k!==k){g={k,rows:[]};groups.push(g);}g.rows.push(r);});
+    $('pl-list').innerHTML=groups.map(g=>{const{y,m}=ymd(g.k+'-01');
+      return `<span class="eyebrow sm grp">${MESI[m-1]}${yearP==='all'?' '+y:''}</span><div class="rows">${g.rows.map(r=>rowPieno(r,best,worst)).join('')}</div>`;}).join('');
+  }
+  renderStations(rows,pf);
+}
+function rowPieno(r,best,worst){
+  const u=unitOf(r.tipo),{m,d}=ymd(r.data);
+  let eff='';
+  if(!r.full)eff='<span class="faint">rabbocco</span>';
+  else if(r.kmL!=null)eff=`<span class="${r===best?'good':r===worst?'bad-t':''}">${fmt(r.kmL,1)} km/${u}</span>`;
+  return `<button class="row" onclick="openPieno(${r.oi})"><span class="dt"><b>${pad2(d)}</b><span>${MESI3[m-1]}</span></span>`
+    +`<span class="mid"><b>${esc(r.benz||r.tipo||'Pieno')}</b><span class="mono">${fmtMax(r.litri,2)} ${u} · ${fmt(r.prezzo,3)} €/${u}</span></span>`
+    +`<span class="end"><b>${fmt(r.costo,2)}</b>${eff}</span></button>`;
+}
+// confronto distributori: dentro Pieni, sul periodo scelto e per un carburante alla volta
+function renderStations(rows,pf){
+  const withSt=rows.filter(r=>(r.benz||'').trim());
+  const fuels=[...new Set(withSt.map(r=>r.tipo||'Altro'))].filter(t=>new Set(withSt.filter(r=>(r.tipo||'Altro')===t).map(r=>r.benz.trim())).size>1);
+  if(!fuels.length){$('pl-st').hidden=true;return;}
+  if(!fuels.includes(stFuel))stFuel=fuels.includes(pf)?pf:fuels[0];
+  const st={};
+  withSt.filter(r=>(r.tipo||'Altro')===stFuel).forEach(r=>{const k=r.benz.trim();(st[k]=st[k]||{l:0,c:0,n:0});st[k].l+=r.litri;st[k].c+=r.costo;st[k].n++;});
+  const list=Object.keys(st).map(k=>({nome:k,avg:st[k].c/st[k].l,n:st[k].n})).sort((a,b)=>a.avg-b.avg),u=unitOf(stFuel);
+  $('pl-st').hidden=false;
+  $('pl-st-h').textContent='Distributori · '+stFuel;
+  if(fuels.length>1)chips('pl-st-fuel',fuels.map(f=>[f,f]),stFuel);
+  $('pl-st-fuel').hidden=fuels.length<2;
+  $('pl-st-list').innerHTML=list.slice(0,8).map((s,i)=>`<div class="srow"><span class="mid"><b>${esc(s.nome)}</b><span>${s.n} ${s.n===1?'pieno':'pieni'}</span></span><span class="st big${i===0?' good':''}">${fmt(s.avg,3)} €/${u}</span></div>`).join('');
+  $('pl-st-hint').textContent='Prezzo medio pagato '+(yearP==='all'?'da sempre':'nel '+yearP)+', dal più conveniente.';
+}
+
+function renderSpese(c){
+  const V=cur();
+  const years=yearsOf(V.spese.map(s=>s.data).concat(c.rows.map(r=>r.data)));
+  if(!(yearS==='all'||years.includes(yearS)))yearS=years[0];
+  fillYear('ys','ys-txt',years,yearS);
+  const sp=V.spese.map((s,oi)=>({...s,oi})).filter(s=>inYear(s.data,yearS)).sort((a,b)=>b.data.localeCompare(a.data));
+  const tot=sp.reduce((a,s)=>a+s.imp,0),fuel=c.rows.filter(r=>inYear(r.data,yearS)).reduce((a,r)=>a+r.costo,0);
+  const n=fmt(tot,2);$('s-amt').textContent=n;$('s-amt').style.fontSize=n.length>9?'40px':'';
+  $('s-sub').textContent=fuel>0?`più ${eur(fuel)} di pieni · ${eur(tot+fuel)} in tutto`:'nessun pieno in questo periodo';
+  const byCat={};sp.forEach(s=>{const k=s.cat||'Altro';byCat[k]=(byCat[k]||0)+s.imp;});
+  const cats=Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]);
+  $('s-cats').hidden=!cats.length;
+  $('s-cats').innerHTML=cats.map(k=>`<div class="cat"><div class="cat-h"><span>${esc(k)}</span><b>${fmt(byCat[k],2)}</b></div><div class="track"><div style="width:${tot?Math.max(1,Math.round(byCat[k]/tot*100)):0}%"></div></div></div>`).join('');
+  $('s-list-h').hidden=!sp.length;
+  $('s-list').innerHTML=sp.length?sp.map(s=>{const{m,d}=ymd(s.data);
+    return `<button class="row" onclick="openSpesa(${s.oi})"><span class="dt"><b>${pad2(d)}</b><span>${MESI3[m-1]}</span></span><span class="mid"><b>${esc(s.cat||'Altro')}</b>${s.desc?`<span>${esc(s.desc)}</span>`:''}</span><span class="end"><b>${fmt(s.imp,2)}</b></span></button>`;}).join('')
+    :`<p class="empty">${V.spese.length?'Nessuna spesa in questo periodo.':'Tagliando, gomme, assicurazione: tocca + per segnare la prima spesa.'}</p>`;
+}
+
+function renderScadenze(){
+  const list=(cur().scadenze||[]).map((s,oi)=>({...s,oi,st:scadStatus(s.data)})).sort((a,b)=>a.st.days-b.st.days);
+  $('sc-list').innerHTML=list.length?list.map(s=>`<button class="note ${s.st.cls}" onclick="openScad(${s.oi})"><span class="tx"><b class="t">${esc(s.tipo)}</b><span class="s">${scadSub(s)}${s.note?' · '+esc(s.note):''}</span></span><span class="r bdg">${s.st.badge}</span></button>`).join('')
+    :'<p class="empty">Nessuna scadenza. Tocca + per aggiungere assicurazione, bollo, revisione.</p>';
+}
+
+function renderAnalisi(c){
+  const V=cur(),pf=primaryFuel(V,c),u=unitOf(pf),nRab=c.rows.filter(r=>!r.full).length;
+  const kpi=(k,v,s)=>`<div class="kpi"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${s}</span></div>`;
+  $('a-kpis').innerHTML=kpi('Totale',fmt(c.totale,2),'€ da sempre')+kpi('Percorsi',c.kmTot?fmt(c.kmTot,0):'—','km')
+    +kpi('Consumo',c.l100avg?fmt(c.l100avg,1):'—',u+'/100 km')+kpi('Pieni',String(c.nRif),nRab?`di cui ${nRab} ${nRab===1?'rabbocco':'rabbocchi'}`:'registrati');
+  const mt=monthTotals(c);
+  barChart('ch-mese',lastMonths(12).map(x=>({l:MESI3[x.m-1],y:mt[x.k]||0,cur:x.cur})));
+  const byDate=(a,b)=>a.data.localeCompare(b.data)||a.km-b.km;
+  $('a-cons-h').textContent='Consumo · km/'+u;
+  lineChart('ch-consumo',c.rows.filter(r=>r.kmL!=null).sort(byDate).map(r=>({x:r.data,y:r.kmL})),{dec:1});
+  const types=c.fuelTypes;
+  if(!types.includes(fuelFilter))fuelFilter=types.includes(pf)?pf:(types[0]||'');
+  chips('a-fuel',types.map(t=>[t,t]),fuelFilter);$('a-fuel').hidden=types.length<2;
+  $('a-prezzo-h').textContent='Prezzo pagato · €/'+unitOf(fuelFilter||pf)+(types.length>1?'':(fuelFilter?' · '+fuelFilter:''));
+  lineChart('ch-prezzo',c.rows.filter(r=>(r.tipo||'Altro')===fuelFilter).sort(byDate).map(r=>({x:r.data,y:r.prezzo})),{dec:3});
+  $('a-byfuel').hidden=c.byFuel.length<2;
+  $('a-byfuel').innerHTML=c.byFuel.map(f=>`<div class="vf"><span>${esc(f.tipo)}</span><b>${fmt(f.avg,3)} €/${unitOf(f.tipo)}</b><i>${f.n} ${f.n===1?'pieno':'pieni'}</i></div>`).join('');
+  lineChart('ch-eurkm',c.rows.filter(r=>r.eurKm!=null).sort(byDate).map(r=>({x:r.data,y:r.eurKm})),{dec:3});
+}
+
+// ---------- grafici SVG (nessuna dipendenza) ----------
+const C_INK='#15140F',C_SIGNAL='#D6442B',C_GRID='#E6E2DA',C_AXIS='#7A776D',C_BAR='#E0DBD2';
 function lineChart(id,data,o){
   const el=$(id);
-  if(data.length<1){el.innerHTML='<div class="empty">Aggiungi rifornimenti per vedere il grafico.</div>';return;}
-  const W=480,H=220,p={l:46,r:14,t:16,b:32};
-  const ys=data.map(d=>d.y);let mn=Math.min(...ys),mx=Math.max(...ys);if(mn===mx){mn-=1;mx+=1;}
-  const rg=mx-mn;mn-=rg*0.12;mx+=rg*0.12;
-  const X=i=>p.l+(data.length<2?(W-p.l-p.r)/2:i/(data.length-1)*(W-p.l-p.r));
-  const Y=v=>p.t+(1-(v-mn)/(mx-mn))*(H-p.t-p.b);
-  let g='';for(let t=0;t<=4;t++){const v=mn+(mx-mn)*t/4,y=Y(v);
-    g+=`<line x1="${p.l}" y1="${y}" x2="${W-p.r}" y2="${y}" stroke="${GRID}"/><text x="${p.l-8}" y="${y+4}" fill="${AXIS}" font-size="11" text-anchor="end">${NUM(v,o.dec)}</text>`;}
-  const pts=data.map((d,i)=>`${X(i)},${Y(d.y)}`).join(' ');
-  const area=`M ${X(0)},${Y(mn)} `+data.map((d,i)=>`L ${X(i)},${Y(d.y)}`).join(' ')+` L ${X(data.length-1)},${Y(mn)} Z`;
-  const dots=data.map((d,i)=>`<circle cx="${X(i)}" cy="${Y(d.y)}" r="3.4" fill="${o.color}"/><text x="${X(i)}" y="${Y(d.y)-9}" fill="${LABELT}" font-size="10.5" text-anchor="middle">${NUM(d.y,o.dec)}</text>`).join('');
-  const xl=data.map((d,i)=>(data.length<=8||i%Math.ceil(data.length/8)===0)?`<text x="${X(i)}" y="${H-10}" fill="${AXIS}" font-size="10" text-anchor="middle">${itDate(d.x).slice(0,5)}</text>`:'').join('');
-  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img"><defs><linearGradient id="g${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${o.color}" stop-opacity=".22"/><stop offset="1" stop-color="${o.color}" stop-opacity="0"/></linearGradient></defs>${g}<path d="${area}" fill="url(#g${id})"/><polyline points="${pts}" fill="none" stroke="${o.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}${xl}</svg>`;
+  if(data.length<2){el.innerHTML=`<p class="empty">${data.length?'Serve almeno un altro valore per disegnare la curva.':'Ancora nessun dato.'}</p>`;return;}
+  const W=480,H=190,p={l:46,r:14,t:24,b:26};
+  const ys=data.map(d=>d.y);let mn=Math.min(...ys),mx=Math.max(...ys);if(mn===mx){const e=Math.abs(mn)*.05||1;mn-=e;mx+=e;}
+  const rg=mx-mn;mn-=rg*.15;mx+=rg*.15;
+  const li=data.length-1,X=i=>p.l+i/li*(W-p.l-p.r),Y=v=>p.t+(1-(v-mn)/(mx-mn))*(H-p.t-p.b);
+  let g='';for(let t=0;t<=3;t++){const v=mn+(mx-mn)*t/3,y=Y(v);
+    g+=`<line x1="${p.l}" y1="${y}" x2="${W-p.r}" y2="${y}" stroke="${C_GRID}"/><text x="${p.l-8}" y="${y+3.5}" font-size="10" fill="${C_AXIS}" text-anchor="end">${fmt(v,o.dec)}</text>`;}
+  const pts=data.map((d,i)=>`${X(i)},${Y(d.y)}`);
+  const area=`M ${X(0)},${H-p.b} L ${pts.join(' L ')} L ${X(li)},${H-p.b} Z`;
+  const dots=data.map((d,i)=>`<circle cx="${X(i)}" cy="${Y(d.y)}" r="${i===li?4:2.6}" fill="${i===li?C_SIGNAL:C_INK}"/>`).join('');
+  const lab=`<text x="${X(li)}" y="${Y(data[li].y)-10}" font-size="11" font-weight="600" text-anchor="end" fill="${C_INK}" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">${fmt(data[li].y,o.dec)}</text>`;
+  const step=Math.ceil(data.length/6),show=i=>i===li||(i%step===0&&li-i>=step*.6);
+  const xl=data.map((d,i)=>show(i)?`<text x="${X(i)}" y="${H-7}" font-size="10" fill="${C_AXIS}" text-anchor="${i===0?'start':i===li?'end':'middle'}">${shortDate(d.x).slice(0,5)}</text>`:'').join('');
+  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}<path d="${area}" fill="${C_INK}" fill-opacity=".05"/><polyline points="${pts.join(' ')}" fill="none" stroke="${C_INK}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${lab}${xl}</svg>`;
 }
 function barChart(id,data){
   const el=$(id);
-  if(!data.length){el.innerHTML='<div class="empty">Nessun dato di spesa.</div>';return;}
-  const W=480,H=220,p={l:46,r:14,t:16,b:32};const mx=Math.max(...data.map(d=>d.y))*1.18||1;
-  const bw=(W-p.l-p.r)/data.length,Y=v=>p.t+(1-v/mx)*(H-p.t-p.b);
-  let g='';for(let t=0;t<=4;t++){const v=mx*t/4,y=Y(v);g+=`<line x1="${p.l}" y1="${y}" x2="${W-p.r}" y2="${y}" stroke="${GRID}"/><text x="${p.l-8}" y="${y+4}" fill="${AXIS}" font-size="11" text-anchor="end">${NUM(v,0)}</text>`;}
-  const bars=data.map((d,i)=>{const x=p.l+i*bw+bw*0.2,w=bw*0.6,y=Y(d.y),h=H-p.b-y;
-    return `<rect x="${x}" y="${y}" width="${w}" height="${Math.max(h,0)}" rx="4" fill="#60A5FA"/><text x="${x+w/2}" y="${y-6}" fill="${LABELT}" font-size="10.5" text-anchor="middle">${NUM(d.y,0)}</text><text x="${x+w/2}" y="${H-10}" fill="${AXIS}" font-size="10" text-anchor="middle">${d.label}</text>`;}).join('');
-  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}${bars}</svg>`;
-}
-function stationChart(id,st){
-  const el=$(id);
-  if(!st.length){el.innerHTML='<div class="empty">Indica il benzinaio nei rifornimenti per confrontare i prezzi.</div>';return;}
-  const rows=st.slice(0,8),W=480,rowH=34,p={t:6},H=p.t+rows.length*rowH+6;
-  const mx=Math.max(...rows.map(r=>r.avg)),mn=Math.min(...rows.map(r=>r.avg))*0.985;
-  const barMax=W-64-150;
-  const bars=rows.map((r,i)=>{const y=p.t+i*rowH;const w=Math.max(((r.avg-mn)/((mx-mn)||1))*barMax,4);
-    const col=i===0?'#34D399':i===rows.length-1&&rows.length>1?'#F87171':'#60A5FA';
-    return `<text x="0" y="${y+19}" fill="${LABELT}" font-size="12.5">${esc(r.nome.length>20?r.nome.slice(0,19)+'…':r.nome)}</text>
-      <rect x="150" y="${y+6}" width="${w}" height="16" rx="5" fill="${col}"/>
-      <text x="${150+w+8}" y="${y+19}" fill="${AXIS}" font-size="11.5">${NUM(r.avg,3)} €/l</text>`;}).join('');
-  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${bars}</svg>`;
+  if(!data.some(d=>d.y>0)){el.innerHTML='<p class="empty">Nessuna spesa negli ultimi 12 mesi.</p>';return;}
+  const W=480,H=190,p={l:4,r:4,t:22,b:24},bw=(W-p.l-p.r)/data.length,mx=Math.max(...data.map(d=>d.y))||1;
+  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">`+data.map((d,i)=>{
+    const h=Math.max(d.y>0?3:2,d.y/mx*(H-p.t-p.b)),x=p.l+i*bw+bw*.16,w=bw*.68,y=H-p.b-h,col=d.cur?C_INK:C_AXIS;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${d.cur?C_INK:C_BAR}"/>`
+      +(d.y>0?`<text x="${x+w/2}" y="${y-6}" font-size="9.5" text-anchor="middle" fill="${col}">${fmt(d.y,0)}</text>`:'')
+      +`<text x="${x+w/2}" y="${H-7}" font-size="10" text-anchor="middle" fill="${col}"${d.cur?' font-weight="600"':''}>${d.l.toUpperCase()}</text>`;
+  }).join('')+'</svg>';
 }
 
-// ---------- veicoli ----------
-function renderVehicles(){
-  const v=cur();
-  $('veh-select').innerHTML=DB.vehicles.map(x=>`<option value="${x.id}"${x.id===v.id?' selected':''}>${VTYPE[x.type]||'🚗'} ${esc(x.name)}${x.plate?' · '+esc(x.plate):''}</option>`).join('');
-  const list=$('veh-list');
-  if(list)list.innerHTML=DB.vehicles.map(x=>`<div class="veh-row">
-      <span class="veh-ic">${VTYPE[x.type]||'🚗'}</span>
-      <div class="veh-meta"><div class="veh-name">${esc(x.name)}${x.id===v.id?' <span class="chip ok">attivo</span>':''}</div>
-        <div class="veh-sub">${VTYPE_LABEL[x.type]||'Veicolo'}${x.plate?' · '+esc(x.plate):''} · ${x.rif.length} rif · ${x.spese.length} spese</div></div>
-      <button class="iconbtn edit" aria-label="Modifica veicolo" onclick="startEditVehicle('${x.id}')">${svgI(EDITICON,15)}</button>
-      <button class="iconbtn" aria-label="Elimina veicolo" onclick="deleteVehicle('${x.id}')">${svgI(XICON,16)}</button>
-    </div>`).join('');
-}
-function switchVehicle(id){
-  if(!DB.vehicles.some(v=>v.id===id))return;
-  if(editRif!=null)cancelEditRif(); if(editSpesa!=null)cancelEditSpesa(); if(editScad!=null)cancelEditScad();
-  DB.currentId=id;fuelFilter='';persistLocal();render();
-}
-let editVeh=null;
-function startEditVehicle(id){const x=DB.vehicles.find(v=>v.id===id);if(!x)return;editVeh=id;
-  $('veh-name').value=x.name;$('veh-type').value=x.type;$('veh-plate').value=x.plate||'';
-  $('veh-submit').innerHTML=svgI(EDITICON,18)+' Salva veicolo';$('veh-cancel').hidden=false;
-  navTo('impostazioni');$('veh-name').focus();}
-function cancelEditVehicle(){editVeh=null;$('veh-name').value=$('veh-plate').value='';$('veh-type').value='auto';
-  $('veh-submit').innerHTML=svgI(PLUSICON,18)+' Aggiungi veicolo';$('veh-cancel').hidden=true;}
-function saveVehicle(e){e.preventDefault();
-  const name=$('veh-name').value.trim();if(!name){alert('Dai un nome al veicolo.');return false;}
-  const type=$('veh-type').value,plate=$('veh-plate').value.trim();
-  if(editVeh){const x=DB.vehicles.find(v=>v.id===editVeh);if(x){x.name=name;x.type=type;x.plate=plate;}cancelEditVehicle();}
-  else{const x=blankVehicle(name,type,plate);DB.vehicles.push(x);DB.currentId=x.id;DB.example=false;cancelEditVehicle();}
-  save();return false;}
-function deleteVehicle(id){
-  if(DB.vehicles.length<=1){alert('Deve restare almeno un veicolo.');return;}
-  const x=DB.vehicles.find(v=>v.id===id);if(!x)return;
-  if(!confirm('Eliminare il veicolo «'+x.name+'» e tutti i suoi dati?'))return;
-  DB.vehicles=DB.vehicles.filter(v=>v.id!==id);
-  if(DB.currentId===id)DB.currentId=DB.vehicles[0].id;
-  if(editVeh===id)cancelEditVehicle();
-  save();
-}
-
-// ---------- navigazione a pagine ----------
-const PAGES=['panoramica','rifornimenti','spese','scadenze','impostazioni'];
-function showPage(name){
-  if(!PAGES.includes(name))name='panoramica';
-  document.querySelectorAll('section[data-page]').forEach(s=>{s.hidden=s.dataset.page!==name;});
-  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
-  window.scrollTo(0,0);
-}
-function navTo(name){
-  if((location.hash.slice(1)||'panoramica')===name)showPage(name);
-  else location.hash=name;
-}
-window.addEventListener('hashchange',()=>showPage(location.hash.slice(1)||'panoramica'));
-
-// ---------- azioni ----------
-function clearExample(){if(DB.example){const V=cur();V.rif=[];V.spese=[];V.scadenze=[];DB.example=false;}}
-// numero (1.85) -> stringa form italiana ("1,85")
-const fNum=n=>(n==null||isNaN(n))?'':String(n).replace('.',',');
-// aggiunge un tipo carburante non in elenco (es. dati storici) così l'edit lo mostra
-function ensureTipo(v){if(!v)return;const sel=$('r-tipo');if([...sel.options].some(o=>o.value===v))return;const o=document.createElement('option');o.value=v;o.textContent=v;sel.insertBefore(o,sel.lastElementChild);}
-// ---- modifica voci esistenti ----
-let editRif=null, editSpesa=null, editScad=null;
-function setEditMode(sub,can,on){
-  const b=$(sub); b.innerHTML=svgI(on?EDITICON:PLUSICON,18)+(on?' Salva modifiche':' Aggiungi');
-  $(can).hidden=!on;
-  const f=b.closest('form'); if(f) f.classList.toggle('editing',on);
-}
-function startEditRif(i){const r=cur().rif[i];if(!r)return;editRif=i;
-  $('r-data').value=r.data;$('r-km').value=r.km;$('r-litri').value=fNum(r.litri);$('r-prezzo').value=fNum(r.prezzo);
-  ensureTipo(r.tipo);$('r-tipo').value=r.tipo||'Benzina';$('r-benz').value=r.benz||'';$('r-pieno').checked=r.pieno!==false;
-  setEditMode('rif-submit','rif-cancel',true);$('form-rif').scrollIntoView({behavior:'smooth',block:'center'});$('r-km').focus();}
-function cancelEditRif(){editRif=null;setEditMode('rif-submit','rif-cancel',false);
-  $('r-data').value=todayISO();$('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';$('r-pieno').checked=true;}
-function addRif(e){e.preventDefault();
-  const km=pInt($('r-km').value),litri=pNum($('r-litri').value),prezzo=pNum($('r-prezzo').value),data=$('r-data').value;
-  if(!data||isNaN(km)||isNaN(litri)||isNaN(prezzo)){alert('Controlla i campi.');return false;}
-  const rec={data,km,litri,prezzo,tipo:$('r-tipo').value,benz:$('r-benz').value.trim(),pieno:$('r-pieno').checked};
-  if(editRif!=null){cur().rif[editRif]=rec;editRif=null;DB.example=false;setEditMode('rif-submit','rif-cancel',false);}
-  else{clearExample();cur().rif.push(rec);}
-  save();
-  $('r-km').value=$('r-litri').value=$('r-prezzo').value=$('r-benz').value='';$('r-pieno').checked=true;$('r-km').focus();return false;}
-
-// ---------- scansione scontrino (visione AI · chiave dell'utente) ----------
-const AIK='pit_ai';
+// ---------- impostazioni ----------
 const AI_DEFAULTS={anthropic:'claude-haiku-4-5',openai:'gpt-4o-mini',google:'gemini-2.0-flash'};
-const AI_LABEL={anthropic:'Anthropic (Claude)',openai:'OpenAI (GPT)',google:'Google (Gemini)'};
+const AI_NAME={anthropic:'Anthropic',openai:'OpenAI',google:'Google'};
 const AI_HELP={
   anthropic:'Crea una chiave su <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Modello economico con visione: <code>claude-haiku-4-5</code>.',
   openai:'Crea una chiave su <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>. Modello economico con visione: <code>gpt-4o-mini</code>.',
   google:'Crea una chiave su <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com</a>. Modello economico con visione: <code>gemini-2.0-flash</code>.'
 };
-let AI=loadAI();
-function loadAI(){try{return JSON.parse(localStorage.getItem(AIK))||{};}catch(e){return{};}}
-function saveAICfg(){localStorage.setItem(AIK,JSON.stringify(AI));}
-function aiReady(){return !!(AI&&AI.key&&AI.provider);}
-function scrollToAI(){showPage('impostazioni');location.hash='impostazioni';requestAnimationFrame(()=>$('ai-section').scrollIntoView({behavior:'smooth',block:'start'}));}
-function renderAI(){
-  const p=AI.provider||'anthropic';
-  $('ai-provider').value=p;
-  $('ai-model').value=AI.model||'';
-  $('ai-model').placeholder=AI_DEFAULTS[p];
-  $('ai-key').value='';
-  $('ai-key').placeholder=AI.key?'•••••••••• (salvata su questo dispositivo)':'incolla la tua chiave API';
-  $('ai-clear').hidden=!AI.key;
-  $('ai-help').innerHTML=AI_HELP[p];
-  const ps=$('scan-pill');
-  if(ps){ps.textContent=aiReady()?(AI_LABEL[p]+' · '+(AI.model||AI_DEFAULTS[p])):'AI non configurata';ps.className='chip '+(aiReady()?'ok':'off');}
+function aiReady(){return!!(AI&&AI.key&&AI.provider);}
+function vehSub(x){return (VTYPE_LABEL[x.type]||'Veicolo')+(x.fuel?' · '+esc(x.fuel):'')+' · '+x.rif.length+' '+(x.rif.length===1?'pieno':'pieni');}
+function renderSettings(){
+  const V=cur();
+  $('st-veh').innerHTML=DB.vehicles.map((x,i)=>`<button class="srow" onclick="openVeh(${i})"><span class="mid"><b>${esc(x.name)}${x.plate?`<span class="plate">${esc(x.plate)}</span>`:''}</b><span>${vehSub(x)}</span></span>${x.id===V.id?'<span class="st">in uso</span>':''}<span class="chev">›</span></button>`).join('')
+    +`<button class="srow add" onclick="startWizard('add')"><span class="mid"><b>Aggiungi veicolo</b></span><span class="chev">+</span></button>`;
+  $('st-ai').textContent=aiReady()?AI_NAME[AI.provider]||'Attiva':'Spenta';
+  $('st-csv').textContent='solo '+V.name+', per Excel e Numbers';
 }
-function onAIProvider(){const p=$('ai-provider').value;$('ai-model').placeholder=AI_DEFAULTS[p];$('ai-help').innerHTML=AI_HELP[p];}
-function saveAI(e){e.preventDefault();
-  const p=$('ai-provider').value,key=$('ai-key').value.trim(),model=$('ai-model').value.trim();
-  AI.provider=p;AI.model=model;
-  if(key)AI.key=key;
-  if(!AI.key){alert('Inserisci la chiave API del servizio scelto.');return false;}
-  saveAICfg();renderAI();alert('Configurazione AI salvata ✓');return false;}
-function clearAI(){if(!confirm('Rimuovere la chiave API da questo dispositivo?'))return;AI={};saveAICfg();renderAI();}
+
+// ---------- navigazione ----------
+const TABS=['panoramica','pieni','spese','scadenze'],SUBS=['analisi','impostazioni'];
+let page='panoramica',lastTab='panoramica';
+function showPage(name){
+  if(name==='rifornimenti')name='pieni';
+  if(!TABS.includes(name)&&!SUBS.includes(name))name='panoramica';
+  page=name;if(TABS.includes(name))lastTab=name;
+  document.querySelectorAll('main > section').forEach(s=>{s.hidden=s.dataset.page!==name;});
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.page===name));
+  const sub=SUBS.includes(name),fab=['pieni','spese','scadenze'].includes(name);
+  $('tabs').hidden=sub;$('fab').hidden=!fab;
+  $('app').classList.toggle('sub',sub);$('app').classList.toggle('fab-on',fab);
+  window.scrollTo(0,0);
+}
+function navTo(name){if((location.hash.slice(1)||'panoramica')===name)showPage(name);else location.hash=name;}
+function goBack(){navTo(lastTab);}
+window.addEventListener('hashchange',()=>showPage(location.hash.slice(1)||'panoramica'));
+function fabAction(){if(page==='pieni')openPieno();else if(page==='spese')openSpesa();else if(page==='scadenze')openScad();}
+
+// ---------- sheet ----------
+let openSh=null;
+function openSheet(id){
+  if(openSh&&openSh!==id)$(openSh).classList.remove('on');
+  openSh=id;$(id).scrollTop=0;$(id).classList.add('on');$('scrim').classList.add('on');document.body.classList.add('lock');
+}
+function closeSheet(){
+  if(!openSh)return;
+  $(openSh).classList.remove('on');openSh=null;$('scrim').classList.remove('on');
+  if($('wizard').hidden)document.body.classList.remove('lock');
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2200);}
+// campo non valido: bordo rosso, piccolo scossone, focus
+function bad(id){const el=$(id),f=el.closest('.field')||el;f.classList.remove('err');void f.offsetWidth;f.classList.add('err');
+  el.focus();setTimeout(()=>f.classList.remove('err'),1600);return false;}
+// campi data: si vede "18/09/26", sotto c'è l'input nativo trasparente
+function showDate(id){$(id+'-txt').textContent=$(id).value?shortDate($(id).value):'—';}
+document.addEventListener('click',e=>{const i=e.target;if(i.matches&&i.matches('input[type=date]')&&i.showPicker){try{i.showPicker();}catch(_){}}});
+// km con separatore delle migliaia mentre si scrive; la larghezza segue le cifre
+function fitKm(el){el.style.width=(Math.max((el.value||el.placeholder||'0').length,1)+.6)+'ch';}
+function kmInput(el){const d=el.value.replace(/\D/g,'').slice(0,7);el.value=d?fmt(+d,0):'';fitKm(el);}
+
+// ---------- pieno ----------
+let editRif=null;
+function openPieno(i){
+  const V=cur(),c=computed(),r=i!=null?V.rif[i]:null;
+  editRif=r?i:null;
+  $('pn-title').textContent=r?'Modifica pieno':'Nuovo pieno';
+  $('pn-save').textContent=r?'Salva modifiche':'Salva pieno';
+  $('pn-del').hidden=!r;
+  const tipo=r?(r.tipo||'Altro'):primaryFuel(V,c);
+  const opts=FUELS.slice();c.fuelTypes.concat([tipo]).forEach(t=>{if(!opts.includes(t))opts.splice(opts.length-1,0,t);});
+  $('pn-tipo').innerHTML=opts.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');$('pn-tipo').value=tipo;
+  $('pn-litri').value=r?fNum(r.litri):'';$('pn-prezzo').value=r?fNum(r.prezzo):'';
+  $('pn-km').value=r&&isFinite(r.km)?fmt(r.km,0):'';fitKm($('pn-km'));
+  $('pn-data').value=r?r.data:todayISO();$('pn-benz').value=r?(r.benz||''):'';$('pn-pieno').checked=r?r.pieno!==false:true;
+  $('benzlist').innerHTML=[...new Set(V.rif.map(x=>(x.benz||'').trim()).filter(Boolean))].map(b=>`<option value="${esc(b)}">`).join('');
+  $('scan-msg').hidden=true;
+  updPieno();openSheet('sh-pieno');
+}
+// km del pieno precedente (o i km di partenza del veicolo) per il "+297 km dall'ultimo"
+function prevKm(km){
+  const V=cur(),others=V.rif.filter((_,j)=>j!==editRif).map(r=>r.km).filter(n=>isFinite(n));
+  const below=editRif!=null&&isFinite(km)?others.filter(n=>n<km):others;
+  if(below.length)return Math.max(...below);
+  if(others.length&&editRif==null)return Math.max(...others);
+  return V.kmStart!=null&&isFinite(V.kmStart)?V.kmStart:null;
+}
+function updPieno(){
+  const t=$('pn-tipo').value,u=unitOf(t);
+  $('pn-qty-l').textContent=QTY_LABEL[u];$('pn-price-l').textContent='€/'+PER_WORD[u];
+  $('pn-tipo-txt').textContent=t;$('pn-pieno-l').textContent=u==='kWh'?'Carica piena':'Pieno';
+  showDate('pn-data');
+  const l=pNum($('pn-litri').value),p=pNum($('pn-prezzo').value);
+  $('pn-tot').textContent=l>0&&p>0?eur(l*p):'—';
+  const km=pInt($('pn-km').value),pk=prevKm(km),h=$('pn-km-hint');
+  if(!isFinite(km)){h.textContent=pk!=null?'ultimo: '+fmt(pk,0):'';h.className='';}
+  else if(pk==null){h.textContent='';h.className='';}
+  else if(km>pk){h.textContent='+'+fmt(km-pk,0)+' km dall\'ultimo';h.className='up';}
+  else{h.textContent='non più dell\'ultimo ('+fmt(pk,0)+')';h.className='no';}
+}
+function savePieno(){
+  const km=pInt($('pn-km').value),litri=pNum($('pn-litri').value),prezzo=pNum($('pn-prezzo').value),data=$('pn-data').value;
+  if(!(litri>0))return bad('pn-litri');
+  if(!(prezzo>0))return bad('pn-prezzo');
+  if(!isFinite(km))return bad('pn-km');
+  if(!data)return bad('pn-data');
+  const rec={data,km,litri,prezzo,tipo:$('pn-tipo').value,benz:$('pn-benz').value.trim(),pieno:$('pn-pieno').checked};
+  const V=cur(),was=editRif!=null;
+  if(was)V.rif[editRif]=rec;else V.rif.push(rec);
+  editRif=null;closeSheet();save();toast(was?'Pieno aggiornato':'Pieno salvato');
+}
+function delPieno(){if(editRif==null||!confirm('Eliminare questo pieno?'))return;cur().rif.splice(editRif,1);editRif=null;closeSheet();save();toast('Pieno eliminato');}
+
+// ---------- spesa ----------
+let editSpesa=null;
+function openSpesa(i){
+  const s=i!=null?cur().spese[i]:null;editSpesa=s?i:null;
+  $('sp-title').textContent=s?'Modifica spesa':'Nuova spesa';$('sp-save').textContent=s?'Salva modifiche':'Salva spesa';$('sp-del').hidden=!s;
+  const cats=!s||SPESA_CATS.includes(s.cat)?SPESA_CATS:SPESA_CATS.concat([s.cat]);
+  chips('sp-cat',cats.map(x=>[x,x]),s?s.cat:SPESA_CATS[0]);
+  $('sp-imp').value=s?fNum(s.imp):'';$('sp-data').value=s?s.data:todayISO();$('sp-desc').value=s?(s.desc||''):'';showDate('sp-data');
+  openSheet('sh-spesa');
+}
+function saveSpesa(){
+  const imp=pNum($('sp-imp').value),data=$('sp-data').value;
+  if(!(imp>0))return bad('sp-imp');
+  if(!data)return bad('sp-data');
+  const rec={data,cat:chipVal('sp-cat')||'Altro',desc:$('sp-desc').value.trim(),imp};
+  const V=cur(),was=editSpesa!=null;
+  if(was)V.spese[editSpesa]=rec;else V.spese.push(rec);
+  editSpesa=null;closeSheet();save();toast(was?'Spesa aggiornata':'Spesa salvata');
+}
+function delSpesa(){if(editSpesa==null||!confirm('Eliminare questa spesa?'))return;cur().spese.splice(editSpesa,1);editSpesa=null;closeSheet();save();toast('Spesa eliminata');}
+
+// ---------- scadenza ----------
+let editScad=null;
+function openScad(i){
+  const s=i!=null?(cur().scadenze||[])[i]:null;editScad=s?i:null;
+  $('sc-title').textContent=s?'Modifica scadenza':'Nuova scadenza';$('sc-save').textContent=s?'Salva modifiche':'Salva scadenza';$('sc-del').hidden=!s;
+  const tipi=!s||SCAD_TIPI.includes(s.tipo)?SCAD_TIPI:SCAD_TIPI.concat([s.tipo]);
+  chips('sc-tipo',tipi.map(x=>[x,x]),s?s.tipo:SCAD_TIPI[0]);
+  $('sc-data').value=s?s.data:'';$('sc-note').value=s?(s.note||''):'';showDate('sc-data');
+  openSheet('sh-scad');
+}
+function saveScad(){
+  const data=$('sc-data').value;if(!data)return bad('sc-data');
+  const V=cur(),rec={tipo:chipVal('sc-tipo')||'Altro',data,note:$('sc-note').value.trim()},was=editScad!=null;
+  V.scadenze=V.scadenze||[];
+  if(was)V.scadenze[editScad]=rec;else V.scadenze.push(rec);
+  editScad=null;closeSheet();save();toast(was?'Scadenza aggiornata':'Scadenza salvata');
+}
+function delScad(){if(editScad==null||!confirm('Eliminare questa scadenza?'))return;cur().scadenze.splice(editScad,1);editScad=null;closeSheet();save();toast('Scadenza eliminata');}
+
+// ---------- veicoli ----------
+let editVeh=null;
+function openSwitch(){
+  $('sw-list').innerHTML=DB.vehicles.map((x,i)=>`<button class="srow" onclick="switchVehicle(${i})"><span class="mid"><b>${esc(x.name)}${x.plate?`<span class="plate">${esc(x.plate)}</span>`:''}</b><span>${vehSub(x)}</span></span>${x.id===DB.currentId?'<span class="on-dot" aria-label="in uso"></span>':''}</button>`).join('');
+  openSheet('sh-switch');
+}
+function switchVehicle(i){
+  const x=DB.vehicles[i];if(!x)return;
+  DB.currentId=x.id;fuelFilter='';stFuel='';yearP=yearS=null;persistLocal();closeSheet();render();
+}
+function openVeh(i){
+  const x=DB.vehicles[i];if(!x)return;editVeh=x.id;
+  $('vh-name').value=x.name;$('vh-plate').value=x.plate||'';
+  chips('vh-type',VTYPE_LABEL[x.type]?VTYPES:VTYPES.concat([[x.type,x.type]]),x.type);
+  const fl=WZ_FUELS.concat(['Altro']);if(x.fuel&&!fl.includes(x.fuel))fl.push(x.fuel);
+  chips('vh-fuel',fl.map(f=>[f,f]),x.fuel||'');
+  $('vh-del').hidden=DB.vehicles.length<=1;
+  openSheet('sh-veh');
+}
+function saveVeh(){
+  const x=DB.vehicles.find(v=>v.id===editVeh);if(!x)return;
+  const name=$('vh-name').value.trim();if(!name)return bad('vh-name');
+  x.name=name;x.type=chipVal('vh-type')||x.type;x.plate=$('vh-plate').value.trim().toUpperCase();x.fuel=chipVal('vh-fuel');
+  closeSheet();save();toast('Veicolo aggiornato');
+}
+function delVeh(){
+  const x=DB.vehicles.find(v=>v.id===editVeh);if(!x||DB.vehicles.length<=1)return;
+  if(!confirm('Eliminare «'+x.name+'» e tutti i suoi dati?'))return;
+  DB.vehicles=DB.vehicles.filter(v=>v.id!==x.id);
+  if(DB.currentId===x.id)DB.currentId=DB.vehicles[0].id;
+  editVeh=null;closeSheet();save();toast('Veicolo eliminato');
+}
+
+// ---------- wizard primo avvio (e nuovo veicolo) ----------
+let WZ=null;
+function startWizard(mode){
+  closeSheet();
+  WZ={mode,step:mode==='first'?0:1};
+  $('wz-name').value='';$('wz-plate').value='';$('wz-km').value='';fitKm($('wz-km'));
+  chips('wz-type',WZ_TYPES.map(t=>[t,VTYPE_LABEL[t]]),'auto');
+  chips('wz-fuel',WZ_FUELS.map(f=>[f,f]),'Benzina');
+  $('wz-scad').innerHTML=WZ_SCAD.map(t=>`<label class="scadrow"><b>${t}</b><span class="none" id="wz-sc-${t}">—</span><input type="date" data-tipo="${t}" aria-label="Scadenza ${t}"></label>`).join('');
+  $('wz-name-err').hidden=true;
+  $('wizard').hidden=false;document.body.classList.add('lock');
+  wzShow();
+}
+function wzShow(){
+  const s=WZ.step;
+  [0,1,2,3].forEach(i=>{$('wz'+i).hidden=i!==s;});
+  $('wz-prog').hidden=s===0;
+  if(s>0){$('wz-fill').style.width=(s/3*100)+'%';$('wz-cnt').textContent=s+'/3';$('wz-back').classList.toggle('dim',s===1);}
+  if(s===3){
+    const n=$('wz-name').value.trim()||VTYPE_LABEL[chipVal('wz-type')]||'';
+    $('wz-ready-t').textContent='Pronto, '+n+'.';
+    const u=unitOf(chipVal('wz-fuel'));
+    $('wz-ready-s').textContent=(u==='kWh'?'La prima ricarica non ha consumo: serve la seconda':'Il primo pieno non ha consumo: serve il secondo')+' per calcolare i km/'+u+'.';
+  }
+  $('wizard').scrollTop=0;
+}
+function wzGo(s){WZ.step=s;wzShow();}
+function wzNext(){
+  if(WZ.step===1&&!$('wz-name').value.trim()){$('wz-name-err').hidden=false;bad('wz-name');return;}
+  $('wz-name-err').hidden=true;WZ.step++;wzShow();
+}
+function wzBack(){if(WZ.step===1&&WZ.mode==='add'){closeWizard();return;}WZ.step--;wzShow();}
+function closeWizard(){if($('wizard').hidden)return;$('wizard').hidden=true;WZ=null;if(!openSh)document.body.classList.remove('lock');}
+function wzFinish(addFirst){
+  if(!WZ)return;
+  const type=chipVal('wz-type')||'auto',km=pInt($('wz-km').value);
+  const v=blankVehicle({name:$('wz-name').value.trim()||VTYPE_LABEL[type],type,plate:$('wz-plate').value.trim().toUpperCase(),
+    fuel:chipVal('wz-fuel')||'Benzina',kmStart:isFinite(km)?km:null});
+  $('wz-scad').querySelectorAll('input').forEach(i=>{if(i.value)v.scadenze.push({tipo:i.dataset.tipo,data:i.value,note:''});});
+  if(WZ.mode==='first')DB={v:2,example:false,updatedAt:0,currentId:v.id,vehicles:[v]};
+  else{DB.vehicles.push(v);DB.currentId=v.id;}
+  yearP=yearS=null;fuelFilter=stFuel='';
+  closeWizard();save();navTo('panoramica');
+  if(addFirst)setTimeout(()=>openPieno(),280);
+}
+function openRestore(){$('rs-token').value='';$('rs-msg').textContent='';openSheet('sh-restore');}
+
+// ---------- scansione scontrino (visione AI · chiave dell'utente) ----------
+function openAI(){
+  const p=AI.provider||'anthropic';
+  chips('ai-prov',Object.keys(AI_NAME).map(k=>[k,AI_NAME[k]]),p);
+  $('ai-model').value=AI.model||'';$('ai-model').placeholder=AI_DEFAULTS[p];
+  $('ai-key').value='';$('ai-key').placeholder=AI.key?'•••••••• salvata su questo dispositivo':'incolla la tua chiave API';
+  $('ai-clear').hidden=!AI.key;$('ai-help').innerHTML=AI_HELP[p];
+  openSheet('sh-ai');
+}
+function saveAI(){
+  const p=chipVal('ai-prov')||'anthropic',key=$('ai-key').value.trim(),model=$('ai-model').value.trim();
+  if(!key&&!AI.key)return bad('ai-key');
+  AI.provider=p;AI.model=model;if(key)AI.key=key;
+  saveAICfg();closeSheet();render();toast('Configurazione AI salvata');
+}
+function clearAI(){if(!confirm('Rimuovere la chiave API da questo dispositivo?'))return;AI={};saveAICfg();closeSheet();render();toast('Chiave rimossa');}
 
 // numero da testo/numero, tollerante ai formati ("1,85" / "1.234,56" / 14)
 function toNum(v){if(v==null)return null;if(typeof v==='number')return isFinite(v)?v:null;
@@ -1071,92 +1250,82 @@ function extractWithAI(b64){
   if(p==='google')return aiGoogle(key,model,b64);
   return Promise.reject(new Error('Servizio AI non supportato.'));}
 
-function showScan(t,c){const st=$('scan-status');st.style.display='';st.textContent=t;st.style.color=c||'';}
-function pickReceipt(cam){const i=$('scan-file');if(cam)i.setAttribute('capture','environment');else i.removeAttribute('capture');i.click();}
-
+function showScan(html,cls){const m=$('scan-msg');m.hidden=false;m.className='scan-msg '+(cls||'');m.innerHTML=html;}
+function pickReceipt(){
+  if(!aiReady()){showScan('Per leggere lo scontrino serve una chiave AI. <button class="inl" onclick="closeSheet();navTo(\'impostazioni\');setTimeout(openAI,320)">Configurala</button>','warn');return;}
+  $('scan-file').click(); // senza "capture": il telefono offre sia fotocamera sia libreria
+}
 async function scanReceipt(input){
   const f=input.files&&input.files[0];input.value='';
   if(!f)return;
-  if(!aiReady()){showScan('Prima configura una chiave API in Impostazioni › «Scansione scontrini».','#FBBF24');scrollToAI();return;}
-  const cam=$('scan-cam'),gal=$('scan-gal');cam.disabled=gal.disabled=true;
+  const btn=$('scan-btn');btn.disabled=true;
   try{
     showScan('Preparo l\'immagine…');
     const b64=await fileToJpeg(f,1600,0.8);
     showScan('Leggo lo scontrino con l\'AI…');
     const r=await extractWithAI(b64),got=[];
-    if(r.data&&/^\d{4}-\d{2}-\d{2}$/.test(r.data)){$('r-data').value=r.data;got.push('data');}
+    if(r.data&&/^\d{4}-\d{2}-\d{2}$/.test(r.data)){$('pn-data').value=r.data;got.push('data');}
     let litri=toNum(r.litri),prezzo=toNum(r.prezzo_litro),importo=toNum(r.importo);
     if(litri==null&&prezzo&&importo)litri=importo/prezzo;
     if(prezzo==null&&litri&&importo)prezzo=importo/litri;
-    if(litri!=null&&litri>0&&litri<300){$('r-litri').value=litri.toFixed(2).replace('.',',');got.push('litri');}
-    if(prezzo!=null&&prezzo>=0.3&&prezzo<=4){$('r-prezzo').value=prezzo.toFixed(3).replace('.',',');got.push('€/litro');}
-    if(r.benzinaio){$('r-benz').value=String(r.benzinaio);got.push('benzinaio');}
-    if(r.carburante){const t=String(r.carburante).toLowerCase();const opt=[...$('r-tipo').options].find(o=>{const v=o.value.toLowerCase();return v.includes(t)||t.includes(v.split(' ')[0]);});if(opt)$('r-tipo').value=opt.value;}
-    if(got.length){showScan('Letto: '+got.join(', ')+'. Controlla i dati, inserisci i KM e premi «Aggiungi».','#34D399');$('r-km').focus();$('r-km').scrollIntoView({behavior:'smooth',block:'center'});}
-    else showScan('Non sono riuscito a leggere i dati — inseriscili a mano.','#FBBF24');
-  }catch(e){showScan(e.message||'Errore durante la lettura dello scontrino.','#F87171');}
-  finally{cam.disabled=gal.disabled=false;}
+    if(litri!=null&&litri>0&&litri<300){$('pn-litri').value=litri.toFixed(2).replace('.',',');got.push('litri');}
+    if(prezzo!=null&&prezzo>=0.3&&prezzo<=4){$('pn-prezzo').value=prezzo.toFixed(3).replace('.',',');got.push('prezzo');}
+    if(r.benzinaio){$('pn-benz').value=String(r.benzinaio);got.push('benzinaio');}
+    if(r.carburante){const t=String(r.carburante).toLowerCase();const opt=[...$('pn-tipo').options].find(o=>{const v=o.value.toLowerCase();return v.includes(t)||t.includes(v.split(' ')[0]);});if(opt)$('pn-tipo').value=opt.value;}
+    updPieno();
+    if(got.length){showScan('Letto: '+got.join(', ')+'. Controlla e inserisci i km.','good');$('pn-km').focus();}
+    else showScan('Non sono riuscito a leggere i dati: inseriscili a mano.','warn');
+  }catch(e){showScan(esc(e.message||'Errore durante la lettura dello scontrino.'),'bad');}
+  finally{btn.disabled=false;}
 }
-function startEditSpesa(i){const s=cur().spese[i];if(!s)return;editSpesa=i;
-  $('s-data').value=s.data;$('s-cat').value=s.cat;$('s-desc').value=s.desc||'';$('s-imp').value=fNum(s.imp);
-  setEditMode('spesa-submit','spesa-cancel',true);$('form-spesa').scrollIntoView({behavior:'smooth',block:'center'});$('s-desc').focus();}
-function cancelEditSpesa(){editSpesa=null;setEditMode('spesa-submit','spesa-cancel',false);
-  $('s-data').value=todayISO();$('s-desc').value=$('s-imp').value='';}
-function addSpesa(e){e.preventDefault();
-  const imp=pNum($('s-imp').value),data=$('s-data').value;
-  if(!data||isNaN(imp)){alert('Controlla i campi.');return false;}
-  const rec={data,cat:$('s-cat').value,desc:$('s-desc').value,imp};
-  if(editSpesa!=null){cur().spese[editSpesa]=rec;editSpesa=null;DB.example=false;setEditMode('spesa-submit','spesa-cancel',false);}
-  else{clearExample();cur().spese.push(rec);}
-  save();
-  $('s-desc').value=$('s-imp').value='';return false;}
-function startEditScad(i){const s=(cur().scadenze||[])[i];if(!s)return;editScad=i;
-  $('sc-tipo').value=s.tipo;$('sc-data').value=s.data;$('sc-note').value=s.note||'';
-  setEditMode('scad-submit','scad-cancel',true);$('form-scad').scrollIntoView({behavior:'smooth',block:'center'});$('sc-note').focus();}
-function cancelEditScad(){editScad=null;setEditMode('scad-submit','scad-cancel',false);
-  $('sc-data').value=todayISO();$('sc-note').value='';}
-function addScad(e){e.preventDefault();
-  const data=$('sc-data').value;if(!data){alert('Inserisci la data.');return false;}
-  const V=cur();V.scadenze=V.scadenze||[];
-  const rec={tipo:$('sc-tipo').value,data,note:$('sc-note').value.trim()};
-  if(editScad!=null){V.scadenze[editScad]=rec;editScad=null;DB.example=false;setEditMode('scad-submit','scad-cancel',false);}
-  else{clearExample();V.scadenze.push(rec);}
-  save();
-  $('sc-note').value='';return false;}
-function delRif(i){if(i>=0){if(editRif!=null)cancelEditRif();cur().rif.splice(i,1);DB.example=false;save();}}
-function delSpesa(i){if(editSpesa!=null)cancelEditSpesa();cur().spese.splice(i,1);DB.example=false;save();}
-function delScad(i){if(editScad!=null)cancelEditScad();cur().scadenze.splice(i,1);DB.example=false;save();}
-function clearAll(){if(confirm('Cancellare TUTTI i dati (tutti i veicoli) di questo dispositivo?')){const v=blankVehicle('Veicolo 1','auto','');DB={v:2,example:false,updatedAt:Date.now(),currentId:v.id,vehicles:[v]};if(editVeh)cancelEditVehicle();persistLocal();render();schedulePush();}}
 
+// ---------- backup ----------
 function exportJSON(){dl('pit-backup.json',JSON.stringify({v:2,currentId:DB.currentId,vehicles:DB.vehicles},null,2),'application/json');}
-function importJSON(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();
-  rd.onload=()=>{try{const d=migrate(JSON.parse(rd.result));if(d){DB=d;DB.example=false;save();alert('Importato ✓');}else alert('File non valido.');}catch(e){alert('File non valido.');}};
-  rd.readAsText(f);inp.value='';}
+function importJSON(inp){
+  const f=inp.files&&inp.files[0];inp.value='';if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    let d=null;try{d=migrate(JSON.parse(rd.result));}catch(e){}
+    if(!d){toast('File non valido');return;}
+    if($('wizard').hidden&&!confirm('Sostituire i dati di questo dispositivo con quelli del backup?'))return;
+    DB=d;DB.example=false;yearP=yearS=null;fuelFilter=stFuel='';
+    closeSheet();closeWizard();save();navTo('panoramica');toast('Backup importato');
+  };
+  rd.readAsText(f);
+}
 function exportCSV(){const V=cur(),c=computed();
   let s='Veicolo;'+(V.name||'')+(V.plate?' ('+V.plate+')':'')+'\n\n';
-  s+='Data;Km;Litri;€/litro;Tipo;Benzinaio;Costo;Km percorsi;km/litro;L/100km;€/km\n';
-  c.rows.forEach(r=>{s+=[itDate(r.data),r.km,r.litri,r.prezzo,r.tipo||'',r.benz||'',r.costo.toFixed(2),r.kmP==null?'':r.kmP,r.kmL?r.kmL.toFixed(2):'',r.l100?r.l100.toFixed(2):'',r.eurKm?r.eurKm.toFixed(3):''].join(';')+'\n';});
+  s+='Data;Km;Litri;€/litro;Tipo;Benzinaio;Pieno;Costo;Km percorsi;km/litro;L/100km;€/km\n';
+  c.rows.forEach(r=>{s+=[itDate(r.data),r.km,r.litri,r.prezzo,r.tipo||'',r.benz||'',r.full?'sì':'no',r.costo.toFixed(2),r.kmP==null?'':r.kmP,r.kmL?r.kmL.toFixed(2):'',r.l100?r.l100.toFixed(2):'',r.eurKm?r.eurKm.toFixed(3):''].join(';')+'\n';});
   s+='\nSPESE VARIE\nData;Categoria;Descrizione;Importo\n';
   V.spese.forEach(x=>{s+=[itDate(x.data),x.cat,x.desc,x.imp].join(';')+'\n';});
   s+='\nSCADENZE\nTipo;Scadenza;Note\n';
   (V.scadenze||[]).forEach(x=>{s+=[x.tipo,itDate(x.data),x.note||''].join(';')+'\n';});
   const slug=(V.name||'veicolo').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'veicolo';
   dl('pit-'+slug+'.csv',s,'text/csv');}
-function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();}
+function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
+function clearAll(){
+  const on=syncOn();
+  if(!confirm('Cancellare TUTTI i dati, di tutti i veicoli?'+(on?'\nLa sincronizzazione è attiva: spariranno anche dal Gist.':'')))return;
+  DB=emptyDB();DB.updatedAt=Date.now();localStorage.removeItem(K);
+  if(on)schedulePush();
+  yearP=yearS=null;fuelFilter=stFuel='';
+  render();navTo('panoramica');startWizard('first');
+}
 
 // ---------- sincronizzazione (GitHub Gist) ----------
-let pushTimer=null, syncState='off', syncMsg='';
+let pushTimer=null,syncState='off',syncMsg='';
+function syncOn(){return!!(SYNC.token&&SYNC.gistId);}
 function setSync(st,msg){syncState=st;syncMsg=msg||'';renderSyncUI();}
 function renderSyncUI(){
-  const on=!!(SYNC.token&&SYNC.gistId);
-  $('sync-on').style.display=on?'':'none';
-  $('sync-off').style.display=on?'none':'';
-  const pill=$('syncpill'),txt=$('syncpill-txt');
-  pill.className='pill '+({off:'off',ok:'ok',error:'err',syncing:'busy',pending:'busy'}[syncState]||'off');
-  txt.textContent=({off:'Locale',ok:'Sincronizzato',error:'Errore sync',syncing:'Sincronizzo…',pending:'In attesa…'}[syncState])||'Locale';
-  pill.querySelector('.dot').className='dot'+(syncState==='syncing'?' spin':'');
-  const stt=$('sync-state-txt');if(stt)stt.textContent=syncState==='error'?('— '+syncMsg):(syncState==='ok'?'— tutto aggiornato':'');
+  const on=syncOn(),dot=$('sync-dot');
+  const warn=on&&syncState!=='ok'&&syncState!=='off';
+  dot.hidden=!warn;dot.className='dot '+(syncState==='error'?'err':'busy');
+  $('st-sync').textContent=!on?'Spenta':({ok:'Aggiornata',error:'Errore',syncing:'In corso…',pending:'In attesa…'}[syncState]||'Attiva');
+  $('sync-off').hidden=on;$('sync-on').hidden=!on;
+  $('sync-state').textContent=syncState==='error'?'Ultimo tentativo fallito: '+syncMsg+'.':syncState==='ok'?'Tutto aggiornato.':syncState==='off'?'':'Sincronizzo…';
 }
+function openSync(){$('sync-token').value='';$('sync-err').textContent='';renderSyncUI();openSheet('sh-sync');}
 async function gh(path,opts){opts=opts||{};
   const r=await fetch('https://api.github.com'+path,{method:opts.method||'GET',body:opts.body,
     headers:Object.assign({Authorization:'token '+SYNC.token,Accept:'application/vnd.github+json'},opts.headers||{})});
@@ -1164,42 +1333,76 @@ async function gh(path,opts){opts=opts||{};
   return r.json();
 }
 async function enableSync(){
-  const token=$('sync-token').value.trim();if(!token){alert('Inserisci il token.');return;}
-  SYNC.token=token;setSync('syncing');
+  const token=$('sync-token').value.trim();if(!token)return bad('sync-token');
+  SYNC={token};setSync('syncing');$('sync-err').textContent='';
   try{
     const gists=await gh('/gists?per_page=100');
     let g=gists.find(x=>x.files&&x.files[GIST_FILE]);
     if(!g)g=await gh('/gists',{method:'POST',body:JSON.stringify({description:'Pit — dati sincronizzati',public:false,files:{[GIST_FILE]:{content:JSON.stringify(DB)}}})});
     SYNC.gistId=g.id;saveSyncCfg();
     await syncPull(true);setSync('ok');render();
-    $('sync-token').value='';alert('Sincronizzazione attivata ✓');
-  }catch(e){SYNC={};setSync('error',e.message);alert('Errore: '+e.message+'\nVerifica che il token abbia lo scope "gist".');}
+    $('sync-token').value='';closeSheet();toast('Sincronizzazione attiva');
+  }catch(e){SYNC={};setSync('off');$('sync-err').textContent=e.message+'. Verifica che il token abbia il permesso gist.';}
 }
-function disableSync(){if(!confirm('Disattivare la sync su questo dispositivo? (i dati restano salvati)'))return;SYNC={};saveSyncCfg();setSync('off');}
+function disableSync(){if(!confirm('Disattivare la sincronizzazione su questo dispositivo? I dati restano salvati.'))return;SYNC={};saveSyncCfg();setSync('off');closeSheet();}
+// legge il file dal Gist (anche quando GitHub lo tronca nella risposta)
+async function gistContent(id){
+  const g=await gh('/gists/'+id),f=g.files&&g.files[GIST_FILE];if(!f)return null;
+  return f.truncated&&f.raw_url?await(await fetch(f.raw_url)).text():f.content;
+}
 async function syncPull(adopt){
-  if(!(SYNC.token&&SYNC.gistId))return;
-  const g=await gh('/gists/'+SYNC.gistId);
-  const f=g.files&&g.files[GIST_FILE];if(!f){if(adopt)await syncPush();return;}
-  let content=f.content;
-  if(f.truncated&&f.raw_url){content=await(await fetch(f.raw_url)).text();}
+  if(!syncOn())return;
+  const content=await gistContent(SYNC.gistId);
+  if(content==null){if(adopt)await syncPush();return;}
   let remote;try{remote=JSON.parse(content);}catch(e){return;}
   if(remote&&(remote.updatedAt||0)>(DB.updatedAt||0)){const mig=migrate(remote);if(mig){DB=mig;persistLocal();render();}}
   else if(adopt){await syncPush();}
 }
 async function syncPush(){
-  if(!(SYNC.token&&SYNC.gistId))return;
+  if(!syncOn())return;
   await gh('/gists/'+SYNC.gistId,{method:'PATCH',body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(DB)}}})});
 }
-function schedulePush(){if(!(SYNC.token&&SYNC.gistId))return;clearTimeout(pushTimer);setSync('pending');pushTimer=setTimeout(doPush,1500);}
+function schedulePush(){if(!syncOn())return;clearTimeout(pushTimer);setSync('pending');pushTimer=setTimeout(doPush,1500);}
 async function doPush(){try{setSync('syncing');await syncPush();setSync('ok');}catch(e){setSync('error',e.message);}}
 async function syncNow(){try{setSync('syncing');await syncPull();await syncPush();setSync('ok');}catch(e){setSync('error',e.message);}}
-function scrollToSync(){showPage('impostazioni');location.hash='impostazioni';requestAnimationFrame(()=>$('sync-section').scrollIntoView({behavior:'smooth',block:'start'}));}
+// dal wizard: collega un Gist esistente e ne scarica i dati (non crea niente se non li trova)
+async function restoreGist(){
+  const token=$('rs-token').value.trim();if(!token)return bad('rs-token');
+  const msg=$('rs-msg'),go=$('rs-go');msg.style.color='';msg.textContent='Cerco i dati sul tuo account…';go.disabled=true;
+  SYNC={token};
+  try{
+    const gists=await gh('/gists?per_page=100'),g=gists.find(x=>x.files&&x.files[GIST_FILE]);
+    if(!g)throw new Error('Nessun dato di Pit trovato su questo account');
+    const content=await gistContent(g.id);let d=null;try{d=migrate(JSON.parse(content));}catch(e){}
+    if(!d)throw new Error('I dati nel Gist non sono leggibili');
+    SYNC.gistId=g.id;saveSyncCfg();
+    DB=d;DB.example=false;persistLocal();yearP=yearS=null;
+    closeSheet();closeWizard();render();setSync('ok');navTo('panoramica');toast('Dati scaricati dal Gist');
+  }catch(e){SYNC={};msg.style.color='var(--bad)';msg.textContent=e.message+'.';}
+  finally{go.disabled=false;}
+}
 
-// ---------- init ----------
-$('r-data').value=todayISO();$('s-data').value=todayISO();$('sc-data').value=todayISO();
+// ---------- collegamenti dei campi ----------
+['pn-litri','pn-prezzo','pn-data','pn-tipo'].forEach(id=>{$(id).addEventListener('input',updPieno);$(id).addEventListener('change',updPieno);});
+$('pn-km').addEventListener('input',e=>{kmInput(e.target);updPieno();});
+$('wz-km').addEventListener('input',e=>kmInput(e.target));
+$('wz-name').addEventListener('keydown',e=>{if(e.key==='Enter')$('wz-plate').focus();});
+$('wz-name').addEventListener('input',()=>{if($('wz-name').value.trim())$('wz-name-err').hidden=true;});
+$('wz-plate').addEventListener('keydown',e=>{if(e.key==='Enter')wzNext();});
+['sp-data','sc-data'].forEach(id=>{$(id).addEventListener('input',()=>showDate(id));$(id).addEventListener('change',()=>showDate(id));});
+['input','change'].forEach(ev=>$('wz-scad').addEventListener(ev,e=>{
+  const i=e.target;if(!i.dataset||!i.dataset.tipo)return;
+  const s=$('wz-sc-'+i.dataset.tipo);s.textContent=i.value?shortDate(i.value):'—';s.classList.toggle('none',!i.value);
+}));
+$('ai-prov').addEventListener('change',()=>{const p=chipVal('ai-prov');$('ai-model').placeholder=AI_DEFAULTS[p];$('ai-help').innerHTML=AI_HELP[p];});
+$('pl-st-fuel').addEventListener('change',()=>{stFuel=chipVal('pl-st-fuel');render();});
+$('a-fuel').addEventListener('change',()=>{fuelFilter=chipVal('a-fuel');render();});
+
+// ---------- avvio ----------
 showPage(location.hash.slice(1)||'panoramica');
-renderAI();render();
-if(SYNC.token&&SYNC.gistId){setSync('syncing');syncPull().then(()=>setSync('ok')).catch(e=>setSync('error',e.message));}
+render();
+if(NEEDS_SETUP)startWizard('first');
+if(syncOn()){setSync('syncing');syncPull().then(()=>setSync('ok')).catch(e=>setSync('error',e.message));}
 else setSync('off');
 </script>
 <script>

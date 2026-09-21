@@ -1,43 +1,66 @@
 # Pit
 
-**Pit** — tracker dei rifornimenti, dei consumi, delle spese e delle scadenze dei tuoi veicoli.
+**Pit** — tracker dei pieni, dei consumi, delle spese e delle scadenze dei tuoi veicoli.
 App web in **un solo file** (`index.html`), senza backend: i dati restano sul
 tuo dispositivo (localStorage del browser). Installabile come **PWA** e
 utilizzabile **offline**.
 
+## Design (v2)
+- **Carta, inchiostro, un solo accento**: fondo `#F7F5F1`, testo `#15140F`,
+  rosso Pit `#D6442B` solo per azioni e segnali. Numeri in **IBM Plex Mono**,
+  testi in **Schibsted Grotesk** (Google Fonts, messi in cache dal service worker
+  per l'uso offline).
+- **Un numero che conta per schermata**: la Panoramica mostra la spesa del mese,
+  il confronto con il mese prima, gli ultimi sei mesi e tre indicatori
+  (consumo, costo al km, prezzo al litro).
+- **Inserire è un'azione**: Pieni, Spese e Scadenze si aprono sulla lista; il
+  modulo compare in una sheet dal pulsante rosso «+». Toccando una voce la si
+  modifica o elimina.
+
 ## Funzionalità
-- **Più veicoli**: ogni veicolo (nome, tipo, targa) ha i propri rifornimenti, spese, scadenze e analitiche; si cambia veicolo dal selettore in alto, si gestiscono in **Impostazioni**.
-- **Navigazione a pagine**: Panoramica, Rifornimenti, Spese, Scadenze, Impostazioni — barra in basso su mobile, in alto su desktop.
-- Inserimento rifornimenti: data, km (contachilometri), litri, €/litro, **tipo carburante**, **benzinaio**.
-- Calcoli automatici: costo, km percorsi, **km/litro**, L/100 km, €/km.
-- **Scadenze** (assicurazione, bollo, revisione, tagliando…) con urgenza a colori (scaduta / ≤30 giorni / ok) e avviso in cima.
-- **Confronto distributori**: prezzo medio €/litro per benzinaio, dal più conveniente.
-- Spese varie (tagliando, gomme, bollo, assicurazione, …).
-- Riepilogo: spesa carburante/varie, totale, **consumo medio**, prezzo medio, costo al km.
-- 5 grafici (SVG, nessuna dipendenza esterna): consumo, prezzo carburante, spesa per mese, costo al km, confronto benzinai.
-- **Sincronizzazione tra dispositivi via GitHub Gist** (token con scope `gist`, salvato solo sul dispositivo).
-- **Scansione scontrino con AI**: scatta o scegli una foto e un servizio di visione (Anthropic, OpenAI o Google — con la *tua* chiave API, salvata solo sul dispositivo) compila data, litri, prezzo, importo e benzinaio.
-- Backup/ripristino dati in **JSON** ed export **CSV**.
+- **Setup guidato al primo avvio** (tre passi): veicolo, carburante e km di
+  partenza, scadenze principali. «Ho già un backup» ripristina da file JSON o dal
+  Gist della sincronizzazione.
+- **Quattro schede**: Panoramica, Pieni, Spese, Scadenze (barra in basso).
+- **Più veicoli**: si cambia veicolo toccando il nome in alto nella Panoramica;
+  un veicolo nuovo si aggiunge con lo stesso setup guidato.
+- **Pieni**: lista per mese con km/l di ogni pieno (migliore in verde, peggiore in
+  rosso), totali dell'anno scelto e **confronto distributori** in fondo.
+  Calcolo del consumo «da pieno a pieno»: i rabbocchi confluiscono nel pieno dopo.
+- **Spese**: totale dell'anno oltre al carburante, barre per categoria, elenco.
+- **Scadenze** con urgenza a colori (scaduta / entro 30 giorni / ok); quelle
+  vicine compaiono anche in Panoramica.
+- **Analisi** (toccando la cifra grande): spesa per mese, consumo, prezzo pagato
+  per carburante, costo al km, totali.
+- **Unità per carburante**: litri per benzina, diesel e GPL; kg per il metano;
+  kWh per l'elettrico.
+- **Scansione scontrino con AI**: nella sheet «Nuovo pieno», una foto e un
+  servizio di visione (Anthropic, OpenAI o Google, con la *tua* chiave API,
+  salvata solo sul dispositivo) compila data, litri, prezzo e benzinaio.
+- **Sincronizzazione tra dispositivi via GitHub Gist** (token con scope `gist`,
+  salvato solo sul dispositivo).
+- Backup/ripristino in **JSON** (tutti i veicoli) ed export **CSV** (veicolo in uso).
 
-> Il consumo medio esclude i litri dei pieni senza km associati (es. il primissimo
-> rifornimento), così la media non viene falsata.
+Impostazioni (veicoli, chiave AI, sincronizzazione, backup) stanno nel menù
+in alto a destra della Panoramica.
 
-## Uso
-Scegli il veicolo dal selettore in alto, spostati tra le pagine con la barra di
-navigazione (Panoramica / Rifornimenti / Spese / Scadenze / Impostazioni), compila
-i moduli e premi **+ Aggiungi**. I dati di esempio spariscono al primo inserimento
-(o premi **Svuota tutto** in Impostazioni). Aggiungi e gestisci i veicoli da
-**Impostazioni › Veicoli**. Fai ogni tanto un **Backup (JSON)** (include tutti i
-veicoli): i dati vivono nel browser di quel dispositivo, non sul cloud.
+## Dati e compatibilità
+I dati restano nella chiave `moto_data_v1` del localStorage, schema `v2`.
+La v2 del design aggiunge al veicolo due campi facoltativi: `fuel` (carburante
+principale) e `kmStart` (km di partenza dal setup). I dati e i backup della
+versione precedente si aprono senza conversioni e senza passare dal setup.
 
-In locale: apri direttamente `index.html` nel browser (il service worker si attiva
-solo via http/https, quindi l'offline-PWA funziona dalla versione pubblicata).
+## Uso in locale
+Apri direttamente `index.html` nel browser, oppure servi la cartella
+(es. `python3 -m http.server`): il service worker e l'uso offline funzionano
+solo via http/https.
 
 ## Installazione su telefono (PWA)
 Apri il link pubblicato (GitHub Pages) sul telefono → menù del browser →
 **"Aggiungi a schermata Home"**. Avrai l'icona e l'uso offline.
 
 ## Struttura
-- `index.html` — l'app completa (UI, logica, grafici).
+- `index.html` — l'app completa (UI, logica, grafici SVG).
 - `manifest.webmanifest` — metadati PWA (nome, icona, colori).
-- `sw.js` — service worker (cache offline; network-first sull'HTML).
+- `sw.js` — service worker (cache offline; network-first sull'HTML, font in cache).
+- `icon-180.png`, `icon-192.png`, `icon-512.png` — icone della home screen.
