@@ -10,9 +10,14 @@ utilizzabile **offline**.
   rosso Pit `#D6442B` solo per azioni e segnali. Numeri in **IBM Plex Mono**,
   testi in **Schibsted Grotesk** (Google Fonts, messi in cache dal service worker
   per l'uso offline).
+- **Segue il tema del dispositivo**: chiaro «carta» o scuro «notte in officina»
+  (fondo `#131211`, superfici `#1C1B18`, testo `#F4F1EA`, segnale `#FF5A3D`),
+  in automatico e senza ricaricare. I colori stanno tutti nelle variabili CSS
+  in cima a `index.html`.
 - **Un numero che conta per schermata**: la Panoramica mostra la spesa del mese,
-  il confronto con il mese prima, gli ultimi sei mesi e tre indicatori
-  (consumo, costo al km, prezzo al litro).
+  il confronto con il mese prima, gli ultimi sei mesi, il consumo degli ultimi
+  sei pieni (tratteggiata la media di sempre) e due indicatori (costo al km,
+  prezzo al litro).
 - **Inserire è un'azione**: Pieni, Spese e Scadenze si aprono sulla lista; il
   modulo compare in una sheet dal pulsante rosso «+». Toccando una voce la si
   modifica o elimina.

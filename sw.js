@@ -5,7 +5,7 @@
  * I font (Google Fonts) si mettono in cache al primo uso, così l'app
  * mantiene il suo aspetto anche offline.
  */
-const CACHE = 'pit-v2.0.0';
+const CACHE = 'pit-v2.1.0';
 const FONTS = 'pit-fonts-v1';
 const PRECACHE = ['./', './index.html', './manifest.webmanifest',
   './icon-180.png', './icon-192.png', './icon-512.png'];

@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pit</title>
 <meta name="description" content="Pieni, consumi, spese e scadenze dei tuoi veicoli.">
-<meta name="theme-color" content="#F7F5F1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F7F5F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131211" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
@@ -17,20 +19,39 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* Pit v2 · carta, inchiostro, numeri in mono, un solo accento (rosso Pit) */
+  /* Pit v2 · carta, inchiostro, numeri in mono, un solo accento (rosso Pit).
+     Il tema segue quello del dispositivo: chiaro "carta", scuro "notte in officina". */
   :root{
+    color-scheme:light;
     --paper:#F7F5F1; --canvas:#EAE6DE; --card:#FFFFFF;
-    --ink:#15140F; --ink-2:#605D55; --label:#6B6860; --faint:#7A776D; --ph:#ADA89D;
-    --line:#E6E2DA; --line-2:#DDD8CE; --bar:#E0DBD2; --tag:#EDEAE3; --dim:#6C6A62;
-    --signal:#D6442B; --good:#2F7D5C;
+    --ink:#15140F; --on-ink:#FFFFFF; --ink-2:#605D55; --label:#6B6860; --faint:#6B6860; --ph:#ADA89D;
+    --line:#E6E2DA; --line-2:#DDD8CE; --bar:#E0DBD2; --tag:#EDEAE3; --avg:#A9A498; --area:.07;
+    --signal:#D6442B; --on-signal:#FFFFFF; --good:#2F7D5C; --neg:#D6442B;
     --warn-bg:#FFF6EE; --warn-line:#F0DCC6; --warn-sub:#7A6A55; --warn:#8A5E06;
     --bad-bg:#FCEFEB; --bad-line:#F1D2C9; --bad-sub:#86503F; --bad:#B8361F;
+    --scan-bg:#15140F; --scan-tx:#FFFFFF; --scan-sub:#A8A59B; --dim:#6C6A62;
+    --knob:#FFFFFF; --scrim:rgba(21,20,15,.42);
+    --sh-sheet:0 -12px 40px rgba(20,18,12,.18); --sh-fab:0 10px 26px rgba(214,68,43,.34); --sh-toast:0 8px 24px rgba(20,18,12,.2);
     --sans:'Schibsted Grotesk',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
     --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
     --col:560px;
     --safe-t:env(safe-area-inset-top,0px);
     --safe-b:env(safe-area-inset-bottom,0px);
     --tabs-h:calc(46px + max(18px,var(--safe-b)));
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      color-scheme:dark;
+      --paper:#131211; --canvas:#0B0A09; --card:#1C1B18;
+      --ink:#F4F1EA; --on-ink:#131211; --ink-2:#BEB9AE; --label:#A7A298; --faint:#827E74; --ph:#5E5A52;
+      --line:#2B2926; --line-2:#302E2A; --bar:#32302B; --tag:#232220; --avg:#5B574F; --area:.08;
+      --signal:#FF5A3D; --on-signal:#131211; --good:#55C08D; --neg:#FF7A5F;
+      --warn-bg:#2A2118; --warn-line:#453424; --warn-sub:#C3B49C; --warn:#E6A93C;
+      --bad-bg:#2C1916; --bad-line:#4D2A22; --bad-sub:#D7AB9E; --bad:#FF7A5F;
+      --scan-bg:#26241F; --scan-tx:#F4F1EA; --scan-sub:#A7A298; --dim:#5B574F;
+      --knob:#A7A298; --scrim:rgba(0,0,0,.6);
+      --sh-sheet:0 -12px 40px rgba(0,0,0,.5); --sh-fab:0 10px 26px rgba(255,90,61,.30); --sh-toast:0 8px 24px rgba(0,0,0,.5);
+    }
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%;background:var(--canvas)}
@@ -45,7 +66,7 @@
   :focus{outline:none}
   :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
   input:focus-visible,select:focus-visible{outline:none} /* il focus lo mostra il riquadro del campo */
-  .good{color:var(--good)!important} .bad-t{color:var(--signal)!important} .faint{color:var(--faint)!important}
+  .good{color:var(--good)!important} .bad-t{color:var(--neg)!important} .faint{color:var(--faint)!important}
 
   /* ---------- colonna app (su desktop resta una colonna centrata) ---------- */
   #app{max-width:var(--col);margin:0 auto;min-height:100vh;min-height:100dvh;background:var(--paper);position:relative;
@@ -73,26 +94,38 @@
     display:flex;align-items:center;justify-content:center;color:var(--ink-2)}
   .round::after{content:"";position:absolute;inset:-6px}
   .round .dot{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;border:2px solid var(--paper);background:var(--faint)}
-  .round .dot.err{background:var(--signal)} .round .dot.busy{background:#C98A0B}
+  .round .dot.err{background:var(--signal)} .round .dot.busy{background:var(--warn)}
 
   /* ---------- numero eroe + istogramma ---------- */
   .hero{display:flex;flex-direction:column;gap:14px;padding:30px 24px 0;cursor:pointer}
   .hero-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
   .big{display:flex;align-items:baseline;gap:12px}
-  .big .n{font:600 60px/1 var(--mono);letter-spacing:-.04em}
-  .big .u{font:500 26px var(--mono);color:var(--faint)}
+  .big .n{font:600 52px/1 var(--mono);letter-spacing:-.04em}
+  .big .u{font:500 24px var(--mono);color:var(--faint)}
   .big.md{gap:10px} .big.md .n{font-size:48px} .big.md .u{font-size:22px}
   .delta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--label)}
   .delta b{font:600 14px var(--mono);color:var(--ink-2)}
-  .delta b.down{color:var(--good)} .delta b.up{color:var(--signal)}
-  .bars{display:flex;align-items:flex-end;gap:10px;height:118px;margin-top:6px}
-  .bars .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .delta b.down{color:var(--good)} .delta b.up{color:var(--neg)}
+  .bars{display:flex;align-items:flex-end;gap:10px;height:88px;margin-top:2px}
+  .bars .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px}
   .bars .b{width:100%;border-radius:4px;background:var(--bar)}
   .bars .l{font:500 11px var(--mono);color:var(--faint);text-transform:uppercase}
   .bars .cur .b{background:var(--ink)} .bars .cur .l{font-weight:600;color:var(--ink)}
 
+  /* ---------- consumo degli ultimi pieni (Panoramica) ---------- */
+  .cons{display:flex;flex-direction:column;gap:9px;padding:20px 24px 0;cursor:pointer}
+  .cons-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .cons-h b{font:600 15px var(--mono);white-space:nowrap}
+  .cons-h b i{font:400 12px var(--sans);font-style:normal;color:var(--label)}
+  .cons-plot{position:relative;height:84px}
+  .cons-plot svg{position:absolute;inset:0;width:100%;height:84px;overflow:visible}
+  .cons-dot{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--signal)}
+  .cons-f{display:flex;justify-content:space-between;gap:12px;font:500 11px var(--mono);color:var(--label);text-transform:uppercase}
+  .cons-f .up{color:var(--good)} .cons-f .dn{color:var(--neg)}
+  .cons .empty{padding:16px 12px}
+
   /* ---------- indicatori ---------- */
-  .kpis{display:flex;gap:10px;padding:26px 24px 0}
+  .kpis{display:flex;gap:10px;padding:18px 24px 0}
   .kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:24px 24px 0}
   .kpi{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 13px;display:flex;flex-direction:column;gap:5px}
   .kpi .k{font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--label);white-space:nowrap}
@@ -111,7 +144,7 @@
   .note .r.bdg{font-size:14px;color:var(--label)}
   .note.warn{background:var(--warn-bg);border-color:var(--warn-line)} .note.warn .s{color:var(--warn-sub)} .note.warn .r{color:var(--warn)}
   .note.bad{background:var(--bad-bg);border-color:var(--bad-line)} .note.bad .s{color:var(--bad-sub)} .note.bad .r{color:var(--bad)}
-  .mini{flex:none;background:var(--ink);color:#fff;border-radius:11px;padding:10px 14px;font:600 14px var(--sans)}
+  .mini{flex:none;background:var(--ink);color:var(--on-ink);border-radius:11px;padding:10px 14px;font:600 14px var(--sans)}
 
   /* ---------- pagine lista ---------- */
   .page{display:flex;flex-direction:column;gap:16px;padding:calc(24px + var(--safe-t)) 24px 0}
@@ -170,6 +203,12 @@
   .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 12px 10px}
   .panel .empty{border:0;padding:22px 10px}
   svg.chart{width:100%;height:auto;display:block;font-family:var(--mono)}
+  /* colori dei grafici SVG: seguono il tema tramite le variabili */
+  .g-grid{stroke:var(--line)} .g-axis{fill:var(--faint)} .g-avg{stroke:var(--avg)}
+  .g-line{fill:none;stroke:var(--ink)} .g-area{fill:var(--ink);fill-opacity:var(--area)}
+  .g-dot{fill:var(--ink)} .g-last{fill:var(--signal)}
+  .g-lab{fill:var(--ink);stroke:var(--card);paint-order:stroke}
+  .g-bar{fill:var(--bar)} .g-bar.cur{fill:var(--ink)} .g-axis.cur{fill:var(--ink)}
   .vf{display:flex;align-items:center;gap:10px;padding:10px 2px;border-top:1px solid var(--line)}
   .vf:first-child{border-top:0}
   .vf span{flex:1;font:500 15px var(--sans)} .vf b{font:600 15px var(--mono)} .vf i{font-style:normal;font-size:12px;color:var(--label);min-width:74px;text-align:right}
@@ -180,14 +219,14 @@
   .tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:6px;font:500 13px var(--sans);color:var(--label);white-space:nowrap}
   .tabs button i{display:block;width:20px;height:3px;border-radius:2px;background:transparent}
   .tabs button.on{font-weight:600;color:var(--ink)} .tabs button.on i{background:var(--signal)}
-  .fab{position:fixed;z-index:41;width:58px;height:58px;border-radius:999px;background:var(--signal);color:#fff;
-    display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(214,68,43,.34);
+  .fab{position:fixed;z-index:41;width:58px;height:58px;border-radius:999px;background:var(--signal);color:var(--on-signal);
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-fab);
     bottom:calc(var(--tabs-h) + 24px);right:max(22px,calc((100vw - var(--col)) / 2 + 22px))}
   .fab:active{transform:scale(.96)}
 
   /* ---------- pulsanti ---------- */
-  .btn{width:100%;display:flex;align-items:center;justify-content:center;border-radius:14px;padding:19px;font:600 17px var(--sans);color:#fff;background:var(--ink)}
-  .btn.red{background:var(--signal)}
+  .btn{width:100%;display:flex;align-items:center;justify-content:center;border-radius:14px;padding:19px;font:600 17px var(--sans);color:var(--on-ink);background:var(--ink)}
+  .btn.red{background:var(--signal);color:var(--on-signal)}
   .btn:disabled{opacity:.45;cursor:default}
   .btn:active:not(:disabled){transform:translateY(1px)}
   .lnk{display:block;width:100%;text-align:center;font:500 15px var(--sans);color:var(--label);padding:6px}
@@ -199,7 +238,7 @@
   .chip{background:var(--card);border:1px solid var(--line);color:var(--ink-2);border-radius:11px;padding:13px 20px;font:500 16px var(--sans)}
   .chips.fuel .chip{padding:13px 18px}
   .chips.sm{gap:8px} .chips.sm .chip{padding:10px 14px;font-size:15px;border-radius:10px}
-  .chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .chip.on{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
 
   /* ---------- campi ---------- */
   .fields{display:flex;flex-direction:column;gap:14px}
@@ -220,13 +259,13 @@
   .kmline{display:flex;align-items:baseline;gap:8px;min-width:0}
   .kmline input{width:auto;flex:none}
   .kmline em{font-style:normal;font-size:13px;color:var(--label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .kmline em.up{color:var(--good)} .kmline em.no{color:var(--signal)}
+  .kmline em.up{color:var(--good)} .kmline em.no{color:var(--neg)}
   .switch{flex:1;min-width:0;position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;
     background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px;font:500 16px var(--sans)}
   .switch input{position:absolute;opacity:0;pointer-events:none}
   .switch i{flex:none;width:48px;height:28px;border-radius:999px;background:var(--line-2);display:flex;align-items:center;padding:3px;transition:background .15s}
-  .switch i::after{content:"";width:22px;height:22px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.18);transition:transform .15s}
-  .switch input:checked+i{background:var(--ink)} .switch input:checked+i::after{transform:translateX(20px)}
+  .switch i::after{content:"";width:22px;height:22px;border-radius:999px;background:var(--knob);box-shadow:0 1px 2px rgba(0,0,0,.18);transition:transform .15s,background .15s}
+  .switch input:checked+i{background:var(--ink)} .switch input:checked+i::after{transform:translateX(20px);background:var(--on-ink)}
   .switch input:focus-visible+i{outline:2px solid var(--ink);outline-offset:2px}
   .inp{width:100%;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:17px 18px;font:500 18px var(--sans);color:var(--ink)}
   .inp:focus{border-color:var(--ink);box-shadow:0 0 0 .5px var(--ink)}
@@ -236,11 +275,11 @@
   .err-msg{font-size:14px;color:var(--bad);margin-top:-18px}
 
   /* ---------- sheet dal basso ---------- */
-  .scrim{position:fixed;inset:0;z-index:60;background:rgba(21,20,15,.42);opacity:0;pointer-events:none;transition:opacity .22s}
+  .scrim{position:fixed;inset:0;z-index:60;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .22s}
   .scrim.on{opacity:1;pointer-events:auto}
   .sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;max-width:var(--col);margin:0 auto;
     display:flex;flex-direction:column;gap:20px;background:var(--paper);border-radius:30px 30px 0 0;
-    box-shadow:0 -12px 40px rgba(20,18,12,.18);padding:14px 24px calc(24px + var(--safe-b));
+    box-shadow:var(--sh-sheet);padding:14px 24px calc(24px + var(--safe-b));
     max-height:calc(100vh - 40px);max-height:calc(100dvh - 24px - var(--safe-t));overflow-y:auto;overscroll-behavior:contain;
     transform:translateY(105%);visibility:hidden;transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s linear .28s}
   .sheet.on{transform:none;visibility:visible;transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s}
@@ -250,12 +289,12 @@
   .sh-head button{font:500 15px var(--sans);color:var(--label);padding:6px 0 6px 12px}
   .sh-sep{display:flex;align-items:center;gap:12px;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
   .sh-sep::before,.sh-sep::after{content:"";flex:1;height:1px;background:var(--line-2)}
-  .scan{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:var(--ink);border-radius:14px;padding:15px 18px}
+  .scan{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:var(--scan-bg);border-radius:14px;padding:15px 18px}
   .scan:disabled{opacity:.7}
-  .scan-ic{flex:none;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--dim);display:flex;align-items:center;justify-content:center;color:var(--paper)}
+  .scan-ic{flex:none;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--dim);display:flex;align-items:center;justify-content:center;color:var(--scan-tx)}
   .scan-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-  .scan-tx b{font:600 15px var(--sans);color:#fff}
-  .scan-tx span{font-size:13px;color:#A8A59B}
+  .scan-tx b{font:600 15px var(--sans);color:var(--scan-tx)}
+  .scan-tx span{font-size:13px;color:var(--scan-sub)}
   .scan-ar{flex:none;color:var(--dim);display:flex}
   .scan-msg{margin-top:-8px;font-size:14px;line-height:1.45;color:var(--label)}
   .scan-msg.good{color:var(--good)} .scan-msg.warn{color:var(--warn)} .scan-msg.bad{color:var(--bad)}
@@ -305,8 +344,8 @@
 
   /* ---------- avviso breve ---------- */
   .toast{position:fixed;left:50%;top:calc(14px + var(--safe-t));z-index:80;transform:translate(-50%,-8px);opacity:0;pointer-events:none;
-    background:var(--ink);color:#fff;font:500 14px var(--sans);padding:10px 16px;border-radius:999px;white-space:nowrap;
-    box-shadow:0 8px 24px rgba(20,18,12,.2);transition:opacity .2s,transform .2s}
+    background:var(--ink);color:var(--on-ink);font:500 14px var(--sans);padding:10px 16px;border-radius:999px;white-space:nowrap;
+    box-shadow:var(--sh-toast);transition:opacity .2s,transform .2s}
   .toast.on{opacity:1;transform:translate(-50%,0)}
 
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -333,6 +372,7 @@
       <div class="delta" id="o-delta"></div>
       <div class="bars" id="o-bars"></div>
     </div>
+    <div class="cons" id="o-cons" role="button" tabindex="0" onclick="navTo('analisi')" onkeydown="if(event.key==='Enter')navTo('analisi')" aria-label="Consumo degli ultimi pieni, apri l'analisi"></div>
     <div class="kpis" id="o-kpis"></div>
     <div class="stack" id="o-cards"></div>
   </section>
@@ -778,7 +818,7 @@ function renderPanoramica(c){
   const mt=monthTotals(c),tot=k=>mt[k]||0;
   const pmY=m===1?y-1:y,pmM=m===1?12:m-1,curT=tot(mkey(y,m)),prevT=tot(mkey(pmY,pmM));
   $('o-month').textContent=MESI[m-1]+' '+y;
-  const n=fmt(curT,2);$('o-amt').textContent=n;$('o-amt').style.fontSize=n.length>8?'46px':'';
+  const n=fmt(curT,2);$('o-amt').textContent=n;$('o-amt').style.fontSize=n.length>8?'42px':'';
   const pm=MESI[pmM-1],prep=/^[aeiou]/.test(pm)?'ad ':'a ';
   if(prevT>0&&curT===0)$('o-delta').innerHTML=`<span>ancora niente questo mese · ${pm}: ${eur(prevT)}</span>`;
   else if(prevT>0){
@@ -786,14 +826,32 @@ function renderPanoramica(c){
     $('o-delta').innerHTML=`<b class="${dir}">${dir==='down'?'↓ ':dir==='up'?'↑ ':''}${Math.round(Math.abs(curT-prevT)/prevT*100)}%</b><span>rispetto ${prep}${pm} (${eur(prevT)})</span>`;
   }else $('o-delta').innerHTML=`<span>nessuna spesa ${prep}${pm}</span>`;
   const cols=lastMonths(6),mx=Math.max(0,...cols.map(x=>tot(x.k)));
-  $('o-bars').innerHTML=cols.map(x=>{const v=tot(x.k),h=mx?Math.max(3,Math.round(v/mx*92)):3;
+  $('o-bars').innerHTML=cols.map(x=>{const v=tot(x.k),h=mx?Math.max(3,Math.round(v/mx*66)):3;
     return `<div class="col${x.cur?' cur':''}" title="${MESI[x.m-1]}: ${eur(v)}"><div class="b" style="height:${h}px"></div><span class="l">${MESI3[x.m-1]}</span></div>`;}).join('');
 
-  // tre indicatori piccoli: consumo, costo al km, prezzo medio del carburante principale
-  const pf=primaryFuel(V,c),u=unitOf(pf),fr=c.byFuel.find(f=>f.tipo===pf);
+  // consumo degli ultimi 6 pieni misurati; la linea tratteggiata è la media di sempre
+  const pf=primaryFuel(V,c),u=unitOf(pf),avg=c.kmLavg;
+  const meas=c.rows.filter(r=>r.kmL!=null).sort((a,b)=>a.data.localeCompare(b.data)||a.km-b.km).slice(-6);
+  let ch=`<div class="cons-h"><span class="eyebrow">Consumo${meas.length>1?' · ultimi '+meas.length+' pieni':''}</span>${avg?`<b>${fmt(avg,1)} <i>km/${u} medi</i></b>`:''}</div>`;
+  if(meas.length>1){
+    const vals=meas.map(r=>r.kmL),all=avg?vals.concat([avg]):vals;
+    let lo=Math.min(...all),hi=Math.max(...all);if(hi-lo<.2){const mid=(hi+lo)/2;lo=mid-.1;hi=mid+.1;}
+    const W=342,last=vals.length-1,X=i=>6+i*(330/last),Y=v=>15+(hi-v)/(hi-lo)*47.5;
+    const pts=vals.map((v,i)=>X(i).toFixed(1)+','+Y(v).toFixed(1));
+    const avgL=avg?`<line class="g-avg" x1="6" y1="${Y(avg).toFixed(1)}" x2="336" y2="${Y(avg).toFixed(1)}" stroke-width="1" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>`:'';
+    ch+=`<div class="cons-plot"><svg viewBox="0 0 ${W} 84" preserveAspectRatio="none" aria-hidden="true">`
+      +`<path class="g-area" d="M${pts[0]} L${pts.slice(1).join(' ')} L${X(last)},84 L6,84 Z"/>${avgL}`
+      +`<polyline class="g-line" points="${pts.join(' ')}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`
+      +`<i class="cons-dot" style="left:${(X(last)/W*100).toFixed(2)}%;top:${Y(vals[last]).toFixed(1)}px"></i></div>`;
+    const worst=meas.reduce((a,b)=>b.kmL<a.kmL?b:a),wd=ymd(worst.data),up=avg==null||vals[last]>=avg;
+    ch+=`<div class="cons-f"><span title="il peggiore">${pad2(wd.d)} ${MESI3[wd.m-1]} · ${fmt(worst.kmL,1)}</span><span class="${up?'up':'dn'}">ultimo ${fmt(vals[last],1)} ${up?'↑':'↓'}</span></div>`;
+  }else ch+='<p class="empty">Il consumo si misura da pieno a pieno: compare dal secondo pieno.</p>';
+  $('o-cons').innerHTML=ch;
+
+  // due indicatori piccoli: costo al km e prezzo medio del carburante principale
+  const fr=c.byFuel.find(f=>f.tipo===pf);
   const kpi=(k,v,s)=>`<div class="kpi"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${s}</span></div>`;
-  $('o-kpis').innerHTML=kpi('Consumo',c.kmLavg?fmt(c.kmLavg,1):'—','km/'+u)+kpi('Al km',c.eurKmAvg?fmt(c.eurKmAvg,3):'—','€/km')
-    +kpi('Al '+PER_WORD[u],fr?fmt(fr.avg,3):'—','€/'+u);
+  $('o-kpis').innerHTML=kpi('Al km',c.eurKmAvg?fmt(c.eurKmAvg,3):'—','€/km')+kpi('Al '+PER_WORD[u],fr?fmt(fr.avg,3):'—','€/'+u);
 
   let h='';
   const sc=(V.scadenze||[]).map(s=>({...s,st:scadStatus(s.data)})).filter(s=>s.st.days<=30).sort((a,b)=>a.st.days-b.st.days);
@@ -801,7 +859,7 @@ function renderPanoramica(c){
     h+=`<button class="note ${s.st.cls}" onclick="navTo('scadenze')"><span class="tx"><b class="t">${esc(s.tipo)}</b><span class="s">${scadSub(s)}${more?` · +${more} ${more===1?'altra':'altre'}`:''}</span></span><span class="r bdg">${s.st.badge}</span></button>`;}
   const last=c.rows.slice().sort((a,b)=>b.data.localeCompare(a.data)||b.km-a.km)[0];
   if(last){const lu=unitOf(last.tipo);
-    h+=`<button class="note" onclick="navTo('pieni')"><span class="tx"><b class="t">${esc(last.benz||last.tipo||'Pieno')}</b><span class="s">${dayMon(last.data)} · ${fmtMax(last.litri,2)} ${lu} · ${fmt(last.prezzo,3)} €/${lu}</span></span><span class="r">${eur(last.costo)}</span></button>`;}
+    h+=`<button class="note" onclick="navTo('pieni')"><span class="tx"><b class="t">${esc(last.benz||last.tipo||'Pieno')}</b><span class="s">ultimo pieno · ${dayMon(last.data)} · ${fmtMax(last.litri,2)} ${lu}</span></span><span class="r">${eur(last.costo)}</span></button>`;}
   else h+=`<div class="note"><span class="tx"><b class="t">Nessun pieno ancora</b><span class="s">Segna il primo e Pit inizia a contare.</span></span><button class="mini" onclick="openPieno()">Aggiungi</button></div>`;
   $('o-cards').innerHTML=h;
 }
@@ -901,7 +959,6 @@ function renderAnalisi(c){
 }
 
 // ---------- grafici SVG (nessuna dipendenza) ----------
-const C_INK='#15140F',C_SIGNAL='#D6442B',C_GRID='#E6E2DA',C_AXIS='#7A776D',C_BAR='#E0DBD2';
 function lineChart(id,data,o){
   const el=$(id);
   if(data.length<2){el.innerHTML=`<p class="empty">${data.length?'Serve almeno un altro valore per disegnare la curva.':'Ancora nessun dato.'}</p>`;return;}
@@ -910,24 +967,24 @@ function lineChart(id,data,o){
   const rg=mx-mn;mn-=rg*.15;mx+=rg*.15;
   const li=data.length-1,X=i=>p.l+i/li*(W-p.l-p.r),Y=v=>p.t+(1-(v-mn)/(mx-mn))*(H-p.t-p.b);
   let g='';for(let t=0;t<=3;t++){const v=mn+(mx-mn)*t/3,y=Y(v);
-    g+=`<line x1="${p.l}" y1="${y}" x2="${W-p.r}" y2="${y}" stroke="${C_GRID}"/><text x="${p.l-8}" y="${y+3.5}" font-size="10" fill="${C_AXIS}" text-anchor="end">${fmt(v,o.dec)}</text>`;}
+    g+=`<line class="g-grid" x1="${p.l}" y1="${y}" x2="${W-p.r}" y2="${y}"/><text class="g-axis" x="${p.l-8}" y="${y+3.5}" font-size="10" text-anchor="end">${fmt(v,o.dec)}</text>`;}
   const pts=data.map((d,i)=>`${X(i)},${Y(d.y)}`);
   const area=`M ${X(0)},${H-p.b} L ${pts.join(' L ')} L ${X(li)},${H-p.b} Z`;
-  const dots=data.map((d,i)=>`<circle cx="${X(i)}" cy="${Y(d.y)}" r="${i===li?4:2.6}" fill="${i===li?C_SIGNAL:C_INK}"/>`).join('');
-  const lab=`<text x="${X(li)}" y="${Y(data[li].y)-10}" font-size="11" font-weight="600" text-anchor="end" fill="${C_INK}" stroke="#fff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">${fmt(data[li].y,o.dec)}</text>`;
+  const dots=data.map((d,i)=>`<circle class="${i===li?'g-last':'g-dot'}" cx="${X(i)}" cy="${Y(d.y)}" r="${i===li?4:2.6}"/>`).join('');
+  const lab=`<text class="g-lab" x="${X(li)}" y="${Y(data[li].y)-10}" font-size="11" font-weight="600" text-anchor="end" stroke-width="4" stroke-linejoin="round">${fmt(data[li].y,o.dec)}</text>`;
   const step=Math.ceil(data.length/6),show=i=>i===li||(i%step===0&&li-i>=step*.6);
-  const xl=data.map((d,i)=>show(i)?`<text x="${X(i)}" y="${H-7}" font-size="10" fill="${C_AXIS}" text-anchor="${i===0?'start':i===li?'end':'middle'}">${shortDate(d.x).slice(0,5)}</text>`:'').join('');
-  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}<path d="${area}" fill="${C_INK}" fill-opacity=".05"/><polyline points="${pts.join(' ')}" fill="none" stroke="${C_INK}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${lab}${xl}</svg>`;
+  const xl=data.map((d,i)=>show(i)?`<text class="g-axis" x="${X(i)}" y="${H-7}" font-size="10" text-anchor="${i===0?'start':i===li?'end':'middle'}">${shortDate(d.x).slice(0,5)}</text>`:'').join('');
+  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}<path class="g-area" d="${area}"/><polyline class="g-line" points="${pts.join(' ')}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${lab}${xl}</svg>`;
 }
 function barChart(id,data){
   const el=$(id);
   if(!data.some(d=>d.y>0)){el.innerHTML='<p class="empty">Nessuna spesa negli ultimi 12 mesi.</p>';return;}
   const W=480,H=190,p={l:4,r:4,t:22,b:24},bw=(W-p.l-p.r)/data.length,mx=Math.max(...data.map(d=>d.y))||1;
   el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">`+data.map((d,i)=>{
-    const h=Math.max(d.y>0?3:2,d.y/mx*(H-p.t-p.b)),x=p.l+i*bw+bw*.16,w=bw*.68,y=H-p.b-h,col=d.cur?C_INK:C_AXIS;
-    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${d.cur?C_INK:C_BAR}"/>`
-      +(d.y>0?`<text x="${x+w/2}" y="${y-6}" font-size="9.5" text-anchor="middle" fill="${col}">${fmt(d.y,0)}</text>`:'')
-      +`<text x="${x+w/2}" y="${H-7}" font-size="10" text-anchor="middle" fill="${col}"${d.cur?' font-weight="600"':''}>${d.l.toUpperCase()}</text>`;
+    const h=Math.max(d.y>0?3:2,d.y/mx*(H-p.t-p.b)),x=p.l+i*bw+bw*.16,w=bw*.68,y=H-p.b-h,cur=d.cur?' cur':'';
+    return `<rect class="g-bar${cur}" x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/>`
+      +(d.y>0?`<text class="g-axis${cur}" x="${x+w/2}" y="${y-6}" font-size="9.5" text-anchor="middle">${fmt(d.y,0)}</text>`:'')
+      +`<text class="g-axis${cur}" x="${x+w/2}" y="${H-7}" font-size="10" text-anchor="middle"${d.cur?' font-weight="600"':''}>${d.l.toUpperCase()}</text>`;
   }).join('')+'</svg>';
 }
 
