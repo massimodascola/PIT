@@ -1,6 +1,6 @@
 # Pit
 
-*Traduzione italiana. La versione principale, in inglese, è [README.md](README.md).* **[Apri l'app](https://massimodascola.github.io/PIT/)**
+*Traduzione italiana. La versione principale, in inglese, è [README.md](README.md).* **[Apri l'app](https://massimodascola.github.io/pit/)**
 
 **Pit** — tracker dei pieni, dei consumi, delle spese e delle scadenze dei tuoi veicoli.
 App web in **un solo file** (`index.html`), senza backend: i dati restano sul
@@ -63,7 +63,7 @@ Apri direttamente `index.html` nel browser, oppure servi la cartella
 solo via http/https.
 
 ## Installazione su telefono (PWA)
-Apri il link pubblicato, [massimodascola.github.io/PIT](https://massimodascola.github.io/PIT/), sul telefono → menù del browser →
+Apri il link pubblicato, [massimodascola.github.io/pit](https://massimodascola.github.io/pit/), sul telefono → menù del browser →
 **"Aggiungi a schermata Home"**. Avrai l'icona e l'uso offline.
 
 ## Struttura

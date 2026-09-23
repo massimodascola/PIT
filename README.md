@@ -5,14 +5,14 @@ A web app in **a single file** (`index.html`) with no backend: your data stays
 on your device (the browser's localStorage). It installs as a **PWA** and works
 **offline**.
 
-**[Open the app](https://massimodascola.github.io/PIT/)** · [Leggi in italiano](README.it.md)
+**[Open the app](https://massimodascola.github.io/pit/)** · [Leggi in italiano](README.it.md)
 
 > **Language:** the app's interface is in Italian. This README is in English;
 > an Italian translation is in [README.it.md](README.it.md).
 
 ## Using it on your phone
 
-Open **[massimodascola.github.io/PIT](https://massimodascola.github.io/PIT/)** on your phone, then:
+Open **[massimodascola.github.io/pit](https://massimodascola.github.io/pit/)** on your phone, then:
 
 * **iPhone (Safari)**: Share → **Add to Home Screen**.
 * **Android (Chrome)**: menu ⋮ → **Add to Home screen** or **Install app**.
