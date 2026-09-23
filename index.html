@@ -313,6 +313,10 @@
   .wz-welcome{justify-content:space-between;gap:32px;padding:calc(40px + var(--safe-t)) 32px calc(44px + var(--safe-b))}
   .logo{font:600 20px var(--sans);letter-spacing:-.02em}
   .logo i{font-style:normal;color:var(--signal)}
+  .wz-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .lang-sw{display:flex;align-items:center;gap:2px;margin-right:-6px;font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .lang-sw button{padding:8px 6px;color:var(--label)}
+  .lang-sw button.on{color:var(--ink);font-weight:600}
   .wz-hero{display:flex;flex-direction:column;gap:18px}
   .wz-hero h1{font:600 40px/1.08 var(--sans);letter-spacing:-.03em;text-wrap:pretty}
   .wz-hero p{font-size:17px;line-height:1.5;color:var(--ink-2);text-wrap:pretty}
@@ -483,7 +487,7 @@
 <div class="wizard" id="wizard" hidden>
   <div class="wz">
     <section class="wz-step wz-welcome" id="wz0">
-      <div class="logo">Pit<i>.</i></div>
+      <div class="wz-top"><div class="logo">Pit<i>.</i></div><div class="lang-sw" id="wz-lang" role="group" data-i18n-aria="set.lang"></div></div>
       <div class="wz-hero">
         <h1 data-i18n="wz.h1"></h1>
         <p data-i18n="wz.lead"></p>
@@ -919,9 +923,11 @@ function applyStatic(){
   document.querySelectorAll('[data-i18n-aria]').forEach(e=>{e.setAttribute('aria-label',t(e.dataset.i18nAria));});
   // segnaposto dei numeri col separatore decimale della lingua
   $('pn-litri').placeholder=fmt(0,1);$('pn-prezzo').placeholder=fmt(0,3);$('sp-imp').placeholder=fmt(0,2);
+  // scelta della lingua nel benvenuto del primo avvio (la stessa delle impostazioni)
+  $('wz-lang').innerHTML=Object.keys(LANG_NAMES).map(l=>`<button type="button" lang="${l}" class="${l===LANG?'on':''}" aria-pressed="${l===LANG}" onclick="setLang('${l}')">${LANG_NAMES[l]}</button>`).join('<span aria-hidden="true">·</span>');
 }
 // cambio lingua dalle impostazioni: si applica subito, senza ricaricare
-function setLang(l){if(!I18N[l])return;LANG=l;try{localStorage.setItem(LANGK,l);}catch(e){}applyStatic();render();}
+function setLang(l){if(!I18N[l])return;LANG=l;try{localStorage.setItem(LANGK,l);}catch(e){}applyStatic();render();if(WZ)wzRelabel();}
 
 // numeri nel formato della lingua (it-IT / en-GB); il separatore delle migliaia si mette a mano perché Intl in it-IT salta i numeri a 4 cifre (1242 invece di 1.242)
 function fmt(n,d){if(n==null||!isFinite(n))return'—';d=d==null?2:d;const neg=n<0;const p=Math.abs(n).toFixed(d).split('.'),L=LOC();
@@ -1446,6 +1452,14 @@ function startWizard(mode){
   $('wz-scad').innerHTML=WZ_SCAD.map(x=>`<label class="scadrow"><b>${valLabel(x)}</b><span class="none" id="wz-sc-${x}">—</span><input type="date" data-tipo="${x}" aria-label="${t('wz.scadAria',{name:valLabel(x)})}"></label>`).join('');
   $('wz-name-err').hidden=true;
   $('wizard').hidden=false;document.body.classList.add('lock');
+  wzShow();
+}
+// cambio lingua a wizard aperto: rinomina chip e scadenze senza toccare le scelte già fatte
+function wzRelabel(){
+  $('wz-type').querySelectorAll('.chip').forEach(b=>{b.textContent=vtypeLabel(b.dataset.v)||b.dataset.v;});
+  $('wz-fuel').querySelectorAll('.chip').forEach(b=>{b.textContent=valLabel(b.dataset.v);});
+  $('wz-scad').querySelectorAll('input[data-tipo]').forEach(i=>{const x=i.dataset.tipo;
+    i.setAttribute('aria-label',t('wz.scadAria',{name:valLabel(x)}));i.parentElement.querySelector('b').textContent=valLabel(x);});
   wzShow();
 }
 function wzShow(){

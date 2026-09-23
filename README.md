@@ -9,8 +9,8 @@ on your device (the browser's localStorage). It installs as a **PWA** and works
 
 > **Language:** the app is available in English and Italian. It follows the
 > device language by default, and you can change the language in the settings
-> menu. This README is in English; an Italian translation is in
-> [README.it.md](README.it.md).
+> menu or on the welcome screen. This README is in English; an Italian
+> translation is in [README.it.md](README.it.md).
 
 ## Using it on your phone
 
@@ -39,11 +39,11 @@ on the device: everyone who opens the link starts from zero.
   upcoming ones also appear in the Overview.
 * **Analysis** (tap the big figure): spending by month, consumption, price paid
   per fuel, cost per km, totals.
-* **Units per fuel**: liters for petrol, diesel and LPG; kg for natural gas
+* **Units per fuel**: litres for petrol, diesel and LPG; kg for natural gas
   (CNG); kWh for electric.
 * **Receipt scan with AI**: in the "New fill-up" sheet, a photo
   and a vision service (Anthropic, OpenAI or Google, with *your own* API key,
-  stored only on the device) fill in date, liters, price and station.
+  stored only on the device) fill in date, litres, price and station.
 * **Sync between devices through a GitHub Gist** (token with the `gist` scope,
   stored only on the device).
 * Backup and restore as **JSON** (all vehicles) and **CSV** export (current
@@ -65,7 +65,7 @@ right of the Overview.
 * **One number that matters per screen**: the Overview shows the month's
   spending, the comparison with the previous month, the last six months, the
   consumption of the last six fill-ups (the all-time average dashed) and two
-  indicators (cost per km, price per liter).
+  indicators (cost per km, price per litre).
 * **Adding is an action**: Fill-ups, Expenses and Deadlines open on the list;
   the form appears in a sheet from the red "+" button. Tap an entry to edit or
   delete it.

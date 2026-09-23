@@ -8,7 +8,8 @@ tuo dispositivo (localStorage del browser). Installabile come **PWA** e
 utilizzabile **offline**.
 
 > **Lingua:** l'app è disponibile in inglese e in italiano. Di base segue la
-> lingua del dispositivo, e la lingua si cambia dal menù delle impostazioni.
+> lingua del dispositivo, e la lingua si cambia dal menù delle impostazioni o
+> dalla schermata di benvenuto.
 
 ## Design (v2)
 * **Carta, inchiostro, un solo accento**: fondo `#F7F5F1`, testo `#15140F`,
