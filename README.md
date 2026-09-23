@@ -1,71 +1,107 @@
 # Pit
 
-**Pit** — tracker dei pieni, dei consumi, delle spese e delle scadenze dei tuoi veicoli.
-App web in **un solo file** (`index.html`), senza backend: i dati restano sul
-tuo dispositivo (localStorage del browser). Installabile come **PWA** e
-utilizzabile **offline**.
+**Pit** tracks your vehicles' fill-ups, fuel consumption, expenses and deadlines.
+A web app in **a single file** (`index.html`) with no backend: your data stays
+on your device (the browser's localStorage). It installs as a **PWA** and works
+**offline**.
+
+**[Open the app](https://massimodascola.github.io/PIT/)** · [Leggi in italiano](README.it.md)
+
+> **Language:** the app's interface is in Italian. This README is in English;
+> an Italian translation is in [README.it.md](README.it.md).
+
+## Using it on your phone
+
+Open **[massimodascola.github.io/PIT](https://massimodascola.github.io/PIT/)** on your phone, then:
+
+* **iPhone (Safari)**: Share → **Add to Home Screen**.
+* **Android (Chrome)**: menu ⋮ → **Add to Home screen** or **Install app**.
+
+You get an icon on the Home Screen and the app works offline. Your data stays
+on the device: everyone who opens the link starts from zero.
+
+## Features
+
+* **Guided setup on first launch** (three steps): vehicle, fuel and starting
+  mileage, main deadlines. "Ho già un backup" (I already have a backup)
+  restores from a JSON file or from the sync Gist.
+* **Four tabs**: Overview, Fill-ups, Expenses, Deadlines (bar at the bottom).
+* **Several vehicles**: switch vehicle by tapping its name at the top of the
+  Overview; a new vehicle is added with the same guided setup.
+* **Fill-ups**: list by month with the km/l of each fill-up (best in green,
+  worst in red), totals for the chosen year and a **fuel station comparison**
+  at the bottom. Consumption is calculated "from full tank to full tank":
+  top-ups are merged into the next full fill-up.
+* **Expenses**: yearly total beyond fuel, bars by category, list.
+* **Deadlines** color-coded by urgency (overdue / within 30 days / ok); the
+  upcoming ones also appear in the Overview.
+* **Analysis** (tap the big figure): spending by month, consumption, price paid
+  per fuel, cost per km, totals.
+* **Units per fuel**: liters for petrol, diesel and LPG; kg for natural gas
+  (CNG); kWh for electric.
+* **Receipt scan with AI**: in the "Nuovo pieno" (new fill-up) sheet, a photo
+  and a vision service (Anthropic, OpenAI or Google, with *your own* API key,
+  stored only on the device) fill in date, liters, price and station.
+* **Sync between devices through a GitHub Gist** (token with the `gist` scope,
+  stored only on the device).
+* Backup and restore as **JSON** (all vehicles) and **CSV** export (current
+  vehicle).
+
+Settings (vehicles, AI key, sync, backup) are in the menu at the top right of
+the Overview.
 
 ## Design (v2)
-- **Carta, inchiostro, un solo accento**: fondo `#F7F5F1`, testo `#15140F`,
-  rosso Pit `#D6442B` solo per azioni e segnali. Numeri in **IBM Plex Mono**,
-  testi in **Schibsted Grotesk** (Google Fonts, messi in cache dal service worker
-  per l'uso offline).
-- **Segue il tema del dispositivo**: chiaro «carta» o scuro «notte in officina»
-  (fondo `#131211`, superfici `#1C1B18`, testo `#F4F1EA`, segnale `#FF5A3D`),
-  in automatico e senza ricaricare. I colori stanno tutti nelle variabili CSS
-  in cima a `index.html`.
-- **Un numero che conta per schermata**: la Panoramica mostra la spesa del mese,
-  il confronto con il mese prima, gli ultimi sei mesi, il consumo degli ultimi
-  sei pieni (tratteggiata la media di sempre) e due indicatori (costo al km,
-  prezzo al litro).
-- **Inserire è un'azione**: Pieni, Spese e Scadenze si aprono sulla lista; il
-  modulo compare in una sheet dal pulsante rosso «+». Toccando una voce la si
-  modifica o elimina.
 
-## Funzionalità
-- **Setup guidato al primo avvio** (tre passi): veicolo, carburante e km di
-  partenza, scadenze principali. «Ho già un backup» ripristina da file JSON o dal
-  Gist della sincronizzazione.
-- **Quattro schede**: Panoramica, Pieni, Spese, Scadenze (barra in basso).
-- **Più veicoli**: si cambia veicolo toccando il nome in alto nella Panoramica;
-  un veicolo nuovo si aggiunge con lo stesso setup guidato.
-- **Pieni**: lista per mese con km/l di ogni pieno (migliore in verde, peggiore in
-  rosso), totali dell'anno scelto e **confronto distributori** in fondo.
-  Calcolo del consumo «da pieno a pieno»: i rabbocchi confluiscono nel pieno dopo.
-- **Spese**: totale dell'anno oltre al carburante, barre per categoria, elenco.
-- **Scadenze** con urgenza a colori (scaduta / entro 30 giorni / ok); quelle
-  vicine compaiono anche in Panoramica.
-- **Analisi** (toccando la cifra grande): spesa per mese, consumo, prezzo pagato
-  per carburante, costo al km, totali.
-- **Unità per carburante**: litri per benzina, diesel e GPL; kg per il metano;
-  kWh per l'elettrico.
-- **Scansione scontrino con AI**: nella sheet «Nuovo pieno», una foto e un
-  servizio di visione (Anthropic, OpenAI o Google, con la *tua* chiave API,
-  salvata solo sul dispositivo) compila data, litri, prezzo e benzinaio.
-- **Sincronizzazione tra dispositivi via GitHub Gist** (token con scope `gist`,
-  salvato solo sul dispositivo).
-- Backup/ripristino in **JSON** (tutti i veicoli) ed export **CSV** (veicolo in uso).
+* **Paper, ink, a single accent**: background `#F7F5F1`, text `#15140F`, Pit
+  red `#D6442B` only for actions and signals. Numbers in **IBM Plex Mono**,
+  text in **Schibsted Grotesk** (Google Fonts, cached by the service worker for
+  offline use).
+* **Follows the device theme**: light "paper" or dark "night in the workshop"
+  (background `#131211`, surfaces `#1C1B18`, text `#F4F1EA`, signal `#FF5A3D`),
+  automatically and without reloading. All colors are CSS variables at the top
+  of `index.html`.
+* **One number that matters per screen**: the Overview shows the month's
+  spending, the comparison with the previous month, the last six months, the
+  consumption of the last six fill-ups (the all-time average dashed) and two
+  indicators (cost per km, price per liter).
+* **Adding is an action**: Fill-ups, Expenses and Deadlines open on the list;
+  the form appears in a sheet from the red "+" button. Tap an entry to edit or
+  delete it.
 
-Impostazioni (veicoli, chiave AI, sincronizzazione, backup) stanno nel menù
-in alto a destra della Panoramica.
+## Privacy
 
-## Dati e compatibilità
-I dati restano nella chiave `moto_data_v1` del localStorage, schema `v2`.
-La v2 del design aggiunge al veicolo due campi facoltativi: `fuel` (carburante
-principale) e `kmStart` (km di partenza dal setup). I dati e i backup della
-versione precedente si aprono senza conversioni e senza passare dal setup.
+* All data stays in the browser's `localStorage`. No server, no telemetry.
+* The AI receipt scan is optional: the photo goes straight from your device to
+  the provider you chose, with your own key.
+* The optional Gist sync stores your data in a secret Gist on your own GitHub
+  account. The token stays on the device; if the device is compromised, revoke
+  it on GitHub (Settings → Developer settings → Personal access tokens).
+* Fonts are loaded from Google Fonts on first use, then cached.
 
-## Uso in locale
-Apri direttamente `index.html` nel browser, oppure servi la cartella
-(es. `python3 -m http.server`): il service worker e l'uso offline funzionano
-solo via http/https.
+## Data and compatibility
 
-## Installazione su telefono (PWA)
-Apri il link pubblicato (GitHub Pages) sul telefono → menù del browser →
-**"Aggiungi a schermata Home"**. Avrai l'icona e l'uso offline.
+Data lives in the `moto_data_v1` localStorage key, schema `v2`. Design v2 adds
+two optional fields to each vehicle: `fuel` (main fuel) and `kmStart` (starting
+mileage from the setup). Data and backups from the previous version open
+without conversion and without going through the setup.
 
-## Struttura
-- `index.html` — l'app completa (UI, logica, grafici SVG).
-- `manifest.webmanifest` — metadati PWA (nome, icona, colori).
-- `sw.js` — service worker (cache offline; network-first sull'HTML, font in cache).
-- `icon-180.png`, `icon-192.png`, `icon-512.png` — icone della home screen.
+## Running it locally
+
+Open `index.html` directly in the browser, or serve the folder (for example
+`python3 -m http.server`): the service worker and offline use only work over
+http/https.
+
+To publish your own copy, fork this repository and turn on **Settings → Pages →
+Branch: `main`, folder: `/ (root)`**.
+
+## Structure
+
+* `index.html`: the whole app (UI, logic, SVG charts).
+* `manifest.webmanifest`: PWA metadata (name, icon, colors).
+* `sw.js`: service worker (offline cache; network-first on the HTML, fonts
+  cached).
+* `icon-180.png`, `icon-192.png`, `icon-512.png`: Home Screen icons.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Made by [Massimo D'Ascola](https://github.com/massimodascola).
