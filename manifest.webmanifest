@@ -1,7 +1,7 @@
 {
   "name": "Pit",
   "short_name": "Pit",
-  "description": "Pieni, consumi, spese e scadenze dei tuoi veicoli.",
+  "description": "Fill-ups, fuel economy, expenses and deadlines for your vehicles.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -12,7 +12,7 @@
     "finance",
     "utilities"
   ],
-  "lang": "it",
+  "lang": "en",
   "icons": [
     {
       "src": "./icon-192.png",

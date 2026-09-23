@@ -7,8 +7,10 @@ on your device (the browser's localStorage). It installs as a **PWA** and works
 
 **[Open the app](https://massimodascola.github.io/pit/)** · [Leggi in italiano](README.it.md)
 
-> **Language:** the app's interface is in Italian. This README is in English;
-> an Italian translation is in [README.it.md](README.it.md).
+> **Language:** the app is available in English and Italian. It follows the
+> device language by default, and you can change the language in the settings
+> menu. This README is in English; an Italian translation is in
+> [README.it.md](README.it.md).
 
 ## Using it on your phone
 
@@ -23,8 +25,8 @@ on the device: everyone who opens the link starts from zero.
 ## Features
 
 * **Guided setup on first launch** (three steps): vehicle, fuel and starting
-  mileage, main deadlines. "Ho già un backup" (I already have a backup)
-  restores from a JSON file or from the sync Gist.
+  mileage, main deadlines. "I already have a backup" restores from a JSON
+  file or from the sync Gist.
 * **Four tabs**: Overview, Fill-ups, Expenses, Deadlines (bar at the bottom).
 * **Several vehicles**: switch vehicle by tapping its name at the top of the
   Overview; a new vehicle is added with the same guided setup.
@@ -39,7 +41,7 @@ on the device: everyone who opens the link starts from zero.
   per fuel, cost per km, totals.
 * **Units per fuel**: liters for petrol, diesel and LPG; kg for natural gas
   (CNG); kWh for electric.
-* **Receipt scan with AI**: in the "Nuovo pieno" (new fill-up) sheet, a photo
+* **Receipt scan with AI**: in the "New fill-up" sheet, a photo
   and a vision service (Anthropic, OpenAI or Google, with *your own* API key,
   stored only on the device) fill in date, liters, price and station.
 * **Sync between devices through a GitHub Gist** (token with the `gist` scope,
@@ -47,8 +49,8 @@ on the device: everyone who opens the link starts from zero.
 * Backup and restore as **JSON** (all vehicles) and **CSV** export (current
   vehicle).
 
-Settings (vehicles, AI key, sync, backup) are in the menu at the top right of
-the Overview.
+Settings (vehicles, language, AI key, sync, backup) are in the menu at the top
+right of the Overview.
 
 ## Design (v2)
 
@@ -83,7 +85,9 @@ the Overview.
 Data lives in the `moto_data_v1` localStorage key, schema `v2`. Design v2 adds
 two optional fields to each vehicle: `fuel` (main fuel) and `kmStart` (starting
 mileage from the setup). Data and backups from the previous version open
-without conversion and without going through the setup.
+without conversion and without going through the setup. The interface language
+is stored on its own, in the `pit_lang` key: it is not part of the data, of the
+backups or of the sync.
 
 ## Running it locally
 

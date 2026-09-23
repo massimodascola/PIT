@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pit</title>
-<meta name="description" content="Pieni, consumi, spese e scadenze dei tuoi veicoli.">
+<meta name="description" content="Fill-ups, fuel economy, expenses and deadlines for your vehicles.">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F7F5F1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131211" media="(prefers-color-scheme: dark)">
@@ -103,6 +103,7 @@
   .big .n{font:600 52px/1 var(--mono);letter-spacing:-.04em}
   .big .u{font:500 24px var(--mono);color:var(--faint)}
   .big.md{gap:10px} .big.md .n{font-size:48px} .big.md .u{font-size:22px}
+  html[lang="en"] .big .u{order:-1;margin-right:-6px} /* in inglese il simbolo € va prima della cifra */
   .delta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--label)}
   .delta b{font:600 14px var(--mono);color:var(--ink-2)}
   .delta b.down{color:var(--good)} .delta b.up{color:var(--neg)}
@@ -358,21 +359,21 @@
   <!-- ===================== PANORAMICA ===================== -->
   <section data-page="panoramica">
     <header class="top">
-      <button class="veh-btn" onclick="openSwitch()" aria-label="Cambia veicolo">
-        <span class="nm" id="h-name">Veicolo</span><span class="plate" id="h-plate" hidden></span><span class="caret">▾</span>
+      <button class="veh-btn" onclick="openSwitch()" data-i18n-aria="ov.switchVeh">
+        <span class="nm" id="h-name"></span><span class="plate" id="h-plate" hidden></span><span class="caret">▾</span>
       </button>
-      <button class="round" onclick="navTo('impostazioni')" aria-label="Impostazioni">
+      <button class="round" onclick="navTo('impostazioni')" data-i18n-aria="set.title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         <span class="dot" id="sync-dot" hidden></span>
       </button>
     </header>
-    <div class="hero" role="button" tabindex="0" onclick="navTo('analisi')" onkeydown="if(event.key==='Enter')navTo('analisi')" aria-label="Apri l'analisi">
-      <div class="hero-top"><span class="eyebrow" id="o-month"></span><span class="eyebrow sm">Analisi →</span></div>
+    <div class="hero" role="button" tabindex="0" onclick="navTo('analisi')" onkeydown="if(event.key==='Enter')navTo('analisi')" data-i18n-aria="ov.openAnalysis">
+      <div class="hero-top"><span class="eyebrow" id="o-month"></span><span class="eyebrow sm" data-i18n="ov.analysisLink"></span></div>
       <div class="big"><span class="n" id="o-amt">0,00</span><span class="u">€</span></div>
       <div class="delta" id="o-delta"></div>
       <div class="bars" id="o-bars"></div>
     </div>
-    <div class="cons" id="o-cons" role="button" tabindex="0" onclick="navTo('analisi')" onkeydown="if(event.key==='Enter')navTo('analisi')" aria-label="Consumo degli ultimi pieni, apri l'analisi"></div>
+    <div class="cons" id="o-cons" role="button" tabindex="0" onclick="navTo('analisi')" onkeydown="if(event.key==='Enter')navTo('analisi')" data-i18n-aria="ov.consAria"></div>
     <div class="kpis" id="o-kpis"></div>
     <div class="stack" id="o-cards"></div>
   </section>
@@ -382,14 +383,14 @@
     <div class="page">
       <button class="veh-eb" onclick="openSwitch()" hidden></button>
       <div class="page-head">
-        <h1>Pieni</h1>
-        <label class="yearsel"><span id="yp-txt"></span> ▾<select id="yp" onchange="setYear('p',this.value)" aria-label="Anno"></select></label>
+        <h1 data-i18n="tab.pieni"></h1>
+        <label class="yearsel"><span id="yp-txt"></span> ▾<select id="yp" onchange="setYear('p',this.value)" data-i18n-aria="year"></select></label>
       </div>
       <div class="stats" id="pl-stats"></div>
     </div>
     <div class="list" id="pl-list"></div>
     <div class="sec" id="pl-st" hidden>
-      <div class="eyebrow sm" id="pl-st-h">Distributori</div>
+      <div class="eyebrow sm" id="pl-st-h"></div>
       <div class="chips sm" id="pl-st-fuel"></div>
       <div class="group" id="pl-st-list"></div>
       <p class="hint" id="pl-st-hint"></p>
@@ -401,18 +402,18 @@
     <div class="page" style="gap:18px">
       <button class="veh-eb" onclick="openSwitch()" hidden></button>
       <div class="page-head">
-        <h1>Spese</h1>
-        <label class="yearsel"><span id="ys-txt"></span> ▾<select id="ys" onchange="setYear('s',this.value)" aria-label="Anno"></select></label>
+        <h1 data-i18n="tab.spese"></h1>
+        <label class="yearsel"><span id="ys-txt"></span> ▾<select id="ys" onchange="setYear('s',this.value)" data-i18n-aria="year"></select></label>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px">
-        <span class="eyebrow">Oltre al carburante</span>
+        <span class="eyebrow" data-i18n="sp.beyond"></span>
         <div class="big md"><span class="n" id="s-amt">0,00</span><span class="u">€</span></div>
         <span class="hint" id="s-sub"></span>
       </div>
     </div>
     <div class="cats" id="s-cats"></div>
     <div class="sec" style="gap:10px">
-      <span class="eyebrow sm" id="s-list-h">Ultime</span>
+      <span class="eyebrow sm" id="s-list-h" data-i18n="sp.latest"></span>
       <div class="rows" id="s-list"></div>
     </div>
   </section>
@@ -421,8 +422,8 @@
   <section data-page="scadenze" hidden>
     <div class="page">
       <button class="veh-eb" onclick="openSwitch()" hidden></button>
-      <div class="page-head"><h1>Scadenze</h1></div>
-      <p class="hint">Quelle entro 30 giorni compaiono anche in Panoramica.</p>
+      <div class="page-head"><h1 data-i18n="tab.scadenze"></h1></div>
+      <p class="hint" data-i18n="sc.hint"></p>
     </div>
     <div class="list"><div class="rows" id="sc-list"></div></div>
   </section>
@@ -430,50 +431,51 @@
   <!-- ===================== ANALISI ===================== -->
   <section data-page="analisi" hidden>
     <div class="subhead">
-      <button class="back" onclick="goBack()" aria-label="Indietro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg></button>
-      <h1>Analisi</h1>
+      <button class="back" onclick="goBack()" data-i18n-aria="back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg></button>
+      <h1 data-i18n="an.title"></h1>
     </div>
     <div class="kgrid" id="a-kpis"></div>
-    <div class="sec"><span class="eyebrow sm">Spesa per mese · pieni e spese</span><div class="panel"><div id="ch-mese"></div></div></div>
-    <div class="sec"><span class="eyebrow sm" id="a-cons-h">Consumo</span><div class="panel"><div id="ch-consumo"></div></div><p class="hint">Misurato da pieno a pieno: più alto è meglio. I rabbocchi confluiscono nel pieno dopo.</p></div>
-    <div class="sec"><span class="eyebrow sm" id="a-prezzo-h">Prezzo pagato</span><div class="chips sm" id="a-fuel"></div><div class="panel"><div id="ch-prezzo"></div></div><div class="group" id="a-byfuel" style="padding:4px 14px" hidden></div></div>
-    <div class="sec"><span class="eyebrow sm">Costo al km · solo carburante</span><div class="panel"><div id="ch-eurkm"></div></div></div>
+    <div class="sec"><span class="eyebrow sm" data-i18n="an.byMonth"></span><div class="panel"><div id="ch-mese"></div></div></div>
+    <div class="sec"><span class="eyebrow sm" id="a-cons-h"></span><div class="panel"><div id="ch-consumo"></div></div><p class="hint" data-i18n="an.consHint"></p></div>
+    <div class="sec"><span class="eyebrow sm" id="a-prezzo-h"></span><div class="chips sm" id="a-fuel"></div><div class="panel"><div id="ch-prezzo"></div></div><div class="group" id="a-byfuel" style="padding:4px 14px" hidden></div></div>
+    <div class="sec"><span class="eyebrow sm" data-i18n="an.eurKm"></span><div class="panel"><div id="ch-eurkm"></div></div></div>
   </section>
 
   <!-- ===================== IMPOSTAZIONI ===================== -->
   <section data-page="impostazioni" hidden>
     <div class="subhead">
-      <button class="back" onclick="goBack()" aria-label="Indietro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg></button>
-      <h1>Impostazioni</h1>
+      <button class="back" onclick="goBack()" data-i18n-aria="back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg></button>
+      <h1 data-i18n="set.title"></h1>
     </div>
-    <div class="sec"><span class="eyebrow sm">Veicoli</span><div class="group" id="st-veh"></div></div>
-    <div class="sec"><span class="eyebrow sm">Scansione scontrini</span>
-      <div class="group"><button class="srow" onclick="openAI()"><span class="mid"><b>Chiave AI</b><span>legge data, litri, prezzo e benzinaio dalla foto</span></span><span class="st" id="st-ai"></span><span class="chev">›</span></button></div>
+    <div class="sec"><span class="eyebrow sm" data-i18n="set.vehicles"></span><div class="group" id="st-veh"></div></div>
+    <div class="sec"><span class="eyebrow sm" data-i18n="set.lang"></span><div class="group" id="st-lang"></div></div>
+    <div class="sec"><span class="eyebrow sm" data-i18n="set.scan"></span>
+      <div class="group"><button class="srow" onclick="openAI()"><span class="mid"><b data-i18n="set.aiKey"></b><span data-i18n="set.aiKeySub"></span></span><span class="st" id="st-ai"></span><span class="chev">›</span></button></div>
     </div>
-    <div class="sec"><span class="eyebrow sm">Sincronizzazione</span>
-      <div class="group"><button class="srow" onclick="openSync()"><span class="mid"><b>GitHub Gist</b><span>stessi dati su telefono e Mac</span></span><span class="st" id="st-sync"></span><span class="chev">›</span></button></div>
+    <div class="sec"><span class="eyebrow sm" data-i18n="set.sync"></span>
+      <div class="group"><button class="srow" onclick="openSync()"><span class="mid"><b>GitHub Gist</b><span data-i18n="set.syncSub"></span></span><span class="st" id="st-sync"></span><span class="chev">›</span></button></div>
     </div>
-    <div class="sec"><span class="eyebrow sm">Dati</span>
+    <div class="sec"><span class="eyebrow sm" data-i18n="set.data"></span>
       <div class="group">
-        <button class="srow" onclick="exportJSON()"><span class="mid"><b>Backup completo</b><span>file .json con tutti i veicoli</span></span><span class="chev">›</span></button>
-        <button class="srow" onclick="$('imp').click()"><span class="mid"><b>Importa backup</b><span>sostituisce i dati di questo dispositivo</span></span><span class="chev">›</span></button>
-        <button class="srow" onclick="exportCSV()"><span class="mid"><b>Esporta CSV</b><span id="st-csv">solo il veicolo in uso</span></span><span class="chev">›</span></button>
-        <button class="srow danger" onclick="clearAll()"><span class="mid"><b>Svuota tutto</b><span>cancella tutti i veicoli e riparte da capo</span></span></button>
+        <button class="srow" onclick="exportJSON()"><span class="mid"><b data-i18n="set.backup"></b><span data-i18n="set.backupSub"></span></span><span class="chev">›</span></button>
+        <button class="srow" onclick="$('imp').click()"><span class="mid"><b data-i18n="set.import"></b><span data-i18n="set.importSub"></span></span><span class="chev">›</span></button>
+        <button class="srow" onclick="exportCSV()"><span class="mid"><b data-i18n="set.csv"></b><span id="st-csv"></span></span><span class="chev">›</span></button>
+        <button class="srow danger" onclick="clearAll()"><span class="mid"><b data-i18n="set.clear"></b><span data-i18n="set.clearSub"></span></span></button>
       </div>
     </div>
-    <p class="foot">Pit · i dati vivono su questo dispositivo. Fai un backup ogni tanto.</p>
+    <p class="foot" data-i18n="set.foot"></p>
   </section>
 
 </main>
 
-<button class="fab" id="fab" onclick="fabAction()" aria-label="Aggiungi" hidden>
+<button class="fab" id="fab" onclick="fabAction()" data-i18n-aria="add" hidden>
   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
 </button>
 <nav class="tabs" id="tabs">
-  <button data-page="panoramica" onclick="navTo('panoramica')">Panoramica<i></i></button>
-  <button data-page="pieni" onclick="navTo('pieni')">Pieni<i></i></button>
-  <button data-page="spese" onclick="navTo('spese')">Spese<i></i></button>
-  <button data-page="scadenze" onclick="navTo('scadenze')">Scadenze<i></i></button>
+  <button data-page="panoramica" onclick="navTo('panoramica')"><span data-i18n="tab.panoramica"></span><i></i></button>
+  <button data-page="pieni" onclick="navTo('pieni')"><span data-i18n="tab.pieni"></span><i></i></button>
+  <button data-page="spese" onclick="navTo('spese')"><span data-i18n="tab.spese"></span><i></i></button>
+  <button data-page="scadenze" onclick="navTo('scadenze')"><span data-i18n="tab.scadenze"></span><i></i></button>
 </nav>
 </div>
 
@@ -483,58 +485,58 @@
     <section class="wz-step wz-welcome" id="wz0">
       <div class="logo">Pit<i>.</i></div>
       <div class="wz-hero">
-        <h1>Quanto ti costa davvero la tua auto?</h1>
-        <p>Segni i pieni, Pit calcola consumi, costo al km e ti avvisa prima delle scadenze. Tutto sul telefono, niente account.</p>
+        <h1 data-i18n="wz.h1"></h1>
+        <p data-i18n="wz.lead"></p>
       </div>
       <div class="wz-cta" style="gap:14px">
-        <button class="btn" onclick="wzGo(1)">Inizia</button>
-        <button class="lnk" onclick="openRestore()">Ho già un backup</button>
+        <button class="btn" onclick="wzGo(1)" data-i18n="wz.start"></button>
+        <button class="lnk" onclick="openRestore()" data-i18n="wz.haveBackup"></button>
       </div>
     </section>
 
     <div class="wz-prog" id="wz-prog" hidden>
-      <button id="wz-back" onclick="wzBack()" aria-label="Indietro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg></button>
+      <button id="wz-back" onclick="wzBack()" data-i18n-aria="back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg></button>
       <div class="track"><div class="fill" id="wz-fill"></div></div>
       <span class="cnt" id="wz-cnt">1/3</span>
     </div>
 
     <section class="wz-step" id="wz1" hidden>
       <div class="wz-body">
-        <h2>Che veicolo segui?</h2>
+        <h2 data-i18n="wz.q1"></h2>
         <div class="wz-fields">
-          <label class="wz-f"><span class="lab">Nome</span><input class="inp" id="wz-name" placeholder="es. Panda" autocomplete="off" enterkeyhint="next"></label>
-          <div class="wz-f"><span class="lab">Tipo</span><div class="chips" id="wz-type"></div></div>
-          <label class="wz-f"><span class="lab">Targa <span class="opt">facoltativa</span></span><input class="inp plate-in" id="wz-plate" placeholder="AB 123 CD" autocomplete="off" autocapitalize="characters" enterkeyhint="done"></label>
+          <label class="wz-f"><span class="lab" data-i18n="f.name"></span><input class="inp" id="wz-name" data-i18n-ph="wz.namePh" autocomplete="off" enterkeyhint="next"></label>
+          <div class="wz-f"><span class="lab" data-i18n="f.type"></span><div class="chips" id="wz-type"></div></div>
+          <label class="wz-f"><span class="lab"><span data-i18n="f.plate"></span> <span class="opt" data-i18n="f.optional"></span></span><input class="inp plate-in" id="wz-plate" data-i18n-ph="wz.platePh" autocomplete="off" autocapitalize="characters" enterkeyhint="done"></label>
         </div>
-        <p class="err-msg" id="wz-name-err" hidden>Dai un nome al veicolo.</p>
-        <div class="wz-cta"><button class="btn" onclick="wzNext()">Avanti</button></div>
+        <p class="err-msg" id="wz-name-err" data-i18n="wz.nameErr" hidden></p>
+        <div class="wz-cta"><button class="btn" onclick="wzNext()" data-i18n="wz.next"></button></div>
       </div>
     </section>
 
     <section class="wz-step" id="wz2" hidden>
       <div class="wz-body">
-        <h2>Cosa mette e quanti km ha?</h2>
-        <div class="wz-f"><span class="lab">Carburante</span><div class="chips fuel" id="wz-fuel"></div></div>
+        <h2 data-i18n="wz.q2"></h2>
+        <div class="wz-f"><span class="lab" data-i18n="f.fuel"></span><div class="chips fuel" id="wz-fuel"></div></div>
         <div class="wz-f">
-          <span class="lab">Km sul contachilometri</span>
-          <label class="kmbox"><input id="wz-km" inputmode="numeric" placeholder="0" autocomplete="off" aria-label="Km sul contachilometri"><span>km</span></label>
-          <span class="hint">Serve solo come punto di partenza: da qui in poi Pit calcola le distanze da sé.</span>
+          <span class="lab" data-i18n="f.odo"></span>
+          <label class="kmbox"><input id="wz-km" inputmode="numeric" placeholder="0" autocomplete="off" data-i18n-aria="f.odo"><span>km</span></label>
+          <span class="hint" data-i18n="wz.kmHint"></span>
         </div>
-        <div class="wz-cta"><button class="btn" onclick="wzNext()">Avanti</button></div>
+        <div class="wz-cta"><button class="btn" onclick="wzNext()" data-i18n="wz.next"></button></div>
       </div>
     </section>
 
     <section class="wz-step" id="wz3" hidden>
       <div class="wz-body tight">
         <div style="display:flex;flex-direction:column;gap:10px">
-          <h2>Quando scadono?</h2>
-          <p class="hint" style="font-size:15px">Anche solo una: Pit ti avvisa 30 giorni prima. Le altre le aggiungi dopo.</p>
+          <h2 data-i18n="wz.q3"></h2>
+          <p class="hint" style="font-size:15px" data-i18n="wz.scadHint"></p>
         </div>
         <div class="scadrows" id="wz-scad"></div>
-        <div class="ready"><b id="wz-ready-t">Pronto.</b><span id="wz-ready-s"></span></div>
+        <div class="ready"><b id="wz-ready-t"></b><span id="wz-ready-s"></span></div>
         <div class="wz-cta">
-          <button class="btn" onclick="wzFinish(true)">Aggiungi il primo pieno</button>
-          <button class="lnk" onclick="wzFinish(false)">Lo faccio dopo</button>
+          <button class="btn" onclick="wzFinish(true)" data-i18n="wz.addFirst"></button>
+          <button class="lnk" onclick="wzFinish(false)" data-i18n="wz.later"></button>
         </div>
       </div>
     </section>
@@ -546,117 +548,117 @@
 
 <div class="sheet" id="sh-pieno" role="dialog" aria-modal="true" aria-labelledby="pn-title">
   <span class="handle"></span>
-  <div class="sh-head"><h3 id="pn-title">Nuovo pieno</h3><button onclick="closeSheet()">Annulla</button></div>
+  <div class="sh-head"><h3 id="pn-title"></h3><button onclick="closeSheet()" data-i18n="cancel"></button></div>
   <button class="scan" id="scan-btn" onclick="pickReceipt()">
     <span class="scan-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l1.5-2z"/><circle cx="12" cy="13" r="3.2"/></svg></span>
-    <span class="scan-tx"><b>Fotografa lo scontrino</b><span>compila tutto tranne i km</span></span>
+    <span class="scan-tx"><b data-i18n="scan.title"></b><span data-i18n="scan.sub"></span></span>
     <span class="scan-ar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
   </button>
   <p class="scan-msg" id="scan-msg" hidden></p>
   <input type="file" id="scan-file" accept="image/*" hidden onchange="scanReceipt(this)">
   <div class="fields">
     <div class="frow">
-      <label class="field"><span id="pn-qty-l">Litri</span><input id="pn-litri" inputmode="decimal" placeholder="0,0" autocomplete="off"></label>
-      <label class="field"><span id="pn-price-l">€/litro</span><input id="pn-prezzo" inputmode="decimal" placeholder="0,000" autocomplete="off"></label>
+      <label class="field"><span id="pn-qty-l"></span><input id="pn-litri" inputmode="decimal" autocomplete="off"></label>
+      <label class="field"><span id="pn-price-l"></span><input id="pn-prezzo" inputmode="decimal" autocomplete="off"></label>
     </div>
-    <label class="field"><span>Km sul contachilometri</span><span class="kmline"><input id="pn-km" inputmode="numeric" placeholder="0" autocomplete="off"><em id="pn-km-hint"></em></span></label>
+    <label class="field"><span data-i18n="f.odo"></span><span class="kmline"><input id="pn-km" inputmode="numeric" placeholder="0" autocomplete="off"><em id="pn-km-hint"></em></span></label>
     <div class="frow">
-      <label class="field pick"><span>Data</span><b class="val" id="pn-data-txt">—</b><input type="date" id="pn-data" aria-label="Data"></label>
-      <label class="field txt grow"><span>Benzinaio</span><input id="pn-benz" list="benzlist" placeholder="es. Eni Via Roma" autocomplete="off"></label>
+      <label class="field pick"><span data-i18n="f.date"></span><b class="val" id="pn-data-txt">—</b><input type="date" id="pn-data" data-i18n-aria="f.date"></label>
+      <label class="field txt grow"><span data-i18n="f.station"></span><input id="pn-benz" list="benzlist" data-i18n-ph="pn.stationPh" autocomplete="off"></label>
     </div>
     <div class="frow">
-      <label class="field pick"><span>Carburante</span><b class="val sans" id="pn-tipo-txt">Benzina</b><select id="pn-tipo" aria-label="Carburante"></select></label>
-      <label class="switch"><span id="pn-pieno-l">Pieno</span><input type="checkbox" id="pn-pieno" checked><i></i></label>
+      <label class="field pick"><span data-i18n="f.fuel"></span><b class="val sans" id="pn-tipo-txt"></b><select id="pn-tipo" data-i18n-aria="f.fuel"></select></label>
+      <label class="switch"><span id="pn-pieno-l"></span><input type="checkbox" id="pn-pieno" checked><i></i></label>
     </div>
   </div>
   <datalist id="benzlist"></datalist>
-  <div class="total"><span>Totale</span><b id="pn-tot">—</b></div>
-  <button class="btn red" id="pn-save" onclick="savePieno()">Salva pieno</button>
-  <button class="lnk red" id="pn-del" onclick="delPieno()" hidden>Elimina pieno</button>
+  <div class="total"><span data-i18n="total"></span><b id="pn-tot">—</b></div>
+  <button class="btn red" id="pn-save" onclick="savePieno()"></button>
+  <button class="lnk red" id="pn-del" onclick="delPieno()" data-i18n="pn.del" hidden></button>
 </div>
 
 <div class="sheet" id="sh-spesa" role="dialog" aria-modal="true" aria-labelledby="sp-title">
   <span class="handle"></span>
-  <div class="sh-head"><h3 id="sp-title">Nuova spesa</h3><button onclick="closeSheet()">Annulla</button></div>
+  <div class="sh-head"><h3 id="sp-title"></h3><button onclick="closeSheet()" data-i18n="cancel"></button></div>
   <div class="chips sm" id="sp-cat"></div>
   <div class="fields">
-    <label class="field"><span>Importo €</span><input id="sp-imp" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
+    <label class="field"><span data-i18n="sp.amount"></span><input id="sp-imp" inputmode="decimal" autocomplete="off"></label>
     <div class="frow">
-      <label class="field pick"><span>Data</span><b class="val" id="sp-data-txt">—</b><input type="date" id="sp-data" aria-label="Data"></label>
-      <label class="field txt grow"><span>Descrizione</span><input id="sp-desc" placeholder="es. cambio olio" autocomplete="off"></label>
+      <label class="field pick"><span data-i18n="f.date"></span><b class="val" id="sp-data-txt">—</b><input type="date" id="sp-data" data-i18n-aria="f.date"></label>
+      <label class="field txt grow"><span data-i18n="sp.desc"></span><input id="sp-desc" data-i18n-ph="sp.descPh" autocomplete="off"></label>
     </div>
   </div>
-  <button class="btn red" id="sp-save" onclick="saveSpesa()">Salva spesa</button>
-  <button class="lnk red" id="sp-del" onclick="delSpesa()" hidden>Elimina spesa</button>
+  <button class="btn red" id="sp-save" onclick="saveSpesa()"></button>
+  <button class="lnk red" id="sp-del" onclick="delSpesa()" data-i18n="sp.del" hidden></button>
 </div>
 
 <div class="sheet" id="sh-scad" role="dialog" aria-modal="true" aria-labelledby="sc-title">
   <span class="handle"></span>
-  <div class="sh-head"><h3 id="sc-title">Nuova scadenza</h3><button onclick="closeSheet()">Annulla</button></div>
+  <div class="sh-head"><h3 id="sc-title"></h3><button onclick="closeSheet()" data-i18n="cancel"></button></div>
   <div class="chips sm" id="sc-tipo"></div>
   <div class="frow">
-    <label class="field pick"><span>Scade il</span><b class="val" id="sc-data-txt">—</b><input type="date" id="sc-data" aria-label="Data di scadenza"></label>
-    <label class="field txt grow"><span>Note</span><input id="sc-note" placeholder="es. compagnia" autocomplete="off"></label>
+    <label class="field pick"><span data-i18n="sc.dueOn"></span><b class="val" id="sc-data-txt">—</b><input type="date" id="sc-data" data-i18n-aria="sc.dueDate"></label>
+    <label class="field txt grow"><span data-i18n="sc.note"></span><input id="sc-note" data-i18n-ph="sc.notePh" autocomplete="off"></label>
   </div>
-  <button class="btn red" id="sc-save" onclick="saveScad()">Salva scadenza</button>
-  <button class="lnk red" id="sc-del" onclick="delScad()" hidden>Elimina scadenza</button>
+  <button class="btn red" id="sc-save" onclick="saveScad()"></button>
+  <button class="lnk red" id="sc-del" onclick="delScad()" data-i18n="sc.del" hidden></button>
 </div>
 
 <div class="sheet" id="sh-veh" role="dialog" aria-modal="true" aria-labelledby="vh-title">
   <span class="handle"></span>
-  <div class="sh-head"><h3 id="vh-title">Modifica veicolo</h3><button onclick="closeSheet()">Annulla</button></div>
-  <label class="field txt"><span>Nome</span><input id="vh-name" autocomplete="off"></label>
-  <div class="wz-f"><span class="lab">Tipo</span><div class="chips sm" id="vh-type"></div></div>
-  <label class="field txt"><span>Targa</span><input class="plate-in" id="vh-plate" placeholder="facoltativa" autocomplete="off" autocapitalize="characters"></label>
-  <div class="wz-f"><span class="lab">Carburante</span><div class="chips sm" id="vh-fuel"></div></div>
-  <button class="btn" onclick="saveVeh()">Salva</button>
-  <button class="lnk red" id="vh-del" onclick="delVeh()">Elimina veicolo</button>
+  <div class="sh-head"><h3 id="vh-title" data-i18n="vh.title"></h3><button onclick="closeSheet()" data-i18n="cancel"></button></div>
+  <label class="field txt"><span data-i18n="f.name"></span><input id="vh-name" autocomplete="off"></label>
+  <div class="wz-f"><span class="lab" data-i18n="f.type"></span><div class="chips sm" id="vh-type"></div></div>
+  <label class="field txt"><span data-i18n="f.plate"></span><input class="plate-in" id="vh-plate" data-i18n-ph="f.optional" autocomplete="off" autocapitalize="characters"></label>
+  <div class="wz-f"><span class="lab" data-i18n="f.fuel"></span><div class="chips sm" id="vh-fuel"></div></div>
+  <button class="btn" onclick="saveVeh()" data-i18n="save"></button>
+  <button class="lnk red" id="vh-del" onclick="delVeh()" data-i18n="vh.del"></button>
 </div>
 
 <div class="sheet" id="sh-switch" role="dialog" aria-modal="true" aria-labelledby="sw-title">
   <span class="handle"></span>
-  <div class="sh-head"><h3 id="sw-title">Veicoli</h3><button onclick="closeSheet()">Chiudi</button></div>
+  <div class="sh-head"><h3 id="sw-title" data-i18n="set.vehicles"></h3><button onclick="closeSheet()" data-i18n="close"></button></div>
   <div class="group" id="sw-list"></div>
-  <button class="btn" onclick="startWizard('add')">Aggiungi veicolo</button>
+  <button class="btn" onclick="startWizard('add')" data-i18n="vh.add"></button>
 </div>
 
 <div class="sheet" id="sh-ai" role="dialog" aria-modal="true" aria-labelledby="ai-title">
   <span class="handle"></span>
-  <div class="sh-head"><h3 id="ai-title">Scansione scontrini</h3><button onclick="closeSheet()">Chiudi</button></div>
-  <p class="hint">Serve la <b>tua</b> chiave API di un servizio AI con visione. Resta solo su questo dispositivo: non finisce nei backup né nella sincronizzazione. Ogni scansione consuma una piccola quota sul tuo account.</p>
-  <div class="wz-f"><span class="lab">Servizio</span><div class="chips sm" id="ai-prov"></div></div>
-  <label class="field txt"><span>Chiave API</span><input type="password" id="ai-key" autocomplete="off"></label>
-  <label class="field txt"><span>Modello · facoltativo</span><input id="ai-model" autocomplete="off"></label>
+  <div class="sh-head"><h3 id="ai-title" data-i18n="set.scan"></h3><button onclick="closeSheet()" data-i18n="close"></button></div>
+  <p class="hint" data-i18n-html="ai.hint"></p>
+  <div class="wz-f"><span class="lab" data-i18n="ai.service"></span><div class="chips sm" id="ai-prov"></div></div>
+  <label class="field txt"><span data-i18n="ai.key"></span><input type="password" id="ai-key" autocomplete="off"></label>
+  <label class="field txt"><span data-i18n="ai.model"></span><input id="ai-model" autocomplete="off"></label>
   <p class="hint" id="ai-help"></p>
-  <button class="btn" onclick="saveAI()">Salva</button>
-  <button class="lnk red" id="ai-clear" onclick="clearAI()" hidden>Rimuovi la chiave</button>
+  <button class="btn" onclick="saveAI()" data-i18n="save"></button>
+  <button class="lnk red" id="ai-clear" onclick="clearAI()" data-i18n="ai.remove" hidden></button>
 </div>
 
 <div class="sheet" id="sh-sync" role="dialog" aria-modal="true" aria-labelledby="sy-title">
   <span class="handle"></span>
-  <div class="sh-head"><h3 id="sy-title">Sincronizzazione</h3><button onclick="closeSheet()">Chiudi</button></div>
+  <div class="sh-head"><h3 id="sy-title" data-i18n="set.sync"></h3><button onclick="closeSheet()" data-i18n="close"></button></div>
   <div id="sync-off" class="fields">
-    <p class="hint">Stessi dati su telefono e Mac. Serve un <b>Personal Access Token</b> di GitHub con il solo permesso <code>gist</code>. I dati finiscono in un Gist segreto sul tuo account; il token resta su questo dispositivo.</p>
-    <label class="field txt"><span>Token GitHub</span><input type="password" id="sync-token" placeholder="ghp_…" autocomplete="off"></label>
-    <a class="hint" href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Pit" target="_blank" rel="noopener" style="color:var(--signal)">Crea il token su github.com →</a>
+    <p class="hint" data-i18n-html="sync.hint"></p>
+    <label class="field txt"><span data-i18n="sync.token"></span><input type="password" id="sync-token" placeholder="ghp_…" autocomplete="off"></label>
+    <a class="hint" href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Pit" target="_blank" rel="noopener" style="color:var(--signal)" data-i18n="sync.create"></a>
     <p class="hint" id="sync-err" style="color:var(--bad)"></p>
-    <button class="btn" onclick="enableSync()">Attiva</button>
+    <button class="btn" onclick="enableSync()" data-i18n="sync.enable"></button>
   </div>
   <div id="sync-on" class="fields" hidden>
-    <p class="hint">Sincronizzazione <b style="color:var(--good)">attiva</b>. <span id="sync-state"></span></p>
-    <button class="btn" onclick="syncNow()">Sincronizza ora</button>
-    <button class="lnk red" onclick="disableSync()">Disattiva su questo dispositivo</button>
+    <p class="hint"><span data-i18n-html="sync.onLead"></span> <span id="sync-state"></span></p>
+    <button class="btn" onclick="syncNow()" data-i18n="sync.now"></button>
+    <button class="lnk red" onclick="disableSync()" data-i18n="sync.disable"></button>
   </div>
 </div>
 
 <div class="sheet" id="sh-restore" role="dialog" aria-modal="true" aria-labelledby="rs-title">
   <span class="handle"></span>
-  <div class="sh-head"><h3 id="rs-title">Ripristina</h3><button onclick="closeSheet()">Annulla</button></div>
-  <button class="pick-card" onclick="$('imp').click()"><b>Da un file di backup</b><span>il file .json esportato da Pit</span></button>
-  <div class="sh-sep">oppure dalla sincronizzazione</div>
-  <label class="field txt"><span>Token GitHub · permesso gist</span><input type="password" id="rs-token" placeholder="ghp_…" autocomplete="off"></label>
+  <div class="sh-head"><h3 id="rs-title" data-i18n="rs.title"></h3><button onclick="closeSheet()" data-i18n="cancel"></button></div>
+  <button class="pick-card" onclick="$('imp').click()"><b data-i18n="rs.file"></b><span data-i18n="rs.fileSub"></span></button>
+  <div class="sh-sep" data-i18n="rs.or"></div>
+  <label class="field txt"><span data-i18n="rs.token"></span><input type="password" id="rs-token" placeholder="ghp_…" autocomplete="off"></label>
   <p class="hint" id="rs-msg"></p>
-  <button class="btn" id="rs-go" onclick="restoreGist()">Scarica dal Gist</button>
+  <button class="btn" id="rs-go" onclick="restoreGist()" data-i18n="rs.go"></button>
 </div>
 
 <input type="file" id="imp" accept="application/json,.json" hidden onchange="importJSON(this)">
@@ -667,28 +669,284 @@
 const K='moto_data_v1', SYNCK='moto_sync', GIST_FILE='spese-moto.json', AIK='pit_ai';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const MESI=['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
-const MESI3=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
 
-// numeri all'italiana; il separatore delle migliaia si mette a mano perché Intl in it-IT salta i numeri a 4 cifre (1242 invece di 1.242)
-function fmt(n,d){if(n==null||!isFinite(n))return'—';d=d==null?2:d;const neg=n<0;const p=Math.abs(n).toFixed(d).split('.');
-  return(neg?'-':'')+p[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.')+(p[1]?','+p[1]:'');}
-function fmtMax(n,d){const s=fmt(n,d);return s.includes(',')?s.replace(/0+$/,'').replace(/,$/,''):s;}
-const eur=n=>fmt(n,2)+' €';
-function pNum(s){s=String(s==null?'':s).trim();if(!s)return NaN;if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s);}
+// ---------- lingua (inglese / italiano) ----------
+// la scelta sta in una chiave sua (pit_lang), fuori dai dati; senza una scelta segue la lingua del dispositivo
+const LANGK='pit_lang';
+const LANG_NAMES={en:'English',it:'Italiano'}; // ogni lingua col suo nome, uguale in tutte e due
+// formato di numeri e valuta: en-GB e it-IT (euro in tutte e due)
+const LOCALES={en:{tag:'en-GB',group:',',dec:'.',cur:'€{n}'},it:{tag:'it-IT',group:'.',dec:',',cur:'{n} €'}};
+// testi dell'interfaccia. I valori salvati nei dati (carburanti, categorie, tipi di scadenza) restano
+// gli id italiani di sempre: qui c'è solo la loro etichetta visibile, nelle chiavi 'val.<id>'.
+const I18N={
+  en:{
+    'meta.desc':'Fill-ups, fuel economy, expenses and deadlines for your vehicles.',
+    months:'January,February,March,April,May,June,July,August,September,October,November,December',
+    'months.short':'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec',
+    // comuni
+    add:'Add',save:'Save',saveChanges:'Save changes',cancel:'Cancel',close:'Close',back:'Back',total:'Total',year:'Year','year.all':'All',
+    'f.name':'Name','f.type':'Type','f.plate':'Plate','f.optional':'optional','f.fuel':'Fuel','f.odo':'Odometer (km)','f.date':'Date','f.station':'Station',
+    avgUnit:'km/{u} avg',
+    'qty.l':'Litres','qty.kWh':'kWh','qty.kg':'Kg','per.l':'litre','per.kWh':'kWh','per.kg':'kg',
+    'val.Benzina':'Petrol','val.Benzina Premium':'Premium petrol','val.Diesel':'Diesel','val.GPL':'LPG','val.Metano':'CNG','val.Elettrico':'Electric','val.Altro':'Other',
+    'val.Tagliando':'Service','val.Gomme':'Tyres','val.Assicurazione':'Insurance','val.Bollo':'Road tax','val.Revisione':'Inspection',
+    'val.Riparazione':'Repair','val.Accessori':'Accessories','val.Patente':'Driving licence',
+    'vt.auto':'Car','vt.moto':'Motorbike','vt.furgone':'Van','vt.scooter':'Scooter','vt.altro':'Other',
+    'veh.default':'Vehicle','veh.defaultN':'Vehicle {n}',
+    'tab.panoramica':'Overview','tab.pieni':'Fill-ups','tab.spese':'Expenses','tab.scadenze':'Deadlines',
+    // panoramica
+    'ov.switchVeh':'Switch vehicle','ov.openAnalysis':'Open the analysis','ov.analysisLink':'Analysis →','ov.consAria':'Economy of the latest fill-ups, open the analysis',
+    'ov.nothingYet':'nothing yet this month · {month}: {amt}','ov.vsPrev':'vs {month} ({amt})','ov.vsPrevV':'vs {month} ({amt})',
+    'ov.none':'nothing spent in {month}','ov.noneV':'nothing spent in {month}',
+    'ov.cons':'Economy','ov.consLast':'Economy · last {n} fill-ups','ov.worst':'the worst','ov.last':'last {v}',
+    'ov.consEmpty':'Economy is measured from full tank to full tank: it shows up from the second fill-up.',
+    'ov.perKm':'Per km','ov.perUnit':'Per {w}','ov.more.one':'+{n} more','ov.more.other':'+{n} more',
+    'ov.lastFill':'last fill-up · {date} · {qty} {u}','ov.noFill':'No fill-ups yet','ov.noFillSub':'Log the first one and Pit starts counting.',
+    // pieni
+    'pl.fill.one':'fill-up','pl.fill.other':'fill-ups','pl.spent':'spent','pl.topup':'top-up',
+    'pl.emptyPeriod':'No fill-ups in this period.','pl.empty':'No fill-ups yet. Tap + to log the first one.',
+    'st.titleFuel':'Stations · {fuel}','st.hintAll':'Average price paid, all time, cheapest first.','st.hintYear':'Average price paid in {year}, cheapest first.',
+    // spese
+    'sp.beyond':'Beyond fuel','sp.latest':'Latest','sp.sub':'plus {fuel} on fuel · {total} in all','sp.noFuel':'no fill-ups in this period',
+    'sp.emptyPeriod':'No expenses in this period.','sp.empty':'Service, tyres, insurance: tap + to log the first expense.',
+    // scadenze
+    'sc.hint':'Those due within 30 days also show up in the Overview.','sc.empty':'No deadlines. Tap + to add insurance, road tax, inspection.',
+    'sc.overdue':'overdue','sc.today':'today','sc.days.one':'{n} day','sc.days.other':'{n} days',
+    'sc.wasDue':'overdue since {date}','sc.dueToday':'due today','sc.due':'due {date}',
+    // analisi
+    'an.title':'Analysis','an.byMonth':'Spending by month · fuel and expenses','an.eurKm':'Cost per km · fuel only',
+    'an.consHint':'Measured from full tank to full tank: higher is better. Top-ups count towards the next full tank.',
+    'an.allTime':'€ all time','an.driven':'Distance','an.cons':'Consumption','an.fills':'Fill-ups',
+    'an.topups.one':'incl. {n} top-up','an.topups.other':'incl. {n} top-ups','an.logged':'logged',
+    'an.consH':'Economy · km/{u}','an.priceH':'Price paid · €/{u}',
+    'ch.needMore':'One more value is needed to draw the line.','ch.noData':'No data yet.','ch.noSpend':'No spending in the last 12 months.',
+    // impostazioni
+    'set.title':'Settings','set.vehicles':'Vehicles','set.lang':'Language · Lingua','set.scan':'Receipt scan',
+    'set.aiKey':'AI key','set.aiKeySub':'reads date, litres, price and station from the photo',
+    'set.sync':'Sync','set.syncSub':'same data on your phone and Mac','set.data':'Data',
+    'set.backup':'Full backup','set.backupSub':'.json file with all your vehicles','set.import':'Import backup','set.importSub':'replaces the data on this device',
+    'set.csv':'Export CSV','set.csvSubName':'{name} only, for Excel and Numbers',
+    'set.clear':'Erase everything','set.clearSub':'deletes every vehicle and starts from scratch',
+    'set.foot':'Pit · your data lives on this device. Make a backup now and then.',
+    'set.inUse':'in use','set.on':'On','set.off':'Off',
+    // veicoli
+    'vh.title':'Edit vehicle','vh.add':'Add vehicle','vh.del':'Delete vehicle','vh.delConfirm':'Delete “{name}” and all its data?',
+    'vh.updated':'Vehicle updated','vh.deleted':'Vehicle deleted',
+    // primo avvio
+    'wz.h1':'What does your car really cost you?',
+    'wz.lead':'Log your fill-ups: Pit works out fuel economy and cost per km, and reminds you before deadlines. All on your phone, no account.',
+    'wz.start':'Get started','wz.haveBackup':'I already have a backup','wz.q1':'What do you drive?','wz.namePh':'e.g. Panda','wz.platePh':'AB12 CDE',
+    'wz.nameErr':'Give the vehicle a name.','wz.next':'Next',
+    'wz.q2':'What fuel, and how many km?','wz.kmHint':'Only used as a starting point: from here on Pit works out distances by itself.',
+    'wz.q3':'When are they due?','wz.scadHint':'Even just one: Pit reminds you 30 days ahead. Add the rest later.','wz.scadAria':'{name} due date',
+    'wz.readyName':'All set, {name}.',
+    'wz.readySub':'The first fill-up has no economy figure: it takes a second one to work out km/{u}.',
+    'wz.readySubEv':'The first charge has no economy figure: it takes a second one to work out km/{u}.',
+    'wz.addFirst':'Add the first fill-up','wz.later':"I'll do it later",
+    // pieno
+    'pn.new':'New fill-up','pn.edit':'Edit fill-up','pn.save':'Save fill-up','pn.del':'Delete fill-up','pn.delConfirm':'Delete this fill-up?',
+    'pn.saved':'Fill-up saved','pn.updated':'Fill-up updated','pn.deleted':'Fill-up deleted',
+    'pn.fallback':'Fill-up','pn.stationPh':'e.g. Shell High St','pn.full':'Full tank','pn.fullCharge':'Full charge',
+    'pn.lastKm':'last: {km}','pn.sinceLast':'+{d} km since last','pn.notAbove':'not above the last ({km})',
+    'scan.title':'Snap the receipt','scan.sub':'fills in everything but the km',
+    // spesa
+    'sp.new':'New expense','sp.edit':'Edit expense','sp.save':'Save expense','sp.del':'Delete expense','sp.delConfirm':'Delete this expense?',
+    'sp.saved':'Expense saved','sp.updated':'Expense updated','sp.deleted':'Expense deleted',
+    'sp.amount':'Amount €','sp.desc':'Description','sp.descPh':'e.g. oil change',
+    // scadenza
+    'sc.new':'New deadline','sc.edit':'Edit deadline','sc.save':'Save deadline','sc.del':'Delete deadline','sc.delConfirm':'Delete this deadline?',
+    'sc.saved':'Deadline saved','sc.updated':'Deadline updated','sc.deleted':'Deadline deleted',
+    'sc.dueOn':'Due on','sc.dueDate':'Due date','sc.note':'Notes','sc.notePh':'e.g. insurer',
+    // scansione scontrini (chiave AI)
+    'ai.hint':'You need <b>your own</b> API key for an AI service with vision. It stays on this device only: it never goes into backups or sync. Each scan uses a little credit on your account.',
+    'ai.service':'Service','ai.key':'API key','ai.model':'Model · optional','ai.remove':'Remove the key',
+    'ai.keySaved':'•••••••• saved on this device','ai.keyPh':'paste your API key',
+    'ai.help':'Create a key at {link}. Low-cost model with vision: <code>{model}</code>.',
+    'ai.saved':'AI settings saved','ai.removeConfirm':'Remove the API key from this device?','ai.removed':'Key removed',
+    'ai.errImg':'The image could not be read.','ai.errEmpty':'Empty response from the AI service.','ai.errParse':'The AI service did not return readable data.',
+    'ai.errKey':'Invalid API key, or it lacks permissions.','ai.errLimit':'Request limit reached or credit used up on the AI service.',
+    'ai.errStatus':'Error {status}{msg}.','ai.errProv':'AI service not supported.',
+    'scan.needKey':'Reading the receipt needs an AI key.','scan.setup':'Set it up','scan.prep':'Preparing the image…','scan.reading':'Reading the receipt with AI…',
+    'scan.got':'Read: {fields}. Check them and enter the km.','scan.f.data':'date','scan.f.litri':'litres','scan.f.prezzo':'price','scan.f.benzinaio':'station',
+    'scan.none':'Could not read the data: enter it by hand.','scan.err':'Error while reading the receipt.',
+    // backup
+    'imp.bad':'Invalid file','imp.confirm':'Replace the data on this device with the backup?','imp.done':'Backup imported',
+    'clr.confirm':'Delete ALL data, for every vehicle?','clr.sync':'Sync is on: the data will also disappear from the Gist.',
+    // sincronizzazione
+    'sync.hint':'Same data on your phone and Mac. You need a GitHub <b>Personal Access Token</b> with only the <code>gist</code> scope. Your data goes into a secret Gist on your account; the token stays on this device.',
+    'sync.token':'GitHub token','sync.create':'Create the token on github.com →','sync.enable':'Turn on',
+    'sync.onLead':'Sync is <b style="color:var(--good)">on</b>.','sync.now':'Sync now','sync.disable':'Turn off on this device',
+    'sync.st.ok':'Up to date','sync.st.error':'Error','sync.st.syncing':'Syncing…','sync.st.pending':'Waiting…',
+    'sync.failed':'Last attempt failed: {msg}.','sync.allOk':'All up to date.','sync.busy':'Syncing…',
+    'sync.checkScope':'{msg}. Check that the token has the gist scope.','sync.gistDesc':'Pit, synced data','sync.onToast':'Sync turned on',
+    'sync.offConfirm':'Turn off sync on this device? Your data stays saved.','gh.badToken':'invalid token',
+    // ripristino
+    'rs.title':'Restore','rs.file':'From a backup file','rs.fileSub':'the .json file exported by Pit','rs.or':'or from sync',
+    'rs.token':'GitHub token · gist scope','rs.go':'Download from the Gist',
+    'rs.searching':'Looking for data on your account…','rs.notFound':'No Pit data found on this account',
+    'rs.unreadable':'The data in the Gist cannot be read','rs.done':'Data downloaded from the Gist'
+  },
+  it:{
+    'meta.desc':'Pieni, consumi, spese e scadenze dei tuoi veicoli.',
+    months:'gennaio,febbraio,marzo,aprile,maggio,giugno,luglio,agosto,settembre,ottobre,novembre,dicembre',
+    'months.short':'gen,feb,mar,apr,mag,giu,lug,ago,set,ott,nov,dic',
+    // comuni
+    add:'Aggiungi',save:'Salva',saveChanges:'Salva modifiche',cancel:'Annulla',close:'Chiudi',back:'Indietro',total:'Totale',year:'Anno','year.all':'Tutto',
+    'f.name':'Nome','f.type':'Tipo','f.plate':'Targa','f.optional':'facoltativa','f.fuel':'Carburante','f.odo':'Km sul contachilometri','f.date':'Data','f.station':'Benzinaio',
+    avgUnit:'km/{u} medi',
+    'qty.l':'Litri','qty.kWh':'kWh','qty.kg':'Kg','per.l':'litro','per.kWh':'kWh','per.kg':'kg',
+    'val.Benzina':'Benzina','val.Benzina Premium':'Benzina Premium','val.Diesel':'Diesel','val.GPL':'GPL','val.Metano':'Metano','val.Elettrico':'Elettrico','val.Altro':'Altro',
+    'val.Tagliando':'Tagliando','val.Gomme':'Gomme','val.Assicurazione':'Assicurazione','val.Bollo':'Bollo','val.Revisione':'Revisione',
+    'val.Riparazione':'Riparazione','val.Accessori':'Accessori','val.Patente':'Patente',
+    'vt.auto':'Auto','vt.moto':'Moto','vt.furgone':'Furgone','vt.scooter':'Scooter','vt.altro':'Altro',
+    'veh.default':'Veicolo','veh.defaultN':'Veicolo {n}',
+    'tab.panoramica':'Panoramica','tab.pieni':'Pieni','tab.spese':'Spese','tab.scadenze':'Scadenze',
+    // panoramica
+    'ov.switchVeh':'Cambia veicolo','ov.openAnalysis':"Apri l'analisi",'ov.analysisLink':'Analisi →','ov.consAria':"Consumo degli ultimi pieni, apri l'analisi",
+    'ov.nothingYet':'ancora niente questo mese · {month}: {amt}','ov.vsPrev':'rispetto a {month} ({amt})','ov.vsPrevV':'rispetto ad {month} ({amt})',
+    'ov.none':'nessuna spesa a {month}','ov.noneV':'nessuna spesa ad {month}',
+    'ov.cons':'Consumo','ov.consLast':'Consumo · ultimi {n} pieni','ov.worst':'il peggiore','ov.last':'ultimo {v}',
+    'ov.consEmpty':'Il consumo si misura da pieno a pieno: compare dal secondo pieno.',
+    'ov.perKm':'Al km','ov.perUnit':'Al {w}','ov.more.one':'+{n} altra','ov.more.other':'+{n} altre',
+    'ov.lastFill':'ultimo pieno · {date} · {qty} {u}','ov.noFill':'Nessun pieno ancora','ov.noFillSub':'Segna il primo e Pit inizia a contare.',
+    // pieni
+    'pl.fill.one':'pieno','pl.fill.other':'pieni','pl.spent':'spesi','pl.topup':'rabbocco',
+    'pl.emptyPeriod':'Nessun pieno in questo periodo.','pl.empty':'Ancora nessun pieno. Tocca + per segnare il primo.',
+    'st.titleFuel':'Distributori · {fuel}','st.hintAll':'Prezzo medio pagato da sempre, dal più conveniente.','st.hintYear':'Prezzo medio pagato nel {year}, dal più conveniente.',
+    // spese
+    'sp.beyond':'Oltre al carburante','sp.latest':'Ultime','sp.sub':'più {fuel} di pieni · {total} in tutto','sp.noFuel':'nessun pieno in questo periodo',
+    'sp.emptyPeriod':'Nessuna spesa in questo periodo.','sp.empty':'Tagliando, gomme, assicurazione: tocca + per segnare la prima spesa.',
+    // scadenze
+    'sc.hint':'Quelle entro 30 giorni compaiono anche in Panoramica.','sc.empty':'Nessuna scadenza. Tocca + per aggiungere assicurazione, bollo, revisione.',
+    'sc.overdue':'scaduta','sc.today':'oggi','sc.days.one':'{n} gg','sc.days.other':'{n} gg',
+    'sc.wasDue':'scaduta il {date}','sc.dueToday':'scade oggi','sc.due':'scade il {date}',
+    // analisi
+    'an.title':'Analisi','an.byMonth':'Spesa per mese · pieni e spese','an.eurKm':'Costo al km · solo carburante',
+    'an.consHint':'Misurato da pieno a pieno: più alto è meglio. I rabbocchi confluiscono nel pieno dopo.',
+    'an.allTime':'€ da sempre','an.driven':'Percorsi','an.cons':'Consumo','an.fills':'Pieni',
+    'an.topups.one':'di cui {n} rabbocco','an.topups.other':'di cui {n} rabbocchi','an.logged':'registrati',
+    'an.consH':'Consumo · km/{u}','an.priceH':'Prezzo pagato · €/{u}',
+    'ch.needMore':'Serve almeno un altro valore per disegnare la curva.','ch.noData':'Ancora nessun dato.','ch.noSpend':'Nessuna spesa negli ultimi 12 mesi.',
+    // impostazioni
+    'set.title':'Impostazioni','set.vehicles':'Veicoli','set.lang':'Lingua · Language','set.scan':'Scansione scontrini',
+    'set.aiKey':'Chiave AI','set.aiKeySub':'legge data, litri, prezzo e benzinaio dalla foto',
+    'set.sync':'Sincronizzazione','set.syncSub':'stessi dati su telefono e Mac','set.data':'Dati',
+    'set.backup':'Backup completo','set.backupSub':'file .json con tutti i veicoli','set.import':'Importa backup','set.importSub':'sostituisce i dati di questo dispositivo',
+    'set.csv':'Esporta CSV','set.csvSubName':'solo {name}, per Excel e Numbers',
+    'set.clear':'Svuota tutto','set.clearSub':'cancella tutti i veicoli e riparte da capo',
+    'set.foot':'Pit · i dati vivono su questo dispositivo. Fai un backup ogni tanto.',
+    'set.inUse':'in uso','set.on':'Attiva','set.off':'Spenta',
+    // veicoli
+    'vh.title':'Modifica veicolo','vh.add':'Aggiungi veicolo','vh.del':'Elimina veicolo','vh.delConfirm':'Eliminare «{name}» e tutti i suoi dati?',
+    'vh.updated':'Veicolo aggiornato','vh.deleted':'Veicolo eliminato',
+    // primo avvio
+    'wz.h1':'Quanto ti costa davvero la tua auto?',
+    'wz.lead':'Segni i pieni, Pit calcola consumi, costo al km e ti avvisa prima delle scadenze. Tutto sul telefono, niente account.',
+    'wz.start':'Inizia','wz.haveBackup':'Ho già un backup','wz.q1':'Che veicolo segui?','wz.namePh':'es. Panda','wz.platePh':'AB 123 CD',
+    'wz.nameErr':'Dai un nome al veicolo.','wz.next':'Avanti',
+    'wz.q2':'Cosa mette e quanti km ha?','wz.kmHint':'Serve solo come punto di partenza: da qui in poi Pit calcola le distanze da sé.',
+    'wz.q3':'Quando scadono?','wz.scadHint':'Anche solo una: Pit ti avvisa 30 giorni prima. Le altre le aggiungi dopo.','wz.scadAria':'Scadenza {name}',
+    'wz.readyName':'Pronto, {name}.',
+    'wz.readySub':'Il primo pieno non ha consumo: serve il secondo per calcolare i km/{u}.',
+    'wz.readySubEv':'La prima ricarica non ha consumo: serve la seconda per calcolare i km/{u}.',
+    'wz.addFirst':'Aggiungi il primo pieno','wz.later':'Lo faccio dopo',
+    // pieno
+    'pn.new':'Nuovo pieno','pn.edit':'Modifica pieno','pn.save':'Salva pieno','pn.del':'Elimina pieno','pn.delConfirm':'Eliminare questo pieno?',
+    'pn.saved':'Pieno salvato','pn.updated':'Pieno aggiornato','pn.deleted':'Pieno eliminato',
+    'pn.fallback':'Pieno','pn.stationPh':'es. Eni Via Roma','pn.full':'Pieno','pn.fullCharge':'Carica piena',
+    'pn.lastKm':'ultimo: {km}','pn.sinceLast':"+{d} km dall'ultimo",'pn.notAbove':"non più dell'ultimo ({km})",
+    'scan.title':'Fotografa lo scontrino','scan.sub':'compila tutto tranne i km',
+    // spesa
+    'sp.new':'Nuova spesa','sp.edit':'Modifica spesa','sp.save':'Salva spesa','sp.del':'Elimina spesa','sp.delConfirm':'Eliminare questa spesa?',
+    'sp.saved':'Spesa salvata','sp.updated':'Spesa aggiornata','sp.deleted':'Spesa eliminata',
+    'sp.amount':'Importo €','sp.desc':'Descrizione','sp.descPh':'es. cambio olio',
+    // scadenza
+    'sc.new':'Nuova scadenza','sc.edit':'Modifica scadenza','sc.save':'Salva scadenza','sc.del':'Elimina scadenza','sc.delConfirm':'Eliminare questa scadenza?',
+    'sc.saved':'Scadenza salvata','sc.updated':'Scadenza aggiornata','sc.deleted':'Scadenza eliminata',
+    'sc.dueOn':'Scade il','sc.dueDate':'Data di scadenza','sc.note':'Note','sc.notePh':'es. compagnia',
+    // scansione scontrini (chiave AI)
+    'ai.hint':'Serve la <b>tua</b> chiave API di un servizio AI con visione. Resta solo su questo dispositivo: non finisce nei backup né nella sincronizzazione. Ogni scansione consuma una piccola quota sul tuo account.',
+    'ai.service':'Servizio','ai.key':'Chiave API','ai.model':'Modello · facoltativo','ai.remove':'Rimuovi la chiave',
+    'ai.keySaved':'•••••••• salvata su questo dispositivo','ai.keyPh':'incolla la tua chiave API',
+    'ai.help':'Crea una chiave su {link}. Modello economico con visione: <code>{model}</code>.',
+    'ai.saved':'Configurazione AI salvata','ai.removeConfirm':'Rimuovere la chiave API da questo dispositivo?','ai.removed':'Chiave rimossa',
+    'ai.errImg':'Immagine non leggibile.','ai.errEmpty':'Risposta vuota dal servizio AI.','ai.errParse':'Il servizio AI non ha restituito dati leggibili.',
+    'ai.errKey':'Chiave API non valida o senza permessi.','ai.errLimit':'Limite richieste o credito esaurito sul servizio AI.',
+    'ai.errStatus':'Errore {status}{msg}.','ai.errProv':'Servizio AI non supportato.',
+    'scan.needKey':'Per leggere lo scontrino serve una chiave AI.','scan.setup':'Configurala','scan.prep':"Preparo l'immagine…",'scan.reading':"Leggo lo scontrino con l'AI…",
+    'scan.got':'Letto: {fields}. Controlla e inserisci i km.','scan.f.data':'data','scan.f.litri':'litri','scan.f.prezzo':'prezzo','scan.f.benzinaio':'benzinaio',
+    'scan.none':'Non sono riuscito a leggere i dati: inseriscili a mano.','scan.err':'Errore durante la lettura dello scontrino.',
+    // backup
+    'imp.bad':'File non valido','imp.confirm':'Sostituire i dati di questo dispositivo con quelli del backup?','imp.done':'Backup importato',
+    'clr.confirm':'Cancellare TUTTI i dati, di tutti i veicoli?','clr.sync':'La sincronizzazione è attiva: spariranno anche dal Gist.',
+    // sincronizzazione
+    'sync.hint':'Stessi dati su telefono e Mac. Serve un <b>Personal Access Token</b> di GitHub con il solo permesso <code>gist</code>. I dati finiscono in un Gist segreto sul tuo account; il token resta su questo dispositivo.',
+    'sync.token':'Token GitHub','sync.create':'Crea il token su github.com →','sync.enable':'Attiva',
+    'sync.onLead':'Sincronizzazione <b style="color:var(--good)">attiva</b>.','sync.now':'Sincronizza ora','sync.disable':'Disattiva su questo dispositivo',
+    'sync.st.ok':'Aggiornata','sync.st.error':'Errore','sync.st.syncing':'In corso…','sync.st.pending':'In attesa…',
+    'sync.failed':'Ultimo tentativo fallito: {msg}.','sync.allOk':'Tutto aggiornato.','sync.busy':'Sincronizzo…',
+    'sync.checkScope':'{msg}. Verifica che il token abbia il permesso gist.','sync.gistDesc':'Pit — dati sincronizzati','sync.onToast':'Sincronizzazione attiva',
+    'sync.offConfirm':'Disattivare la sincronizzazione su questo dispositivo? I dati restano salvati.','gh.badToken':'token non valido',
+    // ripristino
+    'rs.title':'Ripristina','rs.file':'Da un file di backup','rs.fileSub':'il file .json esportato da Pit','rs.or':'oppure dalla sincronizzazione',
+    'rs.token':'Token GitHub · permesso gist','rs.go':'Scarica dal Gist',
+    'rs.searching':'Cerco i dati sul tuo account…','rs.notFound':'Nessun dato di Pit trovato su questo account',
+    'rs.unreadable':'I dati nel Gist non sono leggibili','rs.done':'Dati scaricati dal Gist'
+  }
+};
+function detectLang(){let s=null;try{s=localStorage.getItem(LANGK);}catch(e){}
+  if(s&&I18N[s])return s;
+  return String(navigator.language||'').toLowerCase().startsWith('it')?'it':'en';}
+let LANG=detectLang();
+const LOC=()=>LOCALES[LANG];
+// testo nella lingua attiva ({nome} sostituito dai parametri); se manca, ripiega sull'inglese e poi sulla chiave
+function t(key,params){let s=I18N[LANG][key];if(s==null)s=I18N.en[key];if(s==null)s=key;
+  return params?String(s).replace(/\{(\w+)\}/g,(m,k)=>params[k]!=null?params[k]:m):s;}
+// plurale semplice: chiave.one per 1, chiave.other per il resto
+const tp=(n,key,params)=>t(key+(n===1?'.one':'.other'),Object.assign({n},params));
+// etichetta di un valore salvato nei dati; un valore che il dizionario non conosce (scritto a mano) si mostra così com'è
+const valLabel=v=>{const s=I18N[LANG]['val.'+v];return s==null?v:s;};
+const vtypeLabel=k=>I18N[LANG]['vt.'+k];
+const monthName=m=>t('months').split(',')[m-1];
+const monthShort=m=>t('months.short').split(',')[m-1];
+// testi fissi dell'HTML: data-i18n (testo), data-i18n-html, data-i18n-ph (placeholder), data-i18n-aria (aria-label)
+function applyStatic(){
+  document.documentElement.lang=LANG;
+  const md=document.querySelector('meta[name="description"]');if(md)md.content=t('meta.desc');
+  document.querySelectorAll('[data-i18n]').forEach(e=>{e.textContent=t(e.dataset.i18n);});
+  document.querySelectorAll('[data-i18n-html]').forEach(e=>{e.innerHTML=t(e.dataset.i18nHtml);});
+  document.querySelectorAll('[data-i18n-ph]').forEach(e=>{e.placeholder=t(e.dataset.i18nPh);});
+  document.querySelectorAll('[data-i18n-aria]').forEach(e=>{e.setAttribute('aria-label',t(e.dataset.i18nAria));});
+  // segnaposto dei numeri col separatore decimale della lingua
+  $('pn-litri').placeholder=fmt(0,1);$('pn-prezzo').placeholder=fmt(0,3);$('sp-imp').placeholder=fmt(0,2);
+}
+// cambio lingua dalle impostazioni: si applica subito, senza ricaricare
+function setLang(l){if(!I18N[l])return;LANG=l;try{localStorage.setItem(LANGK,l);}catch(e){}applyStatic();render();}
+
+// numeri nel formato della lingua (it-IT / en-GB); il separatore delle migliaia si mette a mano perché Intl in it-IT salta i numeri a 4 cifre (1242 invece di 1.242)
+function fmt(n,d){if(n==null||!isFinite(n))return'—';d=d==null?2:d;const neg=n<0;const p=Math.abs(n).toFixed(d).split('.'),L=LOC();
+  return(neg?'-':'')+p[0].replace(/\B(?=(\d{3})+(?!\d))/g,L.group)+(p[1]?L.dec+p[1]:'');}
+function fmtMax(n,d){const s=fmt(n,d),dec=LOC().dec;if(!s.includes(dec))return s;const r=s.replace(/0+$/,'');return r.endsWith(dec)?r.slice(0,-1):r;}
+const eur=n=>LOC().cur.replace('{n}',fmt(n,2));
+// accetta sia la virgola sia il punto come decimale; se ci sono tutti e due, il decimale è l'ultimo ("1.234,56" / "1,234.56")
+function pNum(s){s=String(s==null?'':s).trim();if(!s)return NaN;
+  if(s.includes(',')&&s.includes('.')&&s.lastIndexOf('.')>s.lastIndexOf(','))s=s.replace(/,/g,'');
+  else if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');
+  return parseFloat(s);}
 const pInt=s=>parseInt(String(s==null?'':s).replace(/[^\d]/g,''),10);
-const fNum=n=>(n==null||isNaN(n))?'':String(n).replace('.',',');
+const fNum=n=>(n==null||isNaN(n))?'':String(n).replace('.',LOC().dec);
 const pad2=n=>String(n).padStart(2,'0');
 const todayISO=()=>{const d=new Date();return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());};
 const ymd=iso=>{const p=String(iso||'').split('-').map(Number);return{y:p[0],m:p[1],d:p[2]};};
+// date brevi gg/mm/aa: stesso ordine in it-IT e in en-GB; itDate serve solo al CSV, che non cambia con la lingua
 const itDate=iso=>{if(!iso)return'';const{y,m,d}=ymd(iso);return pad2(d)+'/'+pad2(m)+'/'+y;};
 const shortDate=iso=>{if(!iso)return'—';const{y,m,d}=ymd(iso);return pad2(d)+'/'+pad2(m)+'/'+String(y).slice(2);};
-const dayMon=iso=>{const{m,d}=ymd(iso);return d+' '+MESI3[m-1];};
-const longDate=iso=>{const{y,m,d}=ymd(iso);return d+' '+MESI[m-1]+(y!==new Date().getFullYear()?' '+y:'');};
+const dayMon=iso=>{const{m,d}=ymd(iso);return d+' '+monthShort(m);};
+const longDate=iso=>{const{y,m,d}=ymd(iso);return d+' '+monthName(m)+(y!==new Date().getFullYear()?' '+y:'');};
 const genId=()=>'veh_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 
-const VTYPES=[['auto','Auto'],['moto','Moto'],['furgone','Furgone'],['scooter','Scooter'],['altro','Altro']];
-const VTYPE_LABEL=Object.fromEntries(VTYPES);
+// id salvati nei dati: restano in italiano in ogni lingua, l'etichetta visibile viene da vtypeLabel() e valLabel()
+const VTYPE_IDS=['auto','moto','furgone','scooter','altro'];
 const WZ_TYPES=['auto','moto','furgone'];
 const WZ_FUELS=['Benzina','Diesel','GPL','Metano','Elettrico'];
 const WZ_SCAD=['Assicurazione','Bollo','Revisione'];
@@ -698,26 +956,25 @@ const SCAD_TIPI=['Assicurazione','Bollo','Revisione','Tagliando','Patente','Altr
 // unità di misura: il metano si paga al kg, l'elettrico al kWh, il resto al litro
 const UNIT={Elettrico:'kWh',Metano:'kg'};
 const unitOf=t=>UNIT[t]||'l';
-const QTY_LABEL={l:'Litri',kWh:'kWh',kg:'Kg'}, PER_WORD={l:'litro',kWh:'kWh',kg:'kg'};
 
 // ---------- dati (schema v2: più veicoli; v2.1 aggiunge fuel e kmStart al veicolo) ----------
-function blankVehicle(o){o=o||{};return{id:genId(),name:o.name||'Veicolo',type:o.type||'auto',plate:o.plate||'',fuel:o.fuel||'',
+function blankVehicle(o){o=o||{};return{id:genId(),name:o.name||t('veh.default'),type:o.type||'auto',plate:o.plate||'',fuel:o.fuel||'',
   kmStart:o.kmStart==null?null:o.kmStart,rif:[],spese:[],scadenze:[]};}
-function emptyDB(){const v=blankVehicle({name:'Veicolo 1'});return{v:2,example:false,updatedAt:0,currentId:v.id,vehicles:[v]};}
+function emptyDB(){const v=blankVehicle({name:t('veh.defaultN',{n:1})});return{v:2,example:false,updatedAt:0,currentId:v.id,vehicles:[v]};}
 // migra qualsiasi formato salvato/importato al modello v2 (zero perdita dati)
 function migrate(d){
   if(!d||typeof d!=='object')return null;
   if(Array.isArray(d.vehicles)){
     d.v=2;
-    d.vehicles.forEach(v=>{v.id=v.id||genId();v.name=v.name||'Veicolo';v.type=v.type||'auto';v.plate=v.plate||'';v.fuel=v.fuel||'';
+    d.vehicles.forEach(v=>{v.id=v.id||genId();v.name=v.name||t('veh.default');v.type=v.type||'auto';v.plate=v.plate||'';v.fuel=v.fuel||'';
       if(v.kmStart===undefined)v.kmStart=null;v.rif=v.rif||[];v.spese=v.spese||[];v.scadenze=v.scadenze||[];});
-    if(!d.vehicles.length)d.vehicles=[blankVehicle({name:'Veicolo 1'})];
+    if(!d.vehicles.length)d.vehicles=[blankVehicle({name:t('veh.defaultN',{n:1})})];
     if(!d.vehicles.some(v=>v.id===d.currentId))d.currentId=d.vehicles[0].id;
     d.updatedAt=d.updatedAt||0;
     return d;
   }
   if(Array.isArray(d.rif)){ // vecchio formato piatto (v1) o backup legacy
-    const v=blankVehicle({name:'Veicolo 1'});v.rif=d.rif;v.spese=d.spese||[];v.scadenze=d.scadenze||[];
+    const v=blankVehicle({name:t('veh.defaultN',{n:1})});v.rif=d.rif;v.spese=d.spese||[];v.scadenze=d.scadenze||[];
     return{v:2,example:!!d.example,updatedAt:d.updatedAt||0,currentId:v.id,vehicles:[v]};
   }
   return null;
@@ -767,12 +1024,12 @@ function computed(){
 }
 function primaryFuel(V,c){return V.fuel||(c.byFuel[0]&&c.byFuel[0].tipo)||'Benzina';}
 function scadStatus(iso){
-  const t=new Date();t.setHours(0,0,0,0);
-  const days=Math.round((new Date(iso+'T00:00:00').getTime()-t.getTime())/86400000);
+  const t0=new Date();t0.setHours(0,0,0,0);
+  const days=Math.round((new Date(iso+'T00:00:00').getTime()-t0.getTime())/86400000);
   if(isNaN(days))return{days:9e9,cls:'',badge:''};
-  return{days,cls:days<0?'bad':days<=30?'warn':'',badge:days<0?'scaduta':days===0?'oggi':days+' gg'};
+  return{days,cls:days<0?'bad':days<=30?'warn':'',badge:days<0?t('sc.overdue'):days===0?t('sc.today'):tp(days,'sc.days')};
 }
-function scadSub(s){const d=s.st.days;return d<0?'scaduta il '+longDate(s.data):d===0?'scade oggi':'scade il '+longDate(s.data);}
+function scadSub(s){const d=s.st.days;return d<0?t('sc.wasDue',{date:longDate(s.data)}):d===0?t('sc.dueToday'):t('sc.due',{date:longDate(s.data)});}
 const mkey=(y,m)=>y+'-'+pad2(m);
 function monthTotals(c){
   const m={};
@@ -787,7 +1044,7 @@ function lastMonths(n){const now=new Date(),out=[];for(let i=n-1;i>=0;i--){let y
 let yearP=null,yearS=null,fuelFilter='',stFuel='';
 function setYear(which,v){if(which==='p')yearP=v;else yearS=v;render();}
 function yearsOf(dates){const ys=[...new Set(dates.filter(Boolean).map(d=>String(d).slice(0,4)))].sort().reverse();return ys.length?ys:[String(new Date().getFullYear())];}
-function fillYear(sel,txt,years,val){$(sel).innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('')+'<option value="all">Tutto</option>';$(sel).value=val;$(txt).textContent=val==='all'?'Tutto':val;}
+function fillYear(sel,txt,years,val){$(sel).innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('')+'<option value="all">'+t('year.all')+'</option>';$(sel).value=val;$(txt).textContent=val==='all'?t('year.all'):val;}
 const inYear=(iso,y)=>y==='all'||String(iso).startsWith(y);
 
 // gruppo di chip a scelta singola: il valore scelto sta in data-val del contenitore
@@ -817,22 +1074,23 @@ function renderPanoramica(c){
   const V=cur(),now=new Date(),y=now.getFullYear(),m=now.getMonth()+1;
   const mt=monthTotals(c),tot=k=>mt[k]||0;
   const pmY=m===1?y-1:y,pmM=m===1?12:m-1,curT=tot(mkey(y,m)),prevT=tot(mkey(pmY,pmM));
-  $('o-month').textContent=MESI[m-1]+' '+y;
+  $('o-month').textContent=monthName(m)+' '+y;
   const n=fmt(curT,2);$('o-amt').textContent=n;$('o-amt').style.fontSize=n.length>8?'42px':'';
-  const pm=MESI[pmM-1],prep=/^[aeiou]/.test(pm)?'ad ':'a ';
-  if(prevT>0&&curT===0)$('o-delta').innerHTML=`<span>ancora niente questo mese · ${pm}: ${eur(prevT)}</span>`;
+  // in italiano "ad" davanti a vocale (ad agosto, a settembre): per questo ci sono due varianti delle frasi
+  const pm=monthName(pmM),vw=/^[aeiou]/.test(pm)?'V':'';
+  if(prevT>0&&curT===0)$('o-delta').innerHTML=`<span>${t('ov.nothingYet',{month:pm,amt:eur(prevT)})}</span>`;
   else if(prevT>0){
     const dir=curT<prevT?'down':curT>prevT?'up':'';
-    $('o-delta').innerHTML=`<b class="${dir}">${dir==='down'?'↓ ':dir==='up'?'↑ ':''}${Math.round(Math.abs(curT-prevT)/prevT*100)}%</b><span>rispetto ${prep}${pm} (${eur(prevT)})</span>`;
-  }else $('o-delta').innerHTML=`<span>nessuna spesa ${prep}${pm}</span>`;
+    $('o-delta').innerHTML=`<b class="${dir}">${dir==='down'?'↓ ':dir==='up'?'↑ ':''}${Math.round(Math.abs(curT-prevT)/prevT*100)}%</b><span>${t('ov.vsPrev'+vw,{month:pm,amt:eur(prevT)})}</span>`;
+  }else $('o-delta').innerHTML=`<span>${t('ov.none'+vw,{month:pm})}</span>`;
   const cols=lastMonths(6),mx=Math.max(0,...cols.map(x=>tot(x.k)));
   $('o-bars').innerHTML=cols.map(x=>{const v=tot(x.k),h=mx?Math.max(3,Math.round(v/mx*66)):3;
-    return `<div class="col${x.cur?' cur':''}" title="${MESI[x.m-1]}: ${eur(v)}"><div class="b" style="height:${h}px"></div><span class="l">${MESI3[x.m-1]}</span></div>`;}).join('');
+    return `<div class="col${x.cur?' cur':''}" title="${monthName(x.m)}: ${eur(v)}"><div class="b" style="height:${h}px"></div><span class="l">${monthShort(x.m)}</span></div>`;}).join('');
 
   // consumo degli ultimi 6 pieni misurati; la linea tratteggiata è la media di sempre
   const pf=primaryFuel(V,c),u=unitOf(pf),avg=c.kmLavg;
   const meas=c.rows.filter(r=>r.kmL!=null).sort((a,b)=>a.data.localeCompare(b.data)||a.km-b.km).slice(-6);
-  let ch=`<div class="cons-h"><span class="eyebrow">Consumo${meas.length>1?' · ultimi '+meas.length+' pieni':''}</span>${avg?`<b>${fmt(avg,1)} <i>km/${u} medi</i></b>`:''}</div>`;
+  let ch=`<div class="cons-h"><span class="eyebrow">${meas.length>1?t('ov.consLast',{n:meas.length}):t('ov.cons')}</span>${avg?`<b>${fmt(avg,1)} <i>${t('avgUnit',{u})}</i></b>`:''}</div>`;
   if(meas.length>1){
     const vals=meas.map(r=>r.kmL),all=avg?vals.concat([avg]):vals;
     let lo=Math.min(...all),hi=Math.max(...all);if(hi-lo<.2){const mid=(hi+lo)/2;lo=mid-.1;hi=mid+.1;}
@@ -844,23 +1102,23 @@ function renderPanoramica(c){
       +`<polyline class="g-line" points="${pts.join(' ')}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`
       +`<i class="cons-dot" style="left:${(X(last)/W*100).toFixed(2)}%;top:${Y(vals[last]).toFixed(1)}px"></i></div>`;
     const worst=meas.reduce((a,b)=>b.kmL<a.kmL?b:a),wd=ymd(worst.data),up=avg==null||vals[last]>=avg;
-    ch+=`<div class="cons-f"><span title="il peggiore">${pad2(wd.d)} ${MESI3[wd.m-1]} · ${fmt(worst.kmL,1)}</span><span class="${up?'up':'dn'}">ultimo ${fmt(vals[last],1)} ${up?'↑':'↓'}</span></div>`;
-  }else ch+='<p class="empty">Il consumo si misura da pieno a pieno: compare dal secondo pieno.</p>';
+    ch+=`<div class="cons-f"><span title="${t('ov.worst')}">${pad2(wd.d)} ${monthShort(wd.m)} · ${fmt(worst.kmL,1)}</span><span class="${up?'up':'dn'}">${t('ov.last',{v:fmt(vals[last],1)})} ${up?'↑':'↓'}</span></div>`;
+  }else ch+='<p class="empty">'+t('ov.consEmpty')+'</p>';
   $('o-cons').innerHTML=ch;
 
   // due indicatori piccoli: costo al km e prezzo medio del carburante principale
   const fr=c.byFuel.find(f=>f.tipo===pf);
   const kpi=(k,v,s)=>`<div class="kpi"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${s}</span></div>`;
-  $('o-kpis').innerHTML=kpi('Al km',c.eurKmAvg?fmt(c.eurKmAvg,3):'—','€/km')+kpi('Al '+PER_WORD[u],fr?fmt(fr.avg,3):'—','€/'+u);
+  $('o-kpis').innerHTML=kpi(t('ov.perKm'),c.eurKmAvg?fmt(c.eurKmAvg,3):'—','€/km')+kpi(t('ov.perUnit',{w:t('per.'+u)}),fr?fmt(fr.avg,3):'—','€/'+u);
 
   let h='';
   const sc=(V.scadenze||[]).map(s=>({...s,st:scadStatus(s.data)})).filter(s=>s.st.days<=30).sort((a,b)=>a.st.days-b.st.days);
   if(sc.length){const s=sc[0],more=sc.length-1;
-    h+=`<button class="note ${s.st.cls}" onclick="navTo('scadenze')"><span class="tx"><b class="t">${esc(s.tipo)}</b><span class="s">${scadSub(s)}${more?` · +${more} ${more===1?'altra':'altre'}`:''}</span></span><span class="r bdg">${s.st.badge}</span></button>`;}
+    h+=`<button class="note ${s.st.cls}" onclick="navTo('scadenze')"><span class="tx"><b class="t">${esc(valLabel(s.tipo))}</b><span class="s">${scadSub(s)}${more?' · '+tp(more,'ov.more'):''}</span></span><span class="r bdg">${s.st.badge}</span></button>`;}
   const last=c.rows.slice().sort((a,b)=>b.data.localeCompare(a.data)||b.km-a.km)[0];
   if(last){const lu=unitOf(last.tipo);
-    h+=`<button class="note" onclick="navTo('pieni')"><span class="tx"><b class="t">${esc(last.benz||last.tipo||'Pieno')}</b><span class="s">ultimo pieno · ${dayMon(last.data)} · ${fmtMax(last.litri,2)} ${lu}</span></span><span class="r">${eur(last.costo)}</span></button>`;}
-  else h+=`<div class="note"><span class="tx"><b class="t">Nessun pieno ancora</b><span class="s">Segna il primo e Pit inizia a contare.</span></span><button class="mini" onclick="openPieno()">Aggiungi</button></div>`;
+    h+=`<button class="note" onclick="navTo('pieni')"><span class="tx"><b class="t">${esc(last.benz||valLabel(last.tipo)||t('pn.fallback'))}</b><span class="s">${t('ov.lastFill',{date:dayMon(last.data),qty:fmtMax(last.litri,2),u:lu})}</span></span><span class="r">${eur(last.costo)}</span></button>`;}
+  else h+=`<div class="note"><span class="tx"><b class="t">${t('ov.noFill')}</b><span class="s">${t('ov.noFillSub')}</span></span><button class="mini" onclick="openPieno()">${t('add')}</button></div>`;
   $('o-cards').innerHTML=h;
 }
 
@@ -871,29 +1129,29 @@ function renderPieni(c){
   fillYear('yp','yp-txt',years,yearP);
   const rows=c.rows.filter(r=>inYear(r.data,yearP)).sort((a,b)=>b.data.localeCompare(a.data)||b.km-a.km);
   const segs=rows.filter(r=>r.seg),dist=segs.reduce((s,r)=>s+r.seg.dist,0),lit=segs.reduce((s,r)=>s+r.seg.l,0);
-  $('pl-stats').innerHTML=`<span><b>${rows.length}</b><i>${rows.length===1?'pieno':'pieni'}</i></span>`
-    +`<span><b>${eur(rows.reduce((s,r)=>s+r.costo,0))}</b><i>spesi</i></span>`
-    +`<span><b>${lit?fmt(dist/lit,1):'—'}</b><i>km/${u} medi</i></span>`;
+  $('pl-stats').innerHTML=`<span><b>${rows.length}</b><i>${tp(rows.length,'pl.fill')}</i></span>`
+    +`<span><b>${eur(rows.reduce((s,r)=>s+r.costo,0))}</b><i>${t('pl.spent')}</i></span>`
+    +`<span><b>${lit?fmt(dist/lit,1):'—'}</b><i>${t('avgUnit',{u})}</i></span>`;
   // migliore e peggiore del periodo, solo se c'è abbastanza storia per dirlo
   const meas=rows.filter(r=>r.kmL!=null);let best=null,worst=null;
   if(meas.length>=3){best=meas.reduce((a,b)=>b.kmL>a.kmL?b:a);worst=meas.reduce((a,b)=>b.kmL<a.kmL?b:a);}
   if(!rows.length){
-    $('pl-list').innerHTML=`<p class="empty">${c.rows.length?'Nessun pieno in questo periodo.':'Ancora nessun pieno. Tocca + per segnare il primo.'}</p>`;
+    $('pl-list').innerHTML=`<p class="empty">${c.rows.length?t('pl.emptyPeriod'):t('pl.empty')}</p>`;
   }else{
     const groups=[];
     rows.forEach(r=>{const k=r.data.slice(0,7);let g=groups[groups.length-1];if(!g||g.k!==k){g={k,rows:[]};groups.push(g);}g.rows.push(r);});
     $('pl-list').innerHTML=groups.map(g=>{const{y,m}=ymd(g.k+'-01');
-      return `<span class="eyebrow sm grp">${MESI[m-1]}${yearP==='all'?' '+y:''}</span><div class="rows">${g.rows.map(r=>rowPieno(r,best,worst)).join('')}</div>`;}).join('');
+      return `<span class="eyebrow sm grp">${monthName(m)}${yearP==='all'?' '+y:''}</span><div class="rows">${g.rows.map(r=>rowPieno(r,best,worst)).join('')}</div>`;}).join('');
   }
   renderStations(rows,pf);
 }
 function rowPieno(r,best,worst){
   const u=unitOf(r.tipo),{m,d}=ymd(r.data);
   let eff='';
-  if(!r.full)eff='<span class="faint">rabbocco</span>';
+  if(!r.full)eff='<span class="faint">'+t('pl.topup')+'</span>';
   else if(r.kmL!=null)eff=`<span class="${r===best?'good':r===worst?'bad-t':''}">${fmt(r.kmL,1)} km/${u}</span>`;
-  return `<button class="row" onclick="openPieno(${r.oi})"><span class="dt"><b>${pad2(d)}</b><span>${MESI3[m-1]}</span></span>`
-    +`<span class="mid"><b>${esc(r.benz||r.tipo||'Pieno')}</b><span class="mono">${fmtMax(r.litri,2)} ${u} · ${fmt(r.prezzo,3)} €/${u}</span></span>`
+  return `<button class="row" onclick="openPieno(${r.oi})"><span class="dt"><b>${pad2(d)}</b><span>${monthShort(m)}</span></span>`
+    +`<span class="mid"><b>${esc(r.benz||valLabel(r.tipo)||t('pn.fallback'))}</b><span class="mono">${fmtMax(r.litri,2)} ${u} · ${fmt(r.prezzo,3)} €/${u}</span></span>`
     +`<span class="end"><b>${fmt(r.costo,2)}</b>${eff}</span></button>`;
 }
 // confronto distributori: dentro Pieni, sul periodo scelto e per un carburante alla volta
@@ -906,11 +1164,11 @@ function renderStations(rows,pf){
   withSt.filter(r=>(r.tipo||'Altro')===stFuel).forEach(r=>{const k=r.benz.trim();(st[k]=st[k]||{l:0,c:0,n:0});st[k].l+=r.litri;st[k].c+=r.costo;st[k].n++;});
   const list=Object.keys(st).map(k=>({nome:k,avg:st[k].c/st[k].l,n:st[k].n})).sort((a,b)=>a.avg-b.avg),u=unitOf(stFuel);
   $('pl-st').hidden=false;
-  $('pl-st-h').textContent='Distributori · '+stFuel;
-  if(fuels.length>1)chips('pl-st-fuel',fuels.map(f=>[f,f]),stFuel);
+  $('pl-st-h').textContent=t('st.titleFuel',{fuel:valLabel(stFuel)});
+  if(fuels.length>1)chips('pl-st-fuel',fuels.map(f=>[f,valLabel(f)]),stFuel);
   $('pl-st-fuel').hidden=fuels.length<2;
-  $('pl-st-list').innerHTML=list.slice(0,8).map((s,i)=>`<div class="srow"><span class="mid"><b>${esc(s.nome)}</b><span>${s.n} ${s.n===1?'pieno':'pieni'}</span></span><span class="st big${i===0?' good':''}">${fmt(s.avg,3)} €/${u}</span></div>`).join('');
-  $('pl-st-hint').textContent='Prezzo medio pagato '+(yearP==='all'?'da sempre':'nel '+yearP)+', dal più conveniente.';
+  $('pl-st-list').innerHTML=list.slice(0,8).map((s,i)=>`<div class="srow"><span class="mid"><b>${esc(s.nome)}</b><span>${s.n} ${tp(s.n,'pl.fill')}</span></span><span class="st big${i===0?' good':''}">${fmt(s.avg,3)} €/${u}</span></div>`).join('');
+  $('pl-st-hint').textContent=yearP==='all'?t('st.hintAll'):t('st.hintYear',{year:yearP});
 }
 
 function renderSpese(c){
@@ -921,47 +1179,47 @@ function renderSpese(c){
   const sp=V.spese.map((s,oi)=>({...s,oi})).filter(s=>inYear(s.data,yearS)).sort((a,b)=>b.data.localeCompare(a.data));
   const tot=sp.reduce((a,s)=>a+s.imp,0),fuel=c.rows.filter(r=>inYear(r.data,yearS)).reduce((a,r)=>a+r.costo,0);
   const n=fmt(tot,2);$('s-amt').textContent=n;$('s-amt').style.fontSize=n.length>9?'40px':'';
-  $('s-sub').textContent=fuel>0?`più ${eur(fuel)} di pieni · ${eur(tot+fuel)} in tutto`:'nessun pieno in questo periodo';
+  $('s-sub').textContent=fuel>0?t('sp.sub',{fuel:eur(fuel),total:eur(tot+fuel)}):t('sp.noFuel');
   const byCat={};sp.forEach(s=>{const k=s.cat||'Altro';byCat[k]=(byCat[k]||0)+s.imp;});
   const cats=Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]);
   $('s-cats').hidden=!cats.length;
-  $('s-cats').innerHTML=cats.map(k=>`<div class="cat"><div class="cat-h"><span>${esc(k)}</span><b>${fmt(byCat[k],2)}</b></div><div class="track"><div style="width:${tot?Math.max(1,Math.round(byCat[k]/tot*100)):0}%"></div></div></div>`).join('');
+  $('s-cats').innerHTML=cats.map(k=>`<div class="cat"><div class="cat-h"><span>${esc(valLabel(k))}</span><b>${fmt(byCat[k],2)}</b></div><div class="track"><div style="width:${tot?Math.max(1,Math.round(byCat[k]/tot*100)):0}%"></div></div></div>`).join('');
   $('s-list-h').hidden=!sp.length;
   $('s-list').innerHTML=sp.length?sp.map(s=>{const{m,d}=ymd(s.data);
-    return `<button class="row" onclick="openSpesa(${s.oi})"><span class="dt"><b>${pad2(d)}</b><span>${MESI3[m-1]}</span></span><span class="mid"><b>${esc(s.cat||'Altro')}</b>${s.desc?`<span>${esc(s.desc)}</span>`:''}</span><span class="end"><b>${fmt(s.imp,2)}</b></span></button>`;}).join('')
-    :`<p class="empty">${V.spese.length?'Nessuna spesa in questo periodo.':'Tagliando, gomme, assicurazione: tocca + per segnare la prima spesa.'}</p>`;
+    return `<button class="row" onclick="openSpesa(${s.oi})"><span class="dt"><b>${pad2(d)}</b><span>${monthShort(m)}</span></span><span class="mid"><b>${esc(valLabel(s.cat||'Altro'))}</b>${s.desc?`<span>${esc(s.desc)}</span>`:''}</span><span class="end"><b>${fmt(s.imp,2)}</b></span></button>`;}).join('')
+    :`<p class="empty">${V.spese.length?t('sp.emptyPeriod'):t('sp.empty')}</p>`;
 }
 
 function renderScadenze(){
   const list=(cur().scadenze||[]).map((s,oi)=>({...s,oi,st:scadStatus(s.data)})).sort((a,b)=>a.st.days-b.st.days);
-  $('sc-list').innerHTML=list.length?list.map(s=>`<button class="note ${s.st.cls}" onclick="openScad(${s.oi})"><span class="tx"><b class="t">${esc(s.tipo)}</b><span class="s">${scadSub(s)}${s.note?' · '+esc(s.note):''}</span></span><span class="r bdg">${s.st.badge}</span></button>`).join('')
-    :'<p class="empty">Nessuna scadenza. Tocca + per aggiungere assicurazione, bollo, revisione.</p>';
+  $('sc-list').innerHTML=list.length?list.map(s=>`<button class="note ${s.st.cls}" onclick="openScad(${s.oi})"><span class="tx"><b class="t">${esc(valLabel(s.tipo))}</b><span class="s">${scadSub(s)}${s.note?' · '+esc(s.note):''}</span></span><span class="r bdg">${s.st.badge}</span></button>`).join('')
+    :'<p class="empty">'+t('sc.empty')+'</p>';
 }
 
 function renderAnalisi(c){
   const V=cur(),pf=primaryFuel(V,c),u=unitOf(pf),nRab=c.rows.filter(r=>!r.full).length;
   const kpi=(k,v,s)=>`<div class="kpi"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${s}</span></div>`;
-  $('a-kpis').innerHTML=kpi('Totale',fmt(c.totale,2),'€ da sempre')+kpi('Percorsi',c.kmTot?fmt(c.kmTot,0):'—','km')
-    +kpi('Consumo',c.l100avg?fmt(c.l100avg,1):'—',u+'/100 km')+kpi('Pieni',String(c.nRif),nRab?`di cui ${nRab} ${nRab===1?'rabbocco':'rabbocchi'}`:'registrati');
+  $('a-kpis').innerHTML=kpi(t('total'),fmt(c.totale,2),t('an.allTime'))+kpi(t('an.driven'),c.kmTot?fmt(c.kmTot,0):'—','km')
+    +kpi(t('an.cons'),c.l100avg?fmt(c.l100avg,1):'—',u+'/100 km')+kpi(t('an.fills'),String(c.nRif),nRab?tp(nRab,'an.topups'):t('an.logged'));
   const mt=monthTotals(c);
-  barChart('ch-mese',lastMonths(12).map(x=>({l:MESI3[x.m-1],y:mt[x.k]||0,cur:x.cur})));
+  barChart('ch-mese',lastMonths(12).map(x=>({l:monthShort(x.m),y:mt[x.k]||0,cur:x.cur})));
   const byDate=(a,b)=>a.data.localeCompare(b.data)||a.km-b.km;
-  $('a-cons-h').textContent='Consumo · km/'+u;
+  $('a-cons-h').textContent=t('an.consH',{u});
   lineChart('ch-consumo',c.rows.filter(r=>r.kmL!=null).sort(byDate).map(r=>({x:r.data,y:r.kmL})),{dec:1});
   const types=c.fuelTypes;
   if(!types.includes(fuelFilter))fuelFilter=types.includes(pf)?pf:(types[0]||'');
-  chips('a-fuel',types.map(t=>[t,t]),fuelFilter);$('a-fuel').hidden=types.length<2;
-  $('a-prezzo-h').textContent='Prezzo pagato · €/'+unitOf(fuelFilter||pf)+(types.length>1?'':(fuelFilter?' · '+fuelFilter:''));
+  chips('a-fuel',types.map(x=>[x,valLabel(x)]),fuelFilter);$('a-fuel').hidden=types.length<2;
+  $('a-prezzo-h').textContent=t('an.priceH',{u:unitOf(fuelFilter||pf)})+(types.length>1?'':(fuelFilter?' · '+valLabel(fuelFilter):''));
   lineChart('ch-prezzo',c.rows.filter(r=>(r.tipo||'Altro')===fuelFilter).sort(byDate).map(r=>({x:r.data,y:r.prezzo})),{dec:3});
   $('a-byfuel').hidden=c.byFuel.length<2;
-  $('a-byfuel').innerHTML=c.byFuel.map(f=>`<div class="vf"><span>${esc(f.tipo)}</span><b>${fmt(f.avg,3)} €/${unitOf(f.tipo)}</b><i>${f.n} ${f.n===1?'pieno':'pieni'}</i></div>`).join('');
+  $('a-byfuel').innerHTML=c.byFuel.map(f=>`<div class="vf"><span>${esc(valLabel(f.tipo))}</span><b>${fmt(f.avg,3)} €/${unitOf(f.tipo)}</b><i>${f.n} ${tp(f.n,'pl.fill')}</i></div>`).join('');
   lineChart('ch-eurkm',c.rows.filter(r=>r.eurKm!=null).sort(byDate).map(r=>({x:r.data,y:r.eurKm})),{dec:3});
 }
 
 // ---------- grafici SVG (nessuna dipendenza) ----------
 function lineChart(id,data,o){
   const el=$(id);
-  if(data.length<2){el.innerHTML=`<p class="empty">${data.length?'Serve almeno un altro valore per disegnare la curva.':'Ancora nessun dato.'}</p>`;return;}
+  if(data.length<2){el.innerHTML=`<p class="empty">${data.length?t('ch.needMore'):t('ch.noData')}</p>`;return;}
   const W=480,H=190,p={l:46,r:14,t:24,b:26};
   const ys=data.map(d=>d.y);let mn=Math.min(...ys),mx=Math.max(...ys);if(mn===mx){const e=Math.abs(mn)*.05||1;mn-=e;mx+=e;}
   const rg=mx-mn;mn-=rg*.15;mx+=rg*.15;
@@ -978,7 +1236,7 @@ function lineChart(id,data,o){
 }
 function barChart(id,data){
   const el=$(id);
-  if(!data.some(d=>d.y>0)){el.innerHTML='<p class="empty">Nessuna spesa negli ultimi 12 mesi.</p>';return;}
+  if(!data.some(d=>d.y>0)){el.innerHTML='<p class="empty">'+t('ch.noSpend')+'</p>';return;}
   const W=480,H=190,p={l:4,r:4,t:22,b:24},bw=(W-p.l-p.r)/data.length,mx=Math.max(...data.map(d=>d.y))||1;
   el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">`+data.map((d,i)=>{
     const h=Math.max(d.y>0?3:2,d.y/mx*(H-p.t-p.b)),x=p.l+i*bw+bw*.16,w=bw*.68,y=H-p.b-h,cur=d.cur?' cur':'';
@@ -991,19 +1249,21 @@ function barChart(id,data){
 // ---------- impostazioni ----------
 const AI_DEFAULTS={anthropic:'claude-haiku-4-5',openai:'gpt-4o-mini',google:'gemini-2.0-flash'};
 const AI_NAME={anthropic:'Anthropic',openai:'OpenAI',google:'Google'};
-const AI_HELP={
-  anthropic:'Crea una chiave su <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Modello economico con visione: <code>claude-haiku-4-5</code>.',
-  openai:'Crea una chiave su <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>. Modello economico con visione: <code>gpt-4o-mini</code>.',
-  google:'Crea una chiave su <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com</a>. Modello economico con visione: <code>gemini-2.0-flash</code>.'
-};
+// dove si crea la chiave di ogni servizio (indirizzo, testo del link)
+const AI_KEYS={anthropic:['https://console.anthropic.com/settings/keys','console.anthropic.com'],
+  openai:['https://platform.openai.com/api-keys','platform.openai.com'],
+  google:['https://aistudio.google.com/app/apikey','aistudio.google.com']};
+const aiHelp=p=>t('ai.help',{link:`<a href="${AI_KEYS[p][0]}" target="_blank" rel="noopener">${AI_KEYS[p][1]}</a>`,model:AI_DEFAULTS[p]});
 function aiReady(){return!!(AI&&AI.key&&AI.provider);}
-function vehSub(x){return (VTYPE_LABEL[x.type]||'Veicolo')+(x.fuel?' · '+esc(x.fuel):'')+' · '+x.rif.length+' '+(x.rif.length===1?'pieno':'pieni');}
+function vehSub(x){return (vtypeLabel(x.type)||t('veh.default'))+(x.fuel?' · '+esc(valLabel(x.fuel)):'')+' · '+x.rif.length+' '+tp(x.rif.length,'pl.fill');}
 function renderSettings(){
   const V=cur();
-  $('st-veh').innerHTML=DB.vehicles.map((x,i)=>`<button class="srow" onclick="openVeh(${i})"><span class="mid"><b>${esc(x.name)}${x.plate?`<span class="plate">${esc(x.plate)}</span>`:''}</b><span>${vehSub(x)}</span></span>${x.id===V.id?'<span class="st">in uso</span>':''}<span class="chev">›</span></button>`).join('')
-    +`<button class="srow add" onclick="startWizard('add')"><span class="mid"><b>Aggiungi veicolo</b></span><span class="chev">+</span></button>`;
-  $('st-ai').textContent=aiReady()?AI_NAME[AI.provider]||'Attiva':'Spenta';
-  $('st-csv').textContent='solo '+V.name+', per Excel e Numbers';
+  $('st-veh').innerHTML=DB.vehicles.map((x,i)=>`<button class="srow" onclick="openVeh(${i})"><span class="mid"><b>${esc(x.name)}${x.plate?`<span class="plate">${esc(x.plate)}</span>`:''}</b><span>${vehSub(x)}</span></span>${x.id===V.id?'<span class="st">'+t('set.inUse')+'</span>':''}<span class="chev">›</span></button>`).join('')
+    +`<button class="srow add" onclick="startWizard('add')"><span class="mid"><b>${t('vh.add')}</b></span><span class="chev">+</span></button>`;
+  // lingua: ogni voce col suo nome nella sua lingua, così si ritrova anche se non si legge quella attiva
+  $('st-lang').innerHTML=Object.keys(LANG_NAMES).map(l=>`<button class="srow" lang="${l}" onclick="setLang('${l}')" aria-pressed="${l===LANG}"><span class="mid"><b>${LANG_NAMES[l]}</b></span>${l===LANG?'<span class="on-dot"></span>':''}</button>`).join('');
+  $('st-ai').textContent=aiReady()?AI_NAME[AI.provider]||t('set.on'):t('set.off');
+  $('st-csv').textContent=t('set.csvSubName',{name:V.name});
 }
 
 // ---------- navigazione ----------
@@ -1054,12 +1314,12 @@ let editRif=null;
 function openPieno(i){
   const V=cur(),c=computed(),r=i!=null?V.rif[i]:null;
   editRif=r?i:null;
-  $('pn-title').textContent=r?'Modifica pieno':'Nuovo pieno';
-  $('pn-save').textContent=r?'Salva modifiche':'Salva pieno';
+  $('pn-title').textContent=r?t('pn.edit'):t('pn.new');
+  $('pn-save').textContent=r?t('saveChanges'):t('pn.save');
   $('pn-del').hidden=!r;
   const tipo=r?(r.tipo||'Altro'):primaryFuel(V,c);
   const opts=FUELS.slice();c.fuelTypes.concat([tipo]).forEach(t=>{if(!opts.includes(t))opts.splice(opts.length-1,0,t);});
-  $('pn-tipo').innerHTML=opts.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');$('pn-tipo').value=tipo;
+  $('pn-tipo').innerHTML=opts.map(x=>`<option value="${esc(x)}">${esc(valLabel(x))}</option>`).join('');$('pn-tipo').value=tipo;
   $('pn-litri').value=r?fNum(r.litri):'';$('pn-prezzo').value=r?fNum(r.prezzo):'';
   $('pn-km').value=r&&isFinite(r.km)?fmt(r.km,0):'';fitKm($('pn-km'));
   $('pn-data').value=r?r.data:todayISO();$('pn-benz').value=r?(r.benz||''):'';$('pn-pieno').checked=r?r.pieno!==false:true;
@@ -1076,17 +1336,17 @@ function prevKm(km){
   return V.kmStart!=null&&isFinite(V.kmStart)?V.kmStart:null;
 }
 function updPieno(){
-  const t=$('pn-tipo').value,u=unitOf(t);
-  $('pn-qty-l').textContent=QTY_LABEL[u];$('pn-price-l').textContent='€/'+PER_WORD[u];
-  $('pn-tipo-txt').textContent=t;$('pn-pieno-l').textContent=u==='kWh'?'Carica piena':'Pieno';
+  const ft=$('pn-tipo').value,u=unitOf(ft);
+  $('pn-qty-l').textContent=t('qty.'+u);$('pn-price-l').textContent='€/'+t('per.'+u);
+  $('pn-tipo-txt').textContent=valLabel(ft);$('pn-pieno-l').textContent=u==='kWh'?t('pn.fullCharge'):t('pn.full');
   showDate('pn-data');
   const l=pNum($('pn-litri').value),p=pNum($('pn-prezzo').value);
   $('pn-tot').textContent=l>0&&p>0?eur(l*p):'—';
   const km=pInt($('pn-km').value),pk=prevKm(km),h=$('pn-km-hint');
-  if(!isFinite(km)){h.textContent=pk!=null?'ultimo: '+fmt(pk,0):'';h.className='';}
+  if(!isFinite(km)){h.textContent=pk!=null?t('pn.lastKm',{km:fmt(pk,0)}):'';h.className='';}
   else if(pk==null){h.textContent='';h.className='';}
-  else if(km>pk){h.textContent='+'+fmt(km-pk,0)+' km dall\'ultimo';h.className='up';}
-  else{h.textContent='non più dell\'ultimo ('+fmt(pk,0)+')';h.className='no';}
+  else if(km>pk){h.textContent=t('pn.sinceLast',{d:fmt(km-pk,0)});h.className='up';}
+  else{h.textContent=t('pn.notAbove',{km:fmt(pk,0)});h.className='no';}
 }
 function savePieno(){
   const km=pInt($('pn-km').value),litri=pNum($('pn-litri').value),prezzo=pNum($('pn-prezzo').value),data=$('pn-data').value;
@@ -1097,17 +1357,17 @@ function savePieno(){
   const rec={data,km,litri,prezzo,tipo:$('pn-tipo').value,benz:$('pn-benz').value.trim(),pieno:$('pn-pieno').checked};
   const V=cur(),was=editRif!=null;
   if(was)V.rif[editRif]=rec;else V.rif.push(rec);
-  editRif=null;closeSheet();save();toast(was?'Pieno aggiornato':'Pieno salvato');
+  editRif=null;closeSheet();save();toast(was?t('pn.updated'):t('pn.saved'));
 }
-function delPieno(){if(editRif==null||!confirm('Eliminare questo pieno?'))return;cur().rif.splice(editRif,1);editRif=null;closeSheet();save();toast('Pieno eliminato');}
+function delPieno(){if(editRif==null||!confirm(t('pn.delConfirm')))return;cur().rif.splice(editRif,1);editRif=null;closeSheet();save();toast(t('pn.deleted'));}
 
 // ---------- spesa ----------
 let editSpesa=null;
 function openSpesa(i){
   const s=i!=null?cur().spese[i]:null;editSpesa=s?i:null;
-  $('sp-title').textContent=s?'Modifica spesa':'Nuova spesa';$('sp-save').textContent=s?'Salva modifiche':'Salva spesa';$('sp-del').hidden=!s;
+  $('sp-title').textContent=s?t('sp.edit'):t('sp.new');$('sp-save').textContent=s?t('saveChanges'):t('sp.save');$('sp-del').hidden=!s;
   const cats=!s||SPESA_CATS.includes(s.cat)?SPESA_CATS:SPESA_CATS.concat([s.cat]);
-  chips('sp-cat',cats.map(x=>[x,x]),s?s.cat:SPESA_CATS[0]);
+  chips('sp-cat',cats.map(x=>[x,valLabel(x)]),s?s.cat:SPESA_CATS[0]);
   $('sp-imp').value=s?fNum(s.imp):'';$('sp-data').value=s?s.data:todayISO();$('sp-desc').value=s?(s.desc||''):'';showDate('sp-data');
   openSheet('sh-spesa');
 }
@@ -1118,17 +1378,17 @@ function saveSpesa(){
   const rec={data,cat:chipVal('sp-cat')||'Altro',desc:$('sp-desc').value.trim(),imp};
   const V=cur(),was=editSpesa!=null;
   if(was)V.spese[editSpesa]=rec;else V.spese.push(rec);
-  editSpesa=null;closeSheet();save();toast(was?'Spesa aggiornata':'Spesa salvata');
+  editSpesa=null;closeSheet();save();toast(was?t('sp.updated'):t('sp.saved'));
 }
-function delSpesa(){if(editSpesa==null||!confirm('Eliminare questa spesa?'))return;cur().spese.splice(editSpesa,1);editSpesa=null;closeSheet();save();toast('Spesa eliminata');}
+function delSpesa(){if(editSpesa==null||!confirm(t('sp.delConfirm')))return;cur().spese.splice(editSpesa,1);editSpesa=null;closeSheet();save();toast(t('sp.deleted'));}
 
 // ---------- scadenza ----------
 let editScad=null;
 function openScad(i){
   const s=i!=null?(cur().scadenze||[])[i]:null;editScad=s?i:null;
-  $('sc-title').textContent=s?'Modifica scadenza':'Nuova scadenza';$('sc-save').textContent=s?'Salva modifiche':'Salva scadenza';$('sc-del').hidden=!s;
+  $('sc-title').textContent=s?t('sc.edit'):t('sc.new');$('sc-save').textContent=s?t('saveChanges'):t('sc.save');$('sc-del').hidden=!s;
   const tipi=!s||SCAD_TIPI.includes(s.tipo)?SCAD_TIPI:SCAD_TIPI.concat([s.tipo]);
-  chips('sc-tipo',tipi.map(x=>[x,x]),s?s.tipo:SCAD_TIPI[0]);
+  chips('sc-tipo',tipi.map(x=>[x,valLabel(x)]),s?s.tipo:SCAD_TIPI[0]);
   $('sc-data').value=s?s.data:'';$('sc-note').value=s?(s.note||''):'';showDate('sc-data');
   openSheet('sh-scad');
 }
@@ -1137,14 +1397,14 @@ function saveScad(){
   const V=cur(),rec={tipo:chipVal('sc-tipo')||'Altro',data,note:$('sc-note').value.trim()},was=editScad!=null;
   V.scadenze=V.scadenze||[];
   if(was)V.scadenze[editScad]=rec;else V.scadenze.push(rec);
-  editScad=null;closeSheet();save();toast(was?'Scadenza aggiornata':'Scadenza salvata');
+  editScad=null;closeSheet();save();toast(was?t('sc.updated'):t('sc.saved'));
 }
-function delScad(){if(editScad==null||!confirm('Eliminare questa scadenza?'))return;cur().scadenze.splice(editScad,1);editScad=null;closeSheet();save();toast('Scadenza eliminata');}
+function delScad(){if(editScad==null||!confirm(t('sc.delConfirm')))return;cur().scadenze.splice(editScad,1);editScad=null;closeSheet();save();toast(t('sc.deleted'));}
 
 // ---------- veicoli ----------
 let editVeh=null;
 function openSwitch(){
-  $('sw-list').innerHTML=DB.vehicles.map((x,i)=>`<button class="srow" onclick="switchVehicle(${i})"><span class="mid"><b>${esc(x.name)}${x.plate?`<span class="plate">${esc(x.plate)}</span>`:''}</b><span>${vehSub(x)}</span></span>${x.id===DB.currentId?'<span class="on-dot" aria-label="in uso"></span>':''}</button>`).join('');
+  $('sw-list').innerHTML=DB.vehicles.map((x,i)=>`<button class="srow" onclick="switchVehicle(${i})"><span class="mid"><b>${esc(x.name)}${x.plate?`<span class="plate">${esc(x.plate)}</span>`:''}</b><span>${vehSub(x)}</span></span>${x.id===DB.currentId?'<span class="on-dot" aria-label="'+t('set.inUse')+'"></span>':''}</button>`).join('');
   openSheet('sh-switch');
 }
 function switchVehicle(i){
@@ -1154,9 +1414,10 @@ function switchVehicle(i){
 function openVeh(i){
   const x=DB.vehicles[i];if(!x)return;editVeh=x.id;
   $('vh-name').value=x.name;$('vh-plate').value=x.plate||'';
-  chips('vh-type',VTYPE_LABEL[x.type]?VTYPES:VTYPES.concat([[x.type,x.type]]),x.type);
+  const vt=VTYPE_IDS.map(k=>[k,vtypeLabel(k)]);
+  chips('vh-type',vtypeLabel(x.type)?vt:vt.concat([[x.type,x.type]]),x.type);
   const fl=WZ_FUELS.concat(['Altro']);if(x.fuel&&!fl.includes(x.fuel))fl.push(x.fuel);
-  chips('vh-fuel',fl.map(f=>[f,f]),x.fuel||'');
+  chips('vh-fuel',fl.map(f=>[f,valLabel(f)]),x.fuel||'');
   $('vh-del').hidden=DB.vehicles.length<=1;
   openSheet('sh-veh');
 }
@@ -1164,14 +1425,14 @@ function saveVeh(){
   const x=DB.vehicles.find(v=>v.id===editVeh);if(!x)return;
   const name=$('vh-name').value.trim();if(!name)return bad('vh-name');
   x.name=name;x.type=chipVal('vh-type')||x.type;x.plate=$('vh-plate').value.trim().toUpperCase();x.fuel=chipVal('vh-fuel');
-  closeSheet();save();toast('Veicolo aggiornato');
+  closeSheet();save();toast(t('vh.updated'));
 }
 function delVeh(){
   const x=DB.vehicles.find(v=>v.id===editVeh);if(!x||DB.vehicles.length<=1)return;
-  if(!confirm('Eliminare «'+x.name+'» e tutti i suoi dati?'))return;
+  if(!confirm(t('vh.delConfirm',{name:x.name})))return;
   DB.vehicles=DB.vehicles.filter(v=>v.id!==x.id);
   if(DB.currentId===x.id)DB.currentId=DB.vehicles[0].id;
-  editVeh=null;closeSheet();save();toast('Veicolo eliminato');
+  editVeh=null;closeSheet();save();toast(t('vh.deleted'));
 }
 
 // ---------- wizard primo avvio (e nuovo veicolo) ----------
@@ -1180,9 +1441,9 @@ function startWizard(mode){
   closeSheet();
   WZ={mode,step:mode==='first'?0:1};
   $('wz-name').value='';$('wz-plate').value='';$('wz-km').value='';fitKm($('wz-km'));
-  chips('wz-type',WZ_TYPES.map(t=>[t,VTYPE_LABEL[t]]),'auto');
-  chips('wz-fuel',WZ_FUELS.map(f=>[f,f]),'Benzina');
-  $('wz-scad').innerHTML=WZ_SCAD.map(t=>`<label class="scadrow"><b>${t}</b><span class="none" id="wz-sc-${t}">—</span><input type="date" data-tipo="${t}" aria-label="Scadenza ${t}"></label>`).join('');
+  chips('wz-type',WZ_TYPES.map(k=>[k,vtypeLabel(k)]),'auto');
+  chips('wz-fuel',WZ_FUELS.map(f=>[f,valLabel(f)]),'Benzina');
+  $('wz-scad').innerHTML=WZ_SCAD.map(x=>`<label class="scadrow"><b>${valLabel(x)}</b><span class="none" id="wz-sc-${x}">—</span><input type="date" data-tipo="${x}" aria-label="${t('wz.scadAria',{name:valLabel(x)})}"></label>`).join('');
   $('wz-name-err').hidden=true;
   $('wizard').hidden=false;document.body.classList.add('lock');
   wzShow();
@@ -1193,10 +1454,10 @@ function wzShow(){
   $('wz-prog').hidden=s===0;
   if(s>0){$('wz-fill').style.width=(s/3*100)+'%';$('wz-cnt').textContent=s+'/3';$('wz-back').classList.toggle('dim',s===1);}
   if(s===3){
-    const n=$('wz-name').value.trim()||VTYPE_LABEL[chipVal('wz-type')]||'';
-    $('wz-ready-t').textContent='Pronto, '+n+'.';
+    const n=$('wz-name').value.trim()||vtypeLabel(chipVal('wz-type'))||'';
+    $('wz-ready-t').textContent=t('wz.readyName',{name:n});
     const u=unitOf(chipVal('wz-fuel'));
-    $('wz-ready-s').textContent=(u==='kWh'?'La prima ricarica non ha consumo: serve la seconda':'Il primo pieno non ha consumo: serve il secondo')+' per calcolare i km/'+u+'.';
+    $('wz-ready-s').textContent=u==='kWh'?t('wz.readySubEv',{u}):t('wz.readySub',{u});
   }
   $('wizard').scrollTop=0;
 }
@@ -1210,7 +1471,7 @@ function closeWizard(){if($('wizard').hidden)return;$('wizard').hidden=true;WZ=n
 function wzFinish(addFirst){
   if(!WZ)return;
   const type=chipVal('wz-type')||'auto',km=pInt($('wz-km').value);
-  const v=blankVehicle({name:$('wz-name').value.trim()||VTYPE_LABEL[type],type,plate:$('wz-plate').value.trim().toUpperCase(),
+  const v=blankVehicle({name:$('wz-name').value.trim()||vtypeLabel(type),type,plate:$('wz-plate').value.trim().toUpperCase(),
     fuel:chipVal('wz-fuel')||'Benzina',kmStart:isFinite(km)?km:null});
   $('wz-scad').querySelectorAll('input').forEach(i=>{if(i.value)v.scadenze.push({tipo:i.dataset.tipo,data:i.value,note:''});});
   if(WZ.mode==='first')DB={v:2,example:false,updatedAt:0,currentId:v.id,vehicles:[v]};
@@ -1226,17 +1487,17 @@ function openAI(){
   const p=AI.provider||'anthropic';
   chips('ai-prov',Object.keys(AI_NAME).map(k=>[k,AI_NAME[k]]),p);
   $('ai-model').value=AI.model||'';$('ai-model').placeholder=AI_DEFAULTS[p];
-  $('ai-key').value='';$('ai-key').placeholder=AI.key?'•••••••• salvata su questo dispositivo':'incolla la tua chiave API';
-  $('ai-clear').hidden=!AI.key;$('ai-help').innerHTML=AI_HELP[p];
+  $('ai-key').value='';$('ai-key').placeholder=AI.key?t('ai.keySaved'):t('ai.keyPh');
+  $('ai-clear').hidden=!AI.key;$('ai-help').innerHTML=aiHelp(p);
   openSheet('sh-ai');
 }
 function saveAI(){
   const p=chipVal('ai-prov')||'anthropic',key=$('ai-key').value.trim(),model=$('ai-model').value.trim();
   if(!key&&!AI.key)return bad('ai-key');
   AI.provider=p;AI.model=model;if(key)AI.key=key;
-  saveAICfg();closeSheet();render();toast('Configurazione AI salvata');
+  saveAICfg();closeSheet();render();toast(t('ai.saved'));
 }
-function clearAI(){if(!confirm('Rimuovere la chiave API da questo dispositivo?'))return;AI={};saveAICfg();closeSheet();render();toast('Chiave rimossa');}
+function clearAI(){if(!confirm(t('ai.removeConfirm')))return;AI={};saveAICfg();closeSheet();render();toast(t('ai.removed'));}
 
 // numero da testo/numero, tollerante ai formati ("1,85" / "1.234,56" / 14)
 function toNum(v){if(v==null)return null;if(typeof v==='number')return isFinite(v)?v:null;
@@ -1255,21 +1516,21 @@ function fileToJpeg(file,maxDim,quality){return new Promise((resolve,reject)=>{
     const c=document.createElement('canvas');c.width=w;c.height=h;
     c.getContext('2d').drawImage(img,0,0,w,h);
     resolve(c.toDataURL('image/jpeg',quality).split(',')[1]);};
-  img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Immagine non leggibile.'));};
+  img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error(t('ai.errImg')));};
   img.src=url;});}
 
 const RECEIPT_PROMPT='Sei un assistente che legge scontrini di rifornimento carburante (italiani). Estrai i dati dalla foto e rispondi SOLO con un oggetto JSON, senza testo ne markdown, con esattamente questi campi: {"data":"AAAA-MM-GG o null","litri":numero o null,"prezzo_litro":numero o null,"importo":numero o null,"benzinaio":"testo o null","carburante":"testo o null"}. Regole: usa il punto come separatore decimale; "litri" e la quantita erogata, "prezzo_litro" il prezzo al litro (di norma tra 0.3 e 4 euro), "importo" il totale pagato; "benzinaio" e la marca/insegna (es. Eni, Q8, IP, Esso); "carburante" il tipo (es. Benzina, Diesel, GPL); non inventare nulla, usa null se un dato non e leggibile.';
 
 function parseAIJson(txt){
-  if(!txt)throw new Error('Risposta vuota dal servizio AI.');
+  if(!txt)throw new Error(t('ai.errEmpty'));
   let s=String(txt).trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();
   const a=s.indexOf('{'),b=s.lastIndexOf('}');if(a>=0&&b>a)s=s.slice(a,b+1);
-  try{return JSON.parse(s);}catch(e){throw new Error('Il servizio AI non ha restituito dati leggibili.');}}
+  try{return JSON.parse(s);}catch(e){throw new Error(t('ai.errParse'));}}
 
 async function aiErr(r){let m='';try{const e=await r.json();m=(e.error&&(e.error.message||e.error.type))||'';}catch(_){}
-  if(r.status===401||r.status===403)return 'Chiave API non valida o senza permessi.';
-  if(r.status===429)return 'Limite richieste o credito esaurito sul servizio AI.';
-  return 'Errore '+r.status+(m?': '+m:'')+'.';}
+  if(r.status===401||r.status===403)return t('ai.errKey');
+  if(r.status===429)return t('ai.errLimit');
+  return t('ai.errStatus',{status:r.status,msg:m?': '+m:''});}
 
 async function aiAnthropic(key,model,b64){
   const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
@@ -1305,11 +1566,11 @@ function extractWithAI(b64){
   if(p==='anthropic')return aiAnthropic(key,model,b64);
   if(p==='openai')return aiOpenAI(key,model,b64);
   if(p==='google')return aiGoogle(key,model,b64);
-  return Promise.reject(new Error('Servizio AI non supportato.'));}
+  return Promise.reject(new Error(t('ai.errProv')));}
 
 function showScan(html,cls){const m=$('scan-msg');m.hidden=false;m.className='scan-msg '+(cls||'');m.innerHTML=html;}
 function pickReceipt(){
-  if(!aiReady()){showScan('Per leggere lo scontrino serve una chiave AI. <button class="inl" onclick="closeSheet();navTo(\'impostazioni\');setTimeout(openAI,320)">Configurala</button>','warn');return;}
+  if(!aiReady()){showScan(t('scan.needKey')+' <button class="inl" onclick="closeSheet();navTo(\'impostazioni\');setTimeout(openAI,320)">'+t('scan.setup')+'</button>','warn');return;}
   $('scan-file').click(); // senza "capture": il telefono offre sia fotocamera sia libreria
 }
 async function scanReceipt(input){
@@ -1317,22 +1578,23 @@ async function scanReceipt(input){
   if(!f)return;
   const btn=$('scan-btn');btn.disabled=true;
   try{
-    showScan('Preparo l\'immagine…');
+    showScan(t('scan.prep'));
     const b64=await fileToJpeg(f,1600,0.8);
-    showScan('Leggo lo scontrino con l\'AI…');
+    showScan(t('scan.reading'));
     const r=await extractWithAI(b64),got=[];
     if(r.data&&/^\d{4}-\d{2}-\d{2}$/.test(r.data)){$('pn-data').value=r.data;got.push('data');}
     let litri=toNum(r.litri),prezzo=toNum(r.prezzo_litro),importo=toNum(r.importo);
     if(litri==null&&prezzo&&importo)litri=importo/prezzo;
     if(prezzo==null&&litri&&importo)prezzo=importo/litri;
-    if(litri!=null&&litri>0&&litri<300){$('pn-litri').value=litri.toFixed(2).replace('.',',');got.push('litri');}
-    if(prezzo!=null&&prezzo>=0.3&&prezzo<=4){$('pn-prezzo').value=prezzo.toFixed(3).replace('.',',');got.push('prezzo');}
+    if(litri!=null&&litri>0&&litri<300){$('pn-litri').value=litri.toFixed(2).replace('.',LOC().dec);got.push('litri');}
+    if(prezzo!=null&&prezzo>=0.3&&prezzo<=4){$('pn-prezzo').value=prezzo.toFixed(3).replace('.',LOC().dec);got.push('prezzo');}
     if(r.benzinaio){$('pn-benz').value=String(r.benzinaio);got.push('benzinaio');}
-    if(r.carburante){const t=String(r.carburante).toLowerCase();const opt=[...$('pn-tipo').options].find(o=>{const v=o.value.toLowerCase();return v.includes(t)||t.includes(v.split(' ')[0]);});if(opt)$('pn-tipo').value=opt.value;}
+    if(r.carburante){const f=String(r.carburante).toLowerCase(),os=[...$('pn-tipo').options],hit=v=>{v=v.toLowerCase();return v.includes(f)||f.includes(v.split(' ')[0]);};
+      const opt=os.find(o=>hit(o.value))||os.find(o=>hit(o.textContent));if(opt)$('pn-tipo').value=opt.value;}
     updPieno();
-    if(got.length){showScan('Letto: '+got.join(', ')+'. Controlla e inserisci i km.','good');$('pn-km').focus();}
-    else showScan('Non sono riuscito a leggere i dati: inseriscili a mano.','warn');
-  }catch(e){showScan(esc(e.message||'Errore durante la lettura dello scontrino.'),'bad');}
+    if(got.length){showScan(t('scan.got',{fields:got.map(k=>t('scan.f.'+k)).join(', ')}),'good');$('pn-km').focus();}
+    else showScan(t('scan.none'),'warn');
+  }catch(e){showScan(esc(e.message||t('scan.err')),'bad');}
   finally{btn.disabled=false;}
 }
 
@@ -1343,13 +1605,14 @@ function importJSON(inp){
   const rd=new FileReader();
   rd.onload=()=>{
     let d=null;try{d=migrate(JSON.parse(rd.result));}catch(e){}
-    if(!d){toast('File non valido');return;}
-    if($('wizard').hidden&&!confirm('Sostituire i dati di questo dispositivo con quelli del backup?'))return;
+    if(!d){toast(t('imp.bad'));return;}
+    if($('wizard').hidden&&!confirm(t('imp.confirm')))return;
     DB=d;DB.example=false;yearP=yearS=null;fuelFilter=stFuel='';
-    closeSheet();closeWizard();save();navTo('panoramica');toast('Backup importato');
+    closeSheet();closeWizard();save();navTo('panoramica');toast(t('imp.done'));
   };
   rd.readAsText(f);
 }
+// il CSV è un formato di dati: colonne e intestazioni restano quelle di sempre (in italiano) in ogni lingua
 function exportCSV(){const V=cur(),c=computed();
   let s='Veicolo;'+(V.name||'')+(V.plate?' ('+V.plate+')':'')+'\n\n';
   s+='Data;Km;Litri;€/litro;Tipo;Benzinaio;Pieno;Costo;Km percorsi;km/litro;L/100km;€/km\n';
@@ -1363,7 +1626,7 @@ function exportCSV(){const V=cur(),c=computed();
 function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
 function clearAll(){
   const on=syncOn();
-  if(!confirm('Cancellare TUTTI i dati, di tutti i veicoli?'+(on?'\nLa sincronizzazione è attiva: spariranno anche dal Gist.':'')))return;
+  if(!confirm(t('clr.confirm')+(on?'\n'+t('clr.sync'):'')))return;
   DB=emptyDB();DB.updatedAt=Date.now();localStorage.removeItem(K);
   if(on)schedulePush();
   yearP=yearS=null;fuelFilter=stFuel='';
@@ -1378,15 +1641,15 @@ function renderSyncUI(){
   const on=syncOn(),dot=$('sync-dot');
   const warn=on&&syncState!=='ok'&&syncState!=='off';
   dot.hidden=!warn;dot.className='dot '+(syncState==='error'?'err':'busy');
-  $('st-sync').textContent=!on?'Spenta':({ok:'Aggiornata',error:'Errore',syncing:'In corso…',pending:'In attesa…'}[syncState]||'Attiva');
+  $('st-sync').textContent=!on?t('set.off'):(['ok','error','syncing','pending'].includes(syncState)?t('sync.st.'+syncState):t('set.on'));
   $('sync-off').hidden=on;$('sync-on').hidden=!on;
-  $('sync-state').textContent=syncState==='error'?'Ultimo tentativo fallito: '+syncMsg+'.':syncState==='ok'?'Tutto aggiornato.':syncState==='off'?'':'Sincronizzo…';
+  $('sync-state').textContent=syncState==='error'?t('sync.failed',{msg:syncMsg}):syncState==='ok'?t('sync.allOk'):syncState==='off'?'':t('sync.busy');
 }
 function openSync(){$('sync-token').value='';$('sync-err').textContent='';renderSyncUI();openSheet('sh-sync');}
 async function gh(path,opts){opts=opts||{};
   const r=await fetch('https://api.github.com'+path,{method:opts.method||'GET',body:opts.body,
     headers:Object.assign({Authorization:'token '+SYNC.token,Accept:'application/vnd.github+json'},opts.headers||{})});
-  if(!r.ok)throw new Error('GitHub '+r.status+(r.status===401?' (token non valido)':''));
+  if(!r.ok)throw new Error('GitHub '+r.status+(r.status===401?' ('+t('gh.badToken')+')':''));
   return r.json();
 }
 async function enableSync(){
@@ -1395,13 +1658,13 @@ async function enableSync(){
   try{
     const gists=await gh('/gists?per_page=100');
     let g=gists.find(x=>x.files&&x.files[GIST_FILE]);
-    if(!g)g=await gh('/gists',{method:'POST',body:JSON.stringify({description:'Pit — dati sincronizzati',public:false,files:{[GIST_FILE]:{content:JSON.stringify(DB)}}})});
+    if(!g)g=await gh('/gists',{method:'POST',body:JSON.stringify({description:t('sync.gistDesc'),public:false,files:{[GIST_FILE]:{content:JSON.stringify(DB)}}})});
     SYNC.gistId=g.id;saveSyncCfg();
     await syncPull(true);setSync('ok');render();
-    $('sync-token').value='';closeSheet();toast('Sincronizzazione attiva');
-  }catch(e){SYNC={};setSync('off');$('sync-err').textContent=e.message+'. Verifica che il token abbia il permesso gist.';}
+    $('sync-token').value='';closeSheet();toast(t('sync.onToast'));
+  }catch(e){SYNC={};setSync('off');$('sync-err').textContent=t('sync.checkScope',{msg:e.message});}
 }
-function disableSync(){if(!confirm('Disattivare la sincronizzazione su questo dispositivo? I dati restano salvati.'))return;SYNC={};saveSyncCfg();setSync('off');closeSheet();}
+function disableSync(){if(!confirm(t('sync.offConfirm')))return;SYNC={};saveSyncCfg();setSync('off');closeSheet();}
 // legge il file dal Gist (anche quando GitHub lo tronca nella risposta)
 async function gistContent(id){
   const g=await gh('/gists/'+id),f=g.files&&g.files[GIST_FILE];if(!f)return null;
@@ -1425,16 +1688,16 @@ async function syncNow(){try{setSync('syncing');await syncPull();await syncPush(
 // dal wizard: collega un Gist esistente e ne scarica i dati (non crea niente se non li trova)
 async function restoreGist(){
   const token=$('rs-token').value.trim();if(!token)return bad('rs-token');
-  const msg=$('rs-msg'),go=$('rs-go');msg.style.color='';msg.textContent='Cerco i dati sul tuo account…';go.disabled=true;
+  const msg=$('rs-msg'),go=$('rs-go');msg.style.color='';msg.textContent=t('rs.searching');go.disabled=true;
   SYNC={token};
   try{
     const gists=await gh('/gists?per_page=100'),g=gists.find(x=>x.files&&x.files[GIST_FILE]);
-    if(!g)throw new Error('Nessun dato di Pit trovato su questo account');
+    if(!g)throw new Error(t('rs.notFound'));
     const content=await gistContent(g.id);let d=null;try{d=migrate(JSON.parse(content));}catch(e){}
-    if(!d)throw new Error('I dati nel Gist non sono leggibili');
+    if(!d)throw new Error(t('rs.unreadable'));
     SYNC.gistId=g.id;saveSyncCfg();
     DB=d;DB.example=false;persistLocal();yearP=yearS=null;
-    closeSheet();closeWizard();render();setSync('ok');navTo('panoramica');toast('Dati scaricati dal Gist');
+    closeSheet();closeWizard();render();setSync('ok');navTo('panoramica');toast(t('rs.done'));
   }catch(e){SYNC={};msg.style.color='var(--bad)';msg.textContent=e.message+'.';}
   finally{go.disabled=false;}
 }
@@ -1451,11 +1714,12 @@ $('wz-plate').addEventListener('keydown',e=>{if(e.key==='Enter')wzNext();});
   const i=e.target;if(!i.dataset||!i.dataset.tipo)return;
   const s=$('wz-sc-'+i.dataset.tipo);s.textContent=i.value?shortDate(i.value):'—';s.classList.toggle('none',!i.value);
 }));
-$('ai-prov').addEventListener('change',()=>{const p=chipVal('ai-prov');$('ai-model').placeholder=AI_DEFAULTS[p];$('ai-help').innerHTML=AI_HELP[p];});
+$('ai-prov').addEventListener('change',()=>{const p=chipVal('ai-prov');$('ai-model').placeholder=AI_DEFAULTS[p];$('ai-help').innerHTML=aiHelp(p);});
 $('pl-st-fuel').addEventListener('change',()=>{stFuel=chipVal('pl-st-fuel');render();});
 $('a-fuel').addEventListener('change',()=>{fuelFilter=chipVal('a-fuel');render();});
 
 // ---------- avvio ----------
+applyStatic();
 showPage(location.hash.slice(1)||'panoramica');
 render();
 if(NEEDS_SETUP)startWizard('first');
